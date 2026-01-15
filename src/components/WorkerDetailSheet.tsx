@@ -1,6 +1,7 @@
-import { Star, MapPin, Clock, CheckCircle, Phone, MessageCircle, Calendar, Award, X } from "lucide-react";
+import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { useState } from "react";
 
 interface WorkerDetailSheetProps {
   worker: {
@@ -18,12 +19,15 @@ interface WorkerDetailSheetProps {
     bio?: string;
     languages?: string[];
     availability?: string;
+    introVideo?: string;
   } | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) => {
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
   if (!worker || !isOpen) return null;
 
   return (
@@ -79,6 +83,32 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
               </div>
             </div>
           </div>
+
+          {/* Intro Video */}
+          {worker.introVideo && (
+            <div className="mb-5">
+              <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
+                <Play size={16} className="text-primary" />
+                Meet {worker.name.split(' ')[0]}
+              </h3>
+              <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
+                <video
+                  src={worker.introVideo}
+                  controls
+                  playsInline
+                  poster={worker.avatar}
+                  className="w-full h-full object-cover"
+                  onPlay={() => setIsVideoPlaying(true)}
+                  onPause={() => setIsVideoPlaying(false)}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Personal introduction video
+              </p>
+            </div>
+          )}
 
           {/* Quick Info */}
           <div className="grid grid-cols-3 gap-3 mb-5">
