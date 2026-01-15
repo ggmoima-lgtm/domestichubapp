@@ -13,6 +13,7 @@ export interface Worker {
   bio?: string;
   languages?: string[];
   availability?: string;
+  introVideo?: string;
 }
 
 export const mockWorkers: Worker[] = [
@@ -30,6 +31,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Childcare", "Cooking", "First Aid", "Tutoring"],
     bio: "Loving and experienced nanny with a background in early childhood education. I create nurturing environments where children can learn and grow.",
     availability: "Full-time, Mon-Sat",
+    introVideo: "https://videos.pexels.com/video-files/3209829/3209829-uhd_2560_1440_25fps.mp4",
   },
   {
     id: "2",
@@ -45,6 +47,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Cleaning", "Laundry", "Organizing", "Cooking"],
     bio: "Detail-oriented housekeeper who takes pride in maintaining clean and organized homes. I treat every home as if it were my own.",
     availability: "Part-time, Flexible",
+    introVideo: "https://videos.pexels.com/video-files/4108037/4108037-uhd_2732_1440_25fps.mp4",
   },
   {
     id: "3",
@@ -60,6 +63,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Elder Care", "Medication Management", "Physical Therapy", "Companionship"],
     bio: "Compassionate caregiver specializing in elderly care. Certified in basic nursing and medication management.",
     availability: "Live-in or Live-out",
+    introVideo: "https://videos.pexels.com/video-files/6129439/6129439-uhd_2732_1440_25fps.mp4",
   },
   {
     id: "4",
@@ -75,6 +79,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Cooking", "Baking", "Cleaning", "Grocery Shopping"],
     bio: "Skilled home cook with expertise in Filipino and international cuisine. I can prepare healthy meals for the whole family.",
     availability: "Full-time, Mon-Fri",
+    introVideo: "https://videos.pexels.com/video-files/4253256/4253256-uhd_2560_1440_30fps.mp4",
   },
   {
     id: "5",
@@ -90,6 +95,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Infant Care", "Toddler Care", "Education", "Arts & Crafts"],
     bio: "Energetic and creative nanny who loves working with children. I incorporate fun learning activities into daily routines.",
     availability: "Live-in Available",
+    introVideo: "https://videos.pexels.com/video-files/6129460/6129460-uhd_2732_1440_25fps.mp4",
   },
   {
     id: "6",
@@ -105,6 +111,7 @@ export const mockWorkers: Worker[] = [
     skills: ["Cleaning", "Cooking", "Childcare", "Pet Care"],
     bio: "Versatile helper ready to assist with all household tasks. Hard-working and reliable with excellent references.",
     availability: "Flexible Schedule",
+    introVideo: "https://videos.pexels.com/video-files/4108039/4108039-uhd_2732_1440_25fps.mp4",
   },
 ];
 
