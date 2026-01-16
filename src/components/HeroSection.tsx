@@ -1,12 +1,5 @@
 import { Button } from "./ui/button";
-import { ArrowRight, Shield, Heart, Play, X } from "lucide-react";
-import { useState, useRef } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "./ui/dialog";
-import helperIntroVideo from "@/assets/helper-intro-video.mp4";
+import { ArrowRight, Shield, Heart } from "lucide-react";
 
 interface HeroSectionProps {
   onFindHelpers: () => void;
@@ -14,24 +7,8 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ onFindHelpers, onPostProfile }: HeroSectionProps) => {
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const handleOpenVideo = () => {
-    setIsVideoOpen(true);
-  };
-
-  const handleCloseVideo = () => {
-    setIsVideoOpen(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  };
-
   return (
-    <>
-      <section className="relative overflow-hidden gradient-hero rounded-3xl p-6 mb-6">
+    <section className="relative overflow-hidden gradient-hero rounded-3xl p-6 mb-6">
         {/* Decorative elements */}
         <div className="absolute top-4 right-4 w-20 h-20 bg-secondary/30 rounded-full blur-2xl" />
         <div className="absolute bottom-4 left-4 w-16 h-16 bg-accent/30 rounded-full blur-xl" />
@@ -51,30 +28,6 @@ const HeroSection = ({ onFindHelpers, onPostProfile }: HeroSectionProps) => {
           <p className="text-sm text-muted-foreground mb-5 max-w-xs">
             Connect with verified nannies, housekeepers, and caregivers in your area.
           </p>
-
-          {/* Video Preview Button */}
-          <button
-            onClick={handleOpenVideo}
-            className="w-full mb-5 relative rounded-2xl overflow-hidden group cursor-pointer border-2 border-primary/20 hover:border-primary/40 transition-all"
-          >
-            <div className="aspect-video bg-gradient-to-br from-primary/10 via-secondary/20 to-accent/10 flex items-center justify-center relative">
-              <video
-                src={helperIntroVideo}
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
-                muted
-                playsInline
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
-              <div className="relative z-10 flex flex-col items-center gap-2">
-                <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play size={24} className="text-primary-foreground ml-1" fill="currentColor" />
-                </div>
-                <span className="text-sm font-medium text-white drop-shadow-md">
-                  Watch Intro (2 min)
-                </span>
-              </div>
-            </div>
-          </button>
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Button onClick={onFindHelpers} className="flex-1">
@@ -105,30 +58,6 @@ const HeroSection = ({ onFindHelpers, onPostProfile }: HeroSectionProps) => {
           </div>
         </div>
       </section>
-
-      {/* Video Dialog */}
-      <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden bg-foreground/95 border-0">
-          <DialogTitle className="sr-only">Helper Introduction Video</DialogTitle>
-          <button
-            onClick={handleCloseVideo}
-            className="absolute top-3 right-3 z-50 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center hover:bg-background transition-colors"
-          >
-            <X size={18} className="text-foreground" />
-          </button>
-          <div className="aspect-[9/16] max-h-[80vh]">
-            <video
-              ref={videoRef}
-              src={helperIntroVideo}
-              className="w-full h-full object-contain"
-              controls
-              autoPlay
-              playsInline
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
   );
 };
 
