@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Baby, Home, Heart, ChefHat, Grid3X3 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
@@ -25,6 +26,7 @@ const categories = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -76,7 +78,7 @@ const Index = () => {
         {/* Hero Section */}
         <HeroSection
           onFindHelpers={() => setActiveCategory("all")}
-          onPostProfile={() => setActiveTab("post")}
+          onPostProfile={() => navigate("/register/helper")}
         />
 
         {/* Search */}
