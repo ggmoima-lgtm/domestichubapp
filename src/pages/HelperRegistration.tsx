@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
   { id: "nanny", label: "Nanny" },
@@ -44,11 +45,13 @@ const availabilityOptions = [
 const HelperRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    password: "",
     phone: "",
     category: "",
     experience: "",
@@ -86,7 +89,7 @@ const HelperRegistration = () => {
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 100 * 1024 * 1024) { // 100MB limit
+      if (file.size > 100 * 1024 * 1024) {
         toast.error("Video file must be less than 100MB");
         return;
       }
@@ -95,12 +98,39 @@ const HelperRegistration = () => {
     }
   };
 
+  const uploadVideo = async (userId: string): Promise<string | null> => {
+    if (!videoFile) return null;
+
+    const fileExt = videoFile.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('helper-videos')
+      .upload(fileName, videoFile);
+
+    if (uploadError) {
+      console.error('Video upload error:', uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('helper-videos')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.category) {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.phone || !formData.category) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -110,13 +140,70 @@ const HelperRegistration = () => {
     }
 
     setIsSubmitting(true);
-    
-    // TODO: Submit to backend when Lovable Cloud is enabled
-    setTimeout(() => {
-      toast.success("Registration submitted successfully!");
-      setIsSubmitting(false);
+
+    try {
+      // 1. Create user account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        }
+      });
+
+      if (authError) {
+        if (authError.message.includes("already registered")) {
+          toast.error("This email is already registered. Please login instead.");
+        } else {
+          toast.error(authError.message);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!authData.user) {
+        toast.error("Failed to create account");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 2. Upload video if provided
+      const videoUrl = await uploadVideo(authData.user.id);
+
+      // 3. Create helper profile
+      const { error: profileError } = await supabase
+        .from('helpers')
+        .insert({
+          user_id: authData.user.id,
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          category: formData.category,
+          experience_years: formData.experience ? parseInt(formData.experience) : 0,
+          hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+          bio: formData.bio || null,
+          availability: formData.availability || null,
+          skills: selectedSkills,
+          languages: selectedLanguages,
+          has_work_permit: hasWorkPermit,
+          intro_video_url: videoUrl,
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        toast.error("Failed to create profile. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success("Registration successful! Welcome aboard!");
       navigate("/");
-    }, 1500);
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -135,11 +222,11 @@ const HelperRegistration = () => {
       </header>
 
       <form onSubmit={handleSubmit} className="p-4 pb-24 space-y-6">
-        {/* Personal Information */}
+        {/* Account Information */}
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <User size={18} className="text-primary" />
-            Personal Information
+            Account Information
           </h2>
           
           <div className="space-y-3">
@@ -166,6 +253,27 @@ const HelperRegistration = () => {
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="pl-9"
                 />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="password">Password *</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password (min 6 characters)"
+                  value={formData.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
             
@@ -400,7 +508,7 @@ const HelperRegistration = () => {
             size="lg"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Complete Registration"}
+            {isSubmitting ? "Creating Account..." : "Complete Registration"}
           </Button>
         </div>
       </form>
