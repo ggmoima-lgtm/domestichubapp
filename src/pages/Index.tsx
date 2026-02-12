@@ -48,6 +48,22 @@ const Index = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
+  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+
+  // Fetch unlocked helper IDs for filtering
+  useEffect(() => {
+    if (!user) return;
+    const localUnlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
+    supabase
+      .from("profile_unlocks")
+      .select("helper_id")
+      .eq("employer_id", user.id)
+      .gte("expires_at", new Date().toISOString())
+      .then(({ data }) => {
+        const dbIds = (data || []).map((d) => d.helper_id);
+        setUnlockedIds([...new Set([...dbIds, ...localUnlocked])]);
+      });
+  }, [user]);
 
   // Handle payment callback (cart-based unlock)
   useEffect(() => {
@@ -136,7 +152,9 @@ const Index = () => {
     const matchesSalary =
       workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary;
+    const matchesUnlocked = !filters.unlockedOnly || unlockedIds.includes(worker.id);
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked;
   });
 
   const activeFilterCount =
@@ -145,7 +163,8 @@ const Index = () => {
     filters.skills.length +
     (filters.experienceMin > 0 ? 1 : 0) +
     (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 15000 ? 1 : 0) +
-    (filters.nearMe ? 1 : 0);
+    (filters.nearMe ? 1 : 0) +
+    (filters.unlockedOnly ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
