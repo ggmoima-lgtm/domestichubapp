@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, ChefHat, Grid3X3 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
-
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 
@@ -28,11 +27,31 @@ const categories = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [paidAction, setPaidAction] = useState<"call" | "message" | null>(null);
+
+  // Handle payment callback
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const workerId = searchParams.get("worker");
+    const action = searchParams.get("action") as "call" | "message" | null;
+
+    if (payment === "success" && workerId && action) {
+      const worker = mockWorkers.find((w) => w.id === workerId);
+      if (worker) {
+        setSelectedWorker(worker);
+        setIsDetailOpen(true);
+        setPaidAction(action);
+      }
+      // Clean URL params
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
     const matchesSearch =
@@ -52,10 +71,12 @@ const Index = () => {
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
     setIsDetailOpen(true);
+    setPaidAction(null);
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
+    setPaidAction(null);
     setTimeout(() => setSelectedWorker(null), 300);
   };
 
@@ -81,10 +102,7 @@ const Index = () => {
       <main className="px-4 py-4">
         {/* Search */}
         <div className="mb-5">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-          />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
 
         {/* Categories */}
@@ -110,9 +128,7 @@ const Index = () => {
               ({filteredWorkers.length})
             </span>
           </h3>
-          <button className="text-sm text-primary font-semibold">
-            View All
-          </button>
+          <button className="text-sm text-primary font-semibold">View All</button>
         </div>
 
         {/* Worker Cards */}
@@ -123,10 +139,7 @@ const Index = () => {
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <WorkerCard
-                {...worker}
-                onClick={() => handleWorkerClick(worker)}
-              />
+              <WorkerCard {...worker} onClick={() => handleWorkerClick(worker)} />
             </div>
           ))}
         </div>
@@ -146,6 +159,7 @@ const Index = () => {
         worker={selectedWorker}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
+        paidAction={paidAction}
       />
     </div>
   );
