@@ -10,10 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
-  MapPin, ShieldCheck, Edit3, Save, X, ChevronRight,
-  LogOut, Trash2, Bell, Lock, Mail, Users, CreditCard,
-  Briefcase, Heart, Unlock, FileText, Star
+  MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
+  LogOut, Trash2, Lock, Mail, Users, CreditCard,
+  Briefcase, Heart, Unlock, FileText, Star, Clock
 } from "lucide-react";
+import { mockWorkers } from "@/data/mockWorkers";
+import { getPreviewName } from "@/lib/contactMasking";
 
 interface EmployerData {
   id: string;
@@ -32,6 +34,8 @@ const EmployerProfile = () => {
   const [loading, setLoading] = useState(true);
   const [unlockCount, setUnlockCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [showSavedHelpers, setShowSavedHelpers] = useState(false);
+  const [savedHelpers, setSavedHelpers] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
@@ -63,6 +67,27 @@ const EmployerProfile = () => {
 
     setUnlockCount(unlocks || 0);
     setReviewCount(reviews || 0);
+
+    // Fetch saved helpers from DB
+    const { data: dbSaved } = await supabase
+      .from("saved_helpers")
+      .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status)")
+      .eq("employer_id", user.id)
+      .order("created_at", { ascending: false });
+
+    // Also get localStorage saved (mock data)
+    const localSaved: string[] = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
+    const localHelpers = localSaved.map((id) => {
+      const mock = mockWorkers.find((w) => w.id === id);
+      return mock ? { id: mock.id, full_name: mock.name, avatar_url: mock.avatar, category: mock.role, availability_status: "available", source: "local" } : null;
+    }).filter(Boolean);
+
+    const dbHelpers = (dbSaved || []).map((s: any) => ({
+      ...s.helpers,
+      source: "db",
+    }));
+
+    setSavedHelpers([...dbHelpers, ...localHelpers]);
     setLoading(false);
   };
 
@@ -175,10 +200,45 @@ const EmployerProfile = () => {
             <span className="flex items-center gap-3 text-sm"><Unlock size={16} className="text-primary" /> Unlocked Profiles</span>
             <span className="flex items-center gap-1 text-sm text-muted-foreground">{unlockCount} <ChevronRight size={16} /></span>
           </button>
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Heart size={16} className="text-muted-foreground" /> Saved Helpers</span>
-            <ChevronRight size={16} className="text-muted-foreground" />
+          <button
+            onClick={() => setShowSavedHelpers(!showSavedHelpers)}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+          >
+            <span className="flex items-center gap-3 text-sm"><Heart size={16} className="text-destructive" /> Saved Helpers</span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              {savedHelpers.length}
+              {showSavedHelpers ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
           </button>
+
+          {showSavedHelpers && (
+            <div className="px-3 pb-2 space-y-2">
+              {savedHelpers.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">No saved helpers yet. Tap the heart on a helper's card to save them.</p>
+              ) : (
+                savedHelpers.map((helper: any) => (
+                  <div key={helper.id} className="flex items-center gap-3 p-2 rounded-xl bg-muted/50">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
+                      {helper.avatar_url ? (
+                        <img src={helper.avatar_url} alt={helper.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary font-bold">
+                          {helper.full_name?.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{getPreviewName(helper.full_name)}</p>
+                      <p className="text-xs text-muted-foreground">{helper.category}</p>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] shrink-0">
+                      {helper.availability_status === "available" ? "🟢 Available" : "🔴 Unavailable"}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
           <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Users size={16} className="text-muted-foreground" /> Hires Made</span>
             <ChevronRight size={16} className="text-muted-foreground" />
