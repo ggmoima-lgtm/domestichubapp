@@ -625,17 +625,17 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 <Lock size={20} className="text-primary mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Add to your cart to unlock intro video, messaging, and more.
+                  Add to your helpers list to unlock intro video, messaging, and more.
                 </p>
                 {isInCart(worker.id) ? (
                   <Button size="lg" variant="outline" className="w-full border-primary text-primary" onClick={() => removeItem(worker.id)}>
                     <Check size={18} />
-                    Added to Cart — Remove
+                    Added — Remove
                   </Button>
                 ) : (
-                  <Button size="lg" className="w-full" onClick={() => { addItem(worker); toast.success(`${getPreviewName(worker.name)} added to cart`); }}>
+                  <Button size="lg" className="w-full" onClick={() => { addItem(worker); toast.success(`${getPreviewName(worker.name)} added`); }}>
                     <ShoppingCart size={18} />
-                    Add to Cart — R50
+                    Add Helper — R50
                   </Button>
                 )}
               </div>
