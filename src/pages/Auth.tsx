@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock } from "lucide-react";
+import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock, Mail, MapPin } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -35,7 +35,10 @@ const Auth = () => {
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [fullName, setFullName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [area, setArea] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
@@ -86,7 +89,7 @@ const Auth = () => {
     }
     setIsSubmitting(true);
     try {
-      const email = `${phone.replace(/\D/g, "")}@phone.domestichub.app`;
+      const email = signupEmail.trim();
       const password = `phone_${phone.replace(/\D/g, "")}_secure`;
 
       const { data, error } = await supabase.auth.signUp({
@@ -104,6 +107,9 @@ const Auth = () => {
           user_id: data.user.id,
           full_name: fullName,
           phone,
+          email: signupEmail.trim(),
+          city,
+          area,
           role: selectedRole!,
           onboarding_completed: false,
         });
@@ -112,7 +118,7 @@ const Auth = () => {
         }
       }
 
-      toast({ title: "Account created!", description: "Let's set up your profile." });
+      toast({ title: "Account created!", description: "Please check your email to verify your account." });
       navigate("/");
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
@@ -188,6 +194,24 @@ const Auth = () => {
       </div>
 
       <div>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</Label>
+        <div className="relative">
+          <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            value={signupEmail}
+            onChange={(e) => setSignupEmail(e.target.value)}
+            className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            required
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
+          <Shield size={10} /> We'll send a verification link
+        </p>
+      </div>
+
+      <div>
         <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Phone Number</Label>
         <div className="relative">
           <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -200,17 +224,44 @@ const Auth = () => {
             required
           />
         </div>
-        <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
-          <Shield size={10} /> We'll send a verification code
-        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">City</Label>
+          <div className="relative">
+            <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="e.g. Johannesburg"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Area</Label>
+          <Input
+            placeholder="e.g. Sandton"
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            className="rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            required
+          />
+        </div>
       </div>
 
       <Button
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !phone) {
+          if (!fullName || !signupEmail || !phone || !city || !area) {
             toast({ title: "Please fill all fields", variant: "destructive" });
+            return;
+          }
+          if (!signupEmail.includes("@")) {
+            toast({ title: "Please enter a valid email", variant: "destructive" });
             return;
           }
           handleSendOtp();

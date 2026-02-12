@@ -262,7 +262,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          area: string | null
+          city: string | null
           created_at: string
+          email: string | null
           full_name: string
           id: string
           onboarding_completed: boolean
@@ -272,7 +275,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          area?: string | null
+          city?: string | null
           created_at?: string
+          email?: string | null
           full_name: string
           id?: string
           onboarding_completed?: boolean
@@ -282,7 +288,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          area?: string | null
+          city?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string
           id?: string
           onboarding_completed?: boolean
