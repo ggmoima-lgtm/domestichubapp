@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,8 +38,11 @@ const languageOptions = [
 ];
 
 const availabilityOptions = [
-  "Full-time", "Part-time", "Live-in", "Live-out", "Weekdays only", 
-  "Weekends only", "Flexible"
+  "Full-time", "Part-time", "Weekdays only", "Weekends only", "Flexible"
+];
+
+const livingArrangementOptions = [
+  "Live-in", "Live-out", "Either"
 ];
 
 const HelperRegistration = () => {
@@ -58,6 +61,7 @@ const HelperRegistration = () => {
     monthlyRate: "",
     bio: "",
     availability: "",
+    livingArrangement: "",
   });
   
   const [hasWorkPermit, setHasWorkPermit] = useState(false);
@@ -451,6 +455,29 @@ const HelperRegistration = () => {
             </SelectTrigger>
             <SelectContent>
               {availabilityOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </section>
+
+        {/* Living Arrangement */}
+        <section className="space-y-3">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Home size={18} className="text-primary" />
+            Living Arrangement
+          </h2>
+          <Select 
+            value={formData.livingArrangement} 
+            onValueChange={(value) => handleInputChange("livingArrangement", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Live-in or Live-out?" />
+            </SelectTrigger>
+            <SelectContent>
+              {livingArrangementOptions.map((option) => (
                 <SelectItem key={option} value={option}>
                   {option}
                 </SelectItem>
