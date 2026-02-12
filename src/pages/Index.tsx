@@ -56,16 +56,26 @@ const Index = () => {
     const bundleType = searchParams.get("bundle");
 
     if (payment === "unlock" && workerIds && bundleType && user) {
+      const isValidUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
         const amount = ids.length * 50;
         for (const wId of ids) {
-          await supabase.from("profile_unlocks").insert({
-            employer_id: user.id,
-            helper_id: wId,
-            bundle_type: bundleType,
-            amount_paid: amount / ids.length,
-          });
+          if (isValidUuid(wId)) {
+            await supabase.from("profile_unlocks").insert({
+              employer_id: user.id,
+              helper_id: wId,
+              bundle_type: bundleType,
+              amount_paid: amount / ids.length,
+            });
+          } else {
+            // localStorage fallback for mock data
+            const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
+            if (!unlocked.includes(wId)) {
+              unlocked.push(wId);
+              localStorage.setItem("unlocked_helpers", JSON.stringify(unlocked));
+            }
+          }
         }
         clearCart();
         toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);

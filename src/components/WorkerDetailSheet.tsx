@@ -126,26 +126,35 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
   const [showBundleSheet, setShowBundleSheet] = useState(false);
   const [remainingUnlocks, setRemainingUnlocks] = useState(0);
 
+  const isValidUuid = worker ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(worker.id) : false;
+
   // Check unlock status
   useEffect(() => {
     if (worker && isOpen && user) {
       setIsCheckingUnlock(true);
-      supabase
-        .from("profile_unlocks")
-        .select("id, expires_at")
-        .eq("employer_id", user.id)
-        .eq("helper_id", worker.id)
-        .gte("expires_at", new Date().toISOString())
-        .limit(1)
-        .then(({ data }) => {
-          setIsUnlocked(!!data && data.length > 0);
-          setIsCheckingUnlock(false);
-        });
+      if (isValidUuid) {
+        supabase
+          .from("profile_unlocks")
+          .select("id, expires_at")
+          .eq("employer_id", user.id)
+          .eq("helper_id", worker.id)
+          .gte("expires_at", new Date().toISOString())
+          .limit(1)
+          .then(({ data }) => {
+            setIsUnlocked(!!data && data.length > 0);
+            setIsCheckingUnlock(false);
+          });
+      } else {
+        // localStorage fallback for mock data
+        const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
+        setIsUnlocked(unlocked.includes(worker.id));
+        setIsCheckingUnlock(false);
+      }
     } else {
       setIsUnlocked(false);
       setIsCheckingUnlock(false);
     }
-  }, [worker, isOpen, user]);
+  }, [worker, isOpen, user, isValidUuid]);
 
   // Fetch reviews and work history
   useEffect(() => {
