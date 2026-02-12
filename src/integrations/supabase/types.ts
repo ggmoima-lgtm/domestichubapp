@@ -16,8 +16,12 @@ export type Database = {
     Tables: {
       employer_profiles: {
         Row: {
+          availability: string[] | null
+          category: string | null
           created_at: string
+          custom_notes: string | null
           email: string | null
+          full_name: string | null
           id: string
           location: string | null
           type_of_need: string | null
@@ -25,8 +29,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          availability?: string[] | null
+          category?: string | null
           created_at?: string
+          custom_notes?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
           location?: string | null
           type_of_need?: string | null
@@ -34,8 +42,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          availability?: string[] | null
+          category?: string | null
           created_at?: string
+          custom_notes?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
           location?: string | null
           type_of_need?: string | null
