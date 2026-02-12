@@ -9,6 +9,9 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const categoryIcons = {
   all: Grid3X3,
@@ -28,6 +31,7 @@ const categories = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,13 +43,35 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
 
-  // Handle payment callback
+  // Handle payment callback (both contact and unlock)
   useEffect(() => {
     const payment = searchParams.get("payment");
     const workerId = searchParams.get("worker");
     const action = searchParams.get("action") as "call" | "message" | null;
+    const bundleType = searchParams.get("bundle");
 
-    if (payment === "success" && workerId && action) {
+    if (payment === "unlock" && workerId && bundleType && user) {
+      // Record the unlock
+      const recordUnlock = async () => {
+        const bundle = { bundle_3: 150, bundle_5: 250, bundle_10: 500 }[bundleType] || 250;
+        const { error } = await supabase.from("profile_unlocks").insert({
+          employer_id: user.id,
+          helper_id: workerId,
+          bundle_type: bundleType,
+          amount_paid: bundle,
+        });
+        if (!error) {
+          toast.success("Profile unlocked! You now have full access for 30 days.");
+          const worker = mockWorkers.find((w) => w.id === workerId);
+          if (worker) {
+            setSelectedWorker(worker);
+            setIsDetailOpen(true);
+          }
+        }
+      };
+      recordUnlock();
+      setSearchParams({}, { replace: true });
+    } else if (payment === "success" && workerId && action) {
       const worker = mockWorkers.find((w) => w.id === workerId);
       if (worker) {
         setSelectedWorker(worker);
@@ -54,7 +80,7 @@ const Index = () => {
       }
       setSearchParams({}, { replace: true });
     }
-  }, []);
+  }, [user]);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
     // Hide non-available unless toggled

@@ -1,6 +1,7 @@
 import { Star, MapPin, Clock, CheckCircle } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { getPreviewName } from "@/lib/contactMasking";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
@@ -68,7 +69,7 @@ const WorkerCard = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="font-bold text-foreground truncate">{name}</h3>
+                <h3 className="font-bold text-foreground truncate">{getPreviewName(name)}</h3>
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
               {availabilityStatus !== "available" && (
