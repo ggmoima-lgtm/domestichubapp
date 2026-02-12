@@ -169,6 +169,47 @@ export type Database = {
           },
         ]
       }
+      profile_unlocks: {
+        Row: {
+          amount_paid: number
+          bundle_type: string
+          created_at: string
+          employer_id: string
+          expires_at: string
+          helper_id: string
+          id: string
+          unlocked_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          bundle_type?: string
+          created_at?: string
+          employer_id: string
+          expires_at?: string
+          helper_id: string
+          id?: string
+          unlocked_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          bundle_type?: string
+          created_at?: string
+          employer_id?: string
+          expires_at?: string
+          helper_id?: string
+          id?: string
+          unlocked_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_unlocks_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
