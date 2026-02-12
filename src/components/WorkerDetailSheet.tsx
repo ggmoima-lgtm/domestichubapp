@@ -184,6 +184,18 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
     }
   }, [worker, isOpen]);
 
+  // Lock body scroll when sheet is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!worker || !isOpen) return null;
 
   const status = worker.availabilityStatus || "available";
