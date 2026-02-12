@@ -113,32 +113,47 @@ export type Database = {
       placements: {
         Row: {
           created_at: string
+          early_termination: boolean
           employer_id: string
+          employer_name: string | null
           ended_at: string | null
           helper_id: string
           hired_at: string
           id: string
+          job_category: string | null
+          job_type: string | null
           status: string
+          terminated_by: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          early_termination?: boolean
           employer_id: string
+          employer_name?: string | null
           ended_at?: string | null
           helper_id: string
           hired_at?: string
           id?: string
+          job_category?: string | null
+          job_type?: string | null
           status?: string
+          terminated_by?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          early_termination?: boolean
           employer_id?: string
+          employer_name?: string | null
           ended_at?: string | null
           helper_id?: string
           hired_at?: string
           id?: string
+          job_category?: string | null
+          job_type?: string | null
           status?: string
+          terminated_by?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -193,6 +208,7 @@ export type Database = {
           id: string
           placement_id: string | null
           rating: number
+          would_hire_again: boolean | null
         }
         Insert: {
           comment?: string | null
@@ -202,6 +218,7 @@ export type Database = {
           id?: string
           placement_id?: string | null
           rating: number
+          would_hire_again?: boolean | null
         }
         Update: {
           comment?: string | null
@@ -211,6 +228,7 @@ export type Database = {
           id?: string
           placement_id?: string | null
           rating?: number
+          would_hire_again?: boolean | null
         }
         Relationships: [
           {

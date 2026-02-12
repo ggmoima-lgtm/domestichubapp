@@ -57,8 +57,10 @@ const Index = () => {
   }, []);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
-    // Hide unavailable unless toggled
-    if (!showUnavailable && worker.availabilityStatus === "unavailable") return false;
+    // Hide non-available unless toggled
+    const helperStatus = worker.availabilityStatus || "available";
+    const isAvailable = helperStatus === "available" || helperStatus === "interviewing";
+    if (!showUnavailable && !isAvailable) return false;
 
     // Text search
     const matchesSearch =

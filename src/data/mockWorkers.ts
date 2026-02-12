@@ -14,7 +14,7 @@ export interface Worker {
   languages?: string[];
   availability?: string;
   introVideo?: string;
-  availabilityStatus?: "available" | "unavailable";
+  availabilityStatus?: "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 }
 
 export const mockWorkers: Worker[] = [
