@@ -69,7 +69,6 @@ const Index = () => {
   // Fetch unlocked helper IDs for filtering
   useEffect(() => {
     if (!user) return;
-    const localUnlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
     supabase
       .from("profile_unlocks")
       .select("helper_id")
@@ -77,7 +76,7 @@ const Index = () => {
       .gte("expires_at", new Date().toISOString())
       .then(({ data }) => {
         const dbIds = (data || []).map((d) => d.helper_id);
-        setUnlockedIds([...new Set([...dbIds, ...localUnlocked])]);
+        setUnlockedIds(dbIds);
       });
   }, [user, unlockRefresh]);
 
@@ -91,25 +90,16 @@ const Index = () => {
       // Clear params immediately to prevent re-processing on re-render
       setSearchParams({}, { replace: true });
       
-      const isValidUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
         const amount = ids.length * 50;
         for (const wId of ids) {
-          if (isValidUuid(wId)) {
-            await supabase.from("profile_unlocks").insert({
-              employer_id: user.id,
-              helper_id: wId,
-              bundle_type: bundleType,
-              amount_paid: amount / ids.length,
-            });
-          } else {
-            const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
-            if (!unlocked.includes(wId)) {
-              unlocked.push(wId);
-              localStorage.setItem("unlocked_helpers", JSON.stringify(unlocked));
-            }
-          }
+          await supabase.from("profile_unlocks").insert({
+            employer_id: user.id,
+            helper_id: wId,
+            bundle_type: bundleType,
+            amount_paid: amount / ids.length,
+          });
         }
         clearCart();
         // Force refresh of unlocked IDs
