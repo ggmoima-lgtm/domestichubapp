@@ -30,7 +30,7 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
       return;
     }
     if (itemCount === 0) {
-      toast.error("Your cart is empty.");
+      toast.error("No helpers selected.");
       return;
     }
 
@@ -80,7 +80,7 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
               <ShoppingCart size={24} className="text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">Your Cart</h2>
+            <h2 className="text-xl font-bold text-foreground">Your Helpers</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {itemCount === 0
                 ? "No profiles added yet"
@@ -126,7 +126,7 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
           ) : (
             <div className="text-center py-8 mb-5">
               <ShoppingCart size={40} className="text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Browse helpers and add them to your cart to unlock their full profiles.</p>
+              <p className="text-sm text-muted-foreground">Browse helpers and add them to your list to unlock their full profiles.</p>
             </div>
           )}
 
@@ -165,7 +165,7 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
                 onClick={clearCart}
                 className="w-full text-sm text-muted-foreground hover:text-destructive font-medium transition-colors"
               >
-                Clear cart
+                Clear all
               </button>
             </>
           )}
