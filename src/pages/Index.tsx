@@ -49,6 +49,7 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+  const [unlockRefresh, setUnlockRefresh] = useState(0);
 
   // Fetch unlocked helper IDs for filtering
   useEffect(() => {
@@ -63,7 +64,7 @@ const Index = () => {
         const dbIds = (data || []).map((d) => d.helper_id);
         setUnlockedIds([...new Set([...dbIds, ...localUnlocked])]);
       });
-  }, [user]);
+  }, [user, unlockRefresh]);
 
   // Handle payment callback (cart-based unlock)
   useEffect(() => {
@@ -85,7 +86,6 @@ const Index = () => {
               amount_paid: amount / ids.length,
             });
           } else {
-            // localStorage fallback for mock data
             const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
             if (!unlocked.includes(wId)) {
               unlocked.push(wId);
@@ -94,6 +94,7 @@ const Index = () => {
           }
         }
         clearCart();
+        setUnlockRefresh((n) => n + 1);
         toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
         if (ids.length === 1) {
           const worker = mockWorkers.find((w) => w.id === ids[0]);
