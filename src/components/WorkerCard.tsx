@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Clock, Heart } from "lucide-react";
+import { Star, MapPin, Clock, Heart, Unlock } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { getPreviewName } from "@/lib/contactMasking";
@@ -51,6 +51,7 @@ const WorkerCard = ({
 }: WorkerCardProps) => {
   const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const isHired = availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable" || availabilityStatus === "suspended";
   const status = statusConfig[availabilityStatus];
   const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -67,9 +68,22 @@ const WorkerCard = ({
         .then(({ data }) => {
           if (data) setIsSaved(true);
         });
+
+      supabase
+        .from("profile_unlocks")
+        .select("id")
+        .eq("employer_id", user.id)
+        .eq("helper_id", id)
+        .gte("expires_at", new Date().toISOString())
+        .limit(1)
+        .then(({ data }) => {
+          setIsUnlocked(!!data && data.length > 0);
+        });
     } else {
       const saved = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
       setIsSaved(saved.includes(id));
+      const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
+      setIsUnlocked(unlocked.includes(id));
     }
   }, [user, id, isValidUuid]);
 
@@ -131,20 +145,26 @@ const WorkerCard = ({
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {availabilityStatus !== "available" && (
-                  <Badge variant="outline" className={`text-[10px] ${status.className}`}>
-                    {status.emoji} {status.label}
-                  </Badge>
-                )}
-                <button
-                  onClick={toggleSave}
-                  className="p-1.5 rounded-full hover:bg-muted transition-colors"
-                >
-                  <Heart
-                    size={18}
-                    className={isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}
-                  />
-                </button>
+                 {isUnlocked && (
+                   <Badge variant="success" className="text-[10px]">
+                     <Unlock size={10} className="mr-0.5" />
+                     Unlocked
+                   </Badge>
+                 )}
+                 {availabilityStatus !== "available" && (
+                   <Badge variant="outline" className={`text-[10px] ${status.className}`}>
+                     {status.emoji} {status.label}
+                   </Badge>
+                 )}
+                 <button
+                   onClick={toggleSave}
+                   className="p-1.5 rounded-full hover:bg-muted transition-colors"
+                 >
+                   <Heart
+                     size={18}
+                     className={isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}
+                   />
+                 </button>
               </div>
             </div>
 
