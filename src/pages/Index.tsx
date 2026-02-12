@@ -66,7 +66,7 @@ const Index = () => {
           <div className="flex items-center justify-between mb-1">
             <div>
               <p className="text-xs text-muted-foreground">Welcome back</p>
-              <h2 className="text-lg font-bold text-foreground">Find Your Helper</h2>
+              <h2 className="text-lg font-bold text-foreground">Domestic Hub</h2>
             </div>
             <div className="w-10 h-10 rounded-full gradient-warm shadow-soft" />
           </div>
