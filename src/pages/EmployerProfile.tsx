@@ -223,10 +223,6 @@ const EmployerProfile = () => {
           <CardTitle className="text-base">Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 p-2">
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Bell size={16} className="text-muted-foreground" /> Notifications</span>
-            <ChevronRight size={16} className="text-muted-foreground" />
-          </button>
           <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy</span>
             <ChevronRight size={16} className="text-muted-foreground" />
