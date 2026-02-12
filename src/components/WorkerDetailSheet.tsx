@@ -504,69 +504,126 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </div>
           </div>
 
-          {/* === LOCKED SECTIONS === */}
+          {/* Work History - always visible */}
+          <div className="mb-5">
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+              <Briefcase size={16} className="text-primary" />
+              Work History ({completedPlacements.length})
+            </h3>
+            {completedPlacements.length > 0 ? (
+              <div className="space-y-2">
+                {completedPlacements.map((p) => (
+                  <div key={p.id} className="bg-muted/40 rounded-2xl p-3 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center shrink-0">
+                      <Briefcase size={18} className="text-secondary-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {p.employer_name || "Private Employer"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDuration(p.hired_at, p.ended_at)}
+                        {p.job_type && ` — ${p.job_type.charAt(0).toUpperCase() + p.job_type.slice(1)}`}
+                        {p.job_category && ` — ${p.job_category}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No work history yet.</p>
+            )}
+          </div>
+
+          {/* Reviews - always visible */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <MessageSquare size={16} className="text-primary" />
+                Reviews ({reviews.length})
+              </h3>
+              {user && isUnlocked && !showReviewForm && (
+                <button onClick={() => setShowReviewForm(true)} className="text-sm text-primary font-semibold">
+                  Write Review
+                </button>
+              )}
+            </div>
+
+            {/* Review Form - only for unlocked */}
+            {showReviewForm && isUnlocked && (
+              <div className="bg-muted/50 rounded-2xl p-4 mb-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2">Rate {worker.name.split(" ")[0]}</p>
+                  <StarRating rating={reviewRating} onRate={setReviewRating} interactive size={28} />
+                </div>
+                <Textarea
+                  placeholder="Share your experience..."
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  className="rounded-xl resize-none"
+                  rows={3}
+                />
+                <div className="flex items-center gap-3 p-3 bg-card rounded-xl">
+                  <Checkbox
+                    id="hire-again"
+                    checked={wouldHireAgain}
+                    onCheckedChange={(v) => setWouldHireAgain(v === true)}
+                  />
+                  <label htmlFor="hire-again" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <ThumbsUp size={16} className="text-primary" />
+                    Would you hire again?
+                  </label>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="rounded-xl"
+                    onClick={() => { setShowReviewForm(false); setReviewRating(0); setReviewComment(""); }}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" className="rounded-xl flex-1" onClick={handleSubmitReview}
+                    disabled={isSubmittingReview || reviewRating === 0}>
+                    {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Reviews List */}
+            {reviews.length > 0 ? (
+              <div className="space-y-3">
+                {reviews.map((review) => (
+                  <div key={review.id} className="bg-muted/30 rounded-2xl p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <StarRating rating={review.rating} />
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-muted-foreground mt-1">{review.comment}</p>
+                    )}
+                    {review.would_hire_again && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <ThumbsUp size={12} className="text-primary" />
+                        <span className="text-xs text-primary font-semibold">Would hire again</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No reviews yet.</p>
+            )}
+          </div>
+
+          {/* === LOCKED SECTIONS (video, messaging, hiring) === */}
           {!isUnlocked ? (
             <>
-              {/* Locked Work History */}
-              <div className="mb-5 relative">
-                <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Briefcase size={16} className="text-primary" />
-                  Work History
-                </h3>
-                <div className="space-y-2 blur-sm pointer-events-none select-none">
-                  <div className="bg-muted/40 rounded-2xl p-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center shrink-0">
-                      <Briefcase size={18} className="text-secondary-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Private Employer</p>
-                      <p className="text-xs text-muted-foreground">6 months — Full-time</p>
-                    </div>
-                  </div>
-                  <div className="bg-muted/40 rounded-2xl p-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center shrink-0">
-                      <Briefcase size={18} className="text-secondary-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Private Employer</p>
-                      <p className="text-xs text-muted-foreground">1 yr 2 mo — Live-in</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center mt-8">
-                  <div className="bg-card/90 rounded-2xl px-4 py-3 shadow-soft flex items-center gap-2">
-                    <Lock size={14} className="text-muted-foreground" />
-                    <span className="text-xs font-semibold text-muted-foreground">Unlock to view work history</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Locked Reviews */}
-              <div className="mb-5 relative">
-                <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                  <MessageSquare size={16} className="text-primary" />
-                  Reviews ({reviews.length})
-                </h3>
-                <div className="space-y-2 blur-sm pointer-events-none select-none">
-                  <div className="bg-muted/30 rounded-2xl p-3">
-                    <StarRating rating={4} />
-                    <p className="text-sm text-muted-foreground mt-1">Great experience working with...</p>
-                  </div>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center mt-8">
-                  <div className="bg-card/90 rounded-2xl px-4 py-3 shadow-soft flex items-center gap-2">
-                    <Lock size={14} className="text-muted-foreground" />
-                    <span className="text-xs font-semibold text-muted-foreground">Unlock to view reviews</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Unlock CTA */}
               <div className="mb-4 p-4 bg-primary/5 border border-primary/20 rounded-2xl text-center">
                 <Lock size={20} className="text-primary mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Get access to contact details, work history, references, intro video, and more.
+                  Get access to contact details, intro video, messaging, and more.
                 </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   View Unlock Options
@@ -575,117 +632,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </>
           ) : (
             <>
-              {/* UNLOCKED: Full Work History */}
-              <div className="mb-5">
-                <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Briefcase size={16} className="text-primary" />
-                  Work History ({completedPlacements.length})
-                </h3>
-                {completedPlacements.length > 0 ? (
-                  <div className="space-y-2">
-                    {completedPlacements.map((p) => (
-                      <div key={p.id} className="bg-muted/40 rounded-2xl p-3 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center shrink-0">
-                          <Briefcase size={18} className="text-secondary-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">
-                            {p.employer_name || "Private Employer"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDuration(p.hired_at, p.ended_at)}
-                            {p.job_type && ` — ${p.job_type.charAt(0).toUpperCase() + p.job_type.slice(1)}`}
-                            {p.job_category && ` — ${p.job_category}`}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No work history yet.</p>
-                )}
-              </div>
-
-              {/* UNLOCKED: Reviews */}
-              <div className="mb-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-foreground flex items-center gap-2">
-                    <MessageSquare size={16} className="text-primary" />
-                    Reviews ({reviews.length})
-                  </h3>
-                  {user && !showReviewForm && (
-                    <button onClick={() => setShowReviewForm(true)} className="text-sm text-primary font-semibold">
-                      Write Review
-                    </button>
-                  )}
-                </div>
-
-                {/* Review Form */}
-                {showReviewForm && (
-                  <div className="bg-muted/50 rounded-2xl p-4 mb-4 space-y-4">
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-2">Rate {worker.name.split(" ")[0]}</p>
-                      <StarRating rating={reviewRating} onRate={setReviewRating} interactive size={28} />
-                    </div>
-                    <Textarea
-                      placeholder="Share your experience..."
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      className="rounded-xl resize-none"
-                      rows={3}
-                    />
-                    <div className="flex items-center gap-3 p-3 bg-card rounded-xl">
-                      <Checkbox
-                        id="hire-again"
-                        checked={wouldHireAgain}
-                        onCheckedChange={(v) => setWouldHireAgain(v === true)}
-                      />
-                      <label htmlFor="hire-again" className="text-sm font-medium text-foreground flex items-center gap-2">
-                        <ThumbsUp size={16} className="text-primary" />
-                        Would you hire again?
-                      </label>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="rounded-xl"
-                        onClick={() => { setShowReviewForm(false); setReviewRating(0); setReviewComment(""); }}>
-                        Cancel
-                      </Button>
-                      <Button size="sm" className="rounded-xl flex-1" onClick={handleSubmitReview}
-                        disabled={isSubmittingReview || reviewRating === 0}>
-                        {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Reviews List */}
-                {reviews.length > 0 ? (
-                  <div className="space-y-3">
-                    {reviews.map((review) => (
-                      <div key={review.id} className="bg-muted/30 rounded-2xl p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <StarRating rating={review.rating} />
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(review.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {review.comment && (
-                          <p className="text-sm text-muted-foreground mt-1">{review.comment}</p>
-                        )}
-                        {review.would_hire_again && (
-                          <div className="flex items-center gap-1 mt-2">
-                            <ThumbsUp size={12} className="text-primary" />
-                            <span className="text-xs text-primary font-semibold">Would hire again</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No reviews yet.</p>
-                )}
-              </div>
-
               {/* End Assignment Button */}
               {activePlacement && user && activePlacement.employer_name && (
                 <div className="mb-4">
