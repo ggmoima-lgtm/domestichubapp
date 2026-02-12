@@ -1,0 +1,290 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { MapPin, Home, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
+import logo from "@/assets/logo.jpg";
+
+const needTypes = [
+  { id: "full-time", label: "Full-time", icon: "🕐", desc: "Monday to Friday, all day" },
+  { id: "part-time", label: "Part-time", icon: "⏰", desc: "A few hours or days per week" },
+  { id: "live-in", label: "Live-in", icon: "🏠", desc: "Helper lives with you" },
+  { id: "live-out", label: "Live-out", icon: "🚶", desc: "Helper commutes daily" },
+];
+
+const Onboarding = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [step, setStep] = useState(1);
+  const [role, setRole] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Employer fields
+  const [location, setLocation] = useState("");
+  const [typeOfNeed, setTypeOfNeed] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      // Fetch the user's role from profiles
+      supabase
+        .from("profiles")
+        .select("role, onboarding_completed")
+        .eq("user_id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setRole(data.role);
+            if (data.onboarding_completed) {
+              navigate("/home", { replace: true });
+            }
+          }
+        });
+    }
+  }, [user, navigate]);
+
+  const handleEmployerComplete = async () => {
+    if (!location) {
+      toast({ title: "Please enter your location", variant: "destructive" });
+      return;
+    }
+    if (!typeOfNeed) {
+      toast({ title: "Please select your type of need", variant: "destructive" });
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      // Save employer profile
+      const { error: empError } = await supabase.from("employer_profiles").insert({
+        user_id: user!.id,
+        location,
+        type_of_need: typeOfNeed,
+        email: email || null,
+      });
+      if (empError) throw empError;
+
+      // Mark onboarding complete
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("user_id", user!.id);
+      if (profileError) throw profileError;
+
+      toast({ title: "Profile complete!", description: "Welcome to Domestic Hub." });
+      navigate("/home", { replace: true });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleHelperSkip = async () => {
+    // Helpers will complete profile via the existing HelperRegistration page
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      navigate("/register/helper", { replace: true });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!role) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  // Helper onboarding - redirect to helper registration
+  if (role === "helper") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="gradient-hero pt-12 pb-8 px-6 text-center">
+          <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+          <h1 className="text-xl font-bold text-foreground">Welcome!</h1>
+          <p className="text-sm text-muted-foreground mt-1">Let's set up your helper profile</p>
+        </div>
+        <div className="flex-1 px-5 -mt-4">
+          <div className="bg-card rounded-3xl shadow-card p-6 max-w-md mx-auto text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center mx-auto">
+              <span className="text-3xl">🧹</span>
+            </div>
+            <h2 className="text-lg font-bold text-foreground">Complete Your Helper Profile</h2>
+            <p className="text-sm text-muted-foreground">
+              Add your skills, experience, and availability to start getting matched with employers.
+            </p>
+            <Button className="w-full h-12 rounded-xl" onClick={handleHelperSkip} disabled={isSubmitting}>
+              {isSubmitting ? "Setting up..." : "Set Up Profile"}
+              <ArrowRight size={16} />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Employer onboarding
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="gradient-hero pt-12 pb-6 px-6 text-center">
+        <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+        <h1 className="text-xl font-bold text-foreground">Almost There!</h1>
+        <p className="text-sm text-muted-foreground mt-1">Tell us what you're looking for</p>
+        {/* Progress dots */}
+        <div className="flex justify-center gap-2 mt-4">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={`w-2.5 h-2.5 rounded-full transition-all ${
+                s <= step ? "bg-primary w-6" : "bg-muted-foreground/30"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 px-5 -mt-2">
+        <div className="bg-card rounded-3xl shadow-card p-6 max-w-md mx-auto">
+          {/* Step 1: Location */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="text-center mb-2">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <MapPin size={24} className="text-primary" />
+                </div>
+                <h2 className="text-lg font-bold text-foreground">Where are you located?</h2>
+                <p className="text-sm text-muted-foreground">This helps us find helpers near you</p>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Area / Neighborhood</Label>
+                <Input
+                  placeholder="e.g., Sandton, Johannesburg"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="rounded-xl h-12"
+                />
+              </div>
+              <Button
+                className="w-full h-12 rounded-xl"
+                onClick={() => {
+                  if (!location) {
+                    toast({ title: "Please enter your location", variant: "destructive" });
+                    return;
+                  }
+                  setStep(2);
+                }}
+              >
+                Continue <ArrowRight size={16} />
+              </Button>
+            </div>
+          )}
+
+          {/* Step 2: Type of Need */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="text-center mb-2">
+                <div className="w-14 h-14 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-3">
+                  <Home size={24} className="text-secondary-foreground" />
+                </div>
+                <h2 className="text-lg font-bold text-foreground">What type of help?</h2>
+                <p className="text-sm text-muted-foreground">Select what best fits your needs</p>
+              </div>
+              <div className="space-y-2.5">
+                {needTypes.map((type) => (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => setTypeOfNeed(type.id)}
+                    className={`w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-3 ${
+                      typeOfNeed === type.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="text-2xl">{type.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground text-sm">{type.label}</p>
+                      <p className="text-xs text-muted-foreground">{type.desc}</p>
+                    </div>
+                    {typeOfNeed === type.id && (
+                      <CheckCircle2 size={20} className="text-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              <Button
+                className="w-full h-12 rounded-xl"
+                onClick={() => {
+                  if (!typeOfNeed) {
+                    toast({ title: "Please select a type", variant: "destructive" });
+                    return;
+                  }
+                  setStep(3);
+                }}
+              >
+                Continue <ArrowRight size={16} />
+              </Button>
+            </div>
+          )}
+
+          {/* Step 3: Email (optional) */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="text-center mb-2">
+                <div className="w-14 h-14 rounded-full bg-accent/30 flex items-center justify-center mx-auto mb-3">
+                  <Mail size={24} className="text-accent-foreground" />
+                </div>
+                <h2 className="text-lg font-bold text-foreground">Add your email</h2>
+                <p className="text-sm text-muted-foreground">Optional — for receipts & password recovery</p>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="your@email.com (optional)"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="rounded-xl h-12"
+                />
+              </div>
+              <Button
+                className="w-full h-12 rounded-xl"
+                onClick={handleEmployerComplete}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Finishing..." : "Complete Setup"}
+                <CheckCircle2 size={16} />
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("");
+                  handleEmployerComplete();
+                }}
+                className="w-full text-sm text-muted-foreground hover:text-foreground font-medium"
+              >
+                Skip for now
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Onboarding;
