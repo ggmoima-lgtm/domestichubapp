@@ -38,7 +38,7 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [paidAction, setPaidAction] = useState<"call" | "message" | null>(null);
+  
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
@@ -47,7 +47,6 @@ const Index = () => {
   useEffect(() => {
     const payment = searchParams.get("payment");
     const workerId = searchParams.get("worker");
-    const action = searchParams.get("action") as "call" | "message" | null;
     const bundleType = searchParams.get("bundle");
 
     if (payment === "unlock" && workerId && bundleType && user) {
@@ -70,14 +69,6 @@ const Index = () => {
         }
       };
       recordUnlock();
-      setSearchParams({}, { replace: true });
-    } else if (payment === "success" && workerId && action) {
-      const worker = mockWorkers.find((w) => w.id === workerId);
-      if (worker) {
-        setSelectedWorker(worker);
-        setIsDetailOpen(true);
-        setPaidAction(action);
-      }
       setSearchParams({}, { replace: true });
     }
   }, [user]);
@@ -140,12 +131,10 @@ const Index = () => {
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
     setIsDetailOpen(true);
-    setPaidAction(null);
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setPaidAction(null);
     setTimeout(() => setSelectedWorker(null), 300);
   };
 
@@ -248,7 +237,6 @@ const Index = () => {
         worker={selectedWorker}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
-        paidAction={paidAction}
         onHired={() => {
           handleCloseDetail();
         }}
