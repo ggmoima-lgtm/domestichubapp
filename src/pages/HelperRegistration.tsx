@@ -170,7 +170,22 @@ const HelperRegistration = () => {
       // 2. Upload video if provided
       const videoUrl = await uploadVideo(authData.user.id);
 
-      // 3. Create helper profile
+      // 3. Create profiles row (for auth/onboarding guard)
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: authData.user.id,
+          full_name: formData.fullName,
+          phone: formData.phone,
+          role: 'helper',
+          onboarding_completed: true,
+        });
+
+      if (profilesError) {
+        console.error('Profiles row error:', profilesError);
+      }
+
+      // 4. Create helper profile
       const { error: profileError } = await supabase
         .from('helpers')
         .insert({
@@ -204,7 +219,7 @@ const HelperRegistration = () => {
       }
 
       toast.success("Registration successful! Welcome aboard!");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error('Registration error:', error);
       toast.error("An unexpected error occurred. Please try again.");
