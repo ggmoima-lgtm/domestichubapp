@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, ChefHat, Grid3X3 } from "lucide-react";
+import { Baby, Home, Heart, ChefHat, Grid3X3, ShoppingCart } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
+import CartSheet from "@/components/CartSheet";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 
 const categoryIcons = {
@@ -32,43 +34,48 @@ const categories = [
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { itemCount, clearCart } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
 
-  // Handle payment callback (both contact and unlock)
+  // Handle payment callback (cart-based unlock)
   useEffect(() => {
     const payment = searchParams.get("payment");
-    const workerId = searchParams.get("worker");
+    const workerIds = searchParams.get("worker");
     const bundleType = searchParams.get("bundle");
 
-    if (payment === "unlock" && workerId && bundleType && user) {
-      // Record the unlock
-      const recordUnlock = async () => {
-        const bundle = { bundle_3: 150, bundle_5: 250, bundle_10: 500 }[bundleType] || 250;
-        const { error } = await supabase.from("profile_unlocks").insert({
-          employer_id: user.id,
-          helper_id: workerId,
-          bundle_type: bundleType,
-          amount_paid: bundle,
-        });
-        if (!error) {
-          toast.success("Profile unlocked! You now have full access for 30 days.");
-          const worker = mockWorkers.find((w) => w.id === workerId);
+    if (payment === "unlock" && workerIds && bundleType && user) {
+      const recordUnlocks = async () => {
+        const ids = workerIds.split(",");
+        const amount = ids.length * 50;
+        for (const wId of ids) {
+          await supabase.from("profile_unlocks").insert({
+            employer_id: user.id,
+            helper_id: wId,
+            bundle_type: bundleType,
+            amount_paid: amount / ids.length,
+          });
+        }
+        clearCart();
+        toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
+        if (ids.length === 1) {
+          const worker = mockWorkers.find((w) => w.id === ids[0]);
           if (worker) {
             setSelectedWorker(worker);
             setIsDetailOpen(true);
           }
         }
       };
-      recordUnlock();
+      recordUnlocks();
       setSearchParams({}, { replace: true });
     }
   }, [user]);
@@ -223,6 +230,22 @@ const Index = () => {
 
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Floating Cart Button */}
+      {itemCount > 0 && (
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="fixed bottom-28 right-4 z-50 bg-primary text-primary-foreground w-14 h-14 rounded-full shadow-float flex items-center justify-center animate-fade-in"
+        >
+          <ShoppingCart size={22} />
+          <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            {itemCount}
+          </span>
+        </button>
+      )}
+
+      {/* Cart Sheet */}
+      <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Filter Sheet */}
       <FilterSheet

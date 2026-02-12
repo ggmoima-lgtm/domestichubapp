@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, ShoppingCart, Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -11,6 +11,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import UnlockBundleSheet from "./UnlockBundleSheet";
+import { useCart } from "@/hooks/useCart";
 import InAppChat from "./InAppChat";
 import { maskContactInfo, getPreviewName } from "@/lib/contactMasking";
 
@@ -99,6 +100,7 @@ const formatDuration = (startDate: string, endDate: string | null) => {
 
 const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailSheetProps) => {
   const { user } = useAuth();
+  const { addItem, removeItem, isInCart } = useCart();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [isHiring, setIsHiring] = useState(false);
@@ -618,16 +620,24 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           {/* === LOCKED SECTIONS (video, messaging, hiring) === */}
           {!isUnlocked ? (
             <>
-              {/* Unlock CTA */}
+              {/* Add to Cart CTA */}
               <div className="mb-4 p-4 bg-primary/5 border border-primary/20 rounded-2xl text-center">
                 <Lock size={20} className="text-primary mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Get access to contact details, intro video, messaging, and more.
+                  Add to your cart to unlock intro video, messaging, and more.
                 </p>
-                <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
-                  View Unlock Options
-                </Button>
+                {isInCart(worker.id) ? (
+                  <Button size="lg" variant="outline" className="w-full border-primary text-primary" onClick={() => removeItem(worker.id)}>
+                    <Check size={18} />
+                    Added to Cart — Remove
+                  </Button>
+                ) : (
+                  <Button size="lg" className="w-full" onClick={() => { addItem(worker); toast.success(`${getPreviewName(worker.name)} added to cart`); }}>
+                    <ShoppingCart size={18} />
+                    Add to Cart — R50
+                  </Button>
+                )}
               </div>
             </>
           ) : (
@@ -723,15 +733,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           )}
         </div>
       </div>
-
-      {/* Bundle Selection Sheet */}
-      <UnlockBundleSheet
-        isOpen={showBundleSheet}
-        onClose={() => setShowBundleSheet(false)}
-        helperName={worker.name}
-        helperId={worker.id}
-        onUnlocked={handleUnlockSuccess}
-      />
 
       {/* In-App Chat */}
       <InAppChat
