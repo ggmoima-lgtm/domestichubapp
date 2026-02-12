@@ -6,7 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
-import HeroSection from "@/components/HeroSection";
+
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 
@@ -79,12 +79,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="px-4 py-4">
-        {/* Hero Section */}
-        <HeroSection
-          onFindHelpers={() => setActiveCategory("all")}
-          onPostProfile={() => navigate("/register/helper")}
-        />
-
         {/* Search */}
         <div className="mb-5">
           <SearchBar
