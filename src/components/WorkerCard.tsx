@@ -31,6 +31,7 @@ interface WorkerCardProps {
   avatar: string;
   skills: string[];
   availabilityStatus?: HelperStatus;
+  isUnlocked?: boolean;
   onClick?: () => void;
 }
 
@@ -47,11 +48,11 @@ const WorkerCard = ({
   avatar,
   skills,
   availabilityStatus = "available",
+  isUnlocked = false,
   onClick,
 }: WorkerCardProps) => {
   const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const isHired = availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable" || availabilityStatus === "suspended";
   const status = statusConfig[availabilityStatus];
   const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -68,22 +69,9 @@ const WorkerCard = ({
         .then(({ data }) => {
           if (data) setIsSaved(true);
         });
-
-      supabase
-        .from("profile_unlocks")
-        .select("id")
-        .eq("employer_id", user.id)
-        .eq("helper_id", id)
-        .gte("expires_at", new Date().toISOString())
-        .limit(1)
-        .then(({ data }) => {
-          setIsUnlocked(!!data && data.length > 0);
-        });
     } else {
       const saved = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
       setIsSaved(saved.includes(id));
-      const unlocked = JSON.parse(localStorage.getItem("unlocked_helpers") || "[]");
-      setIsUnlocked(unlocked.includes(id));
     }
   }, [user, id, isValidUuid]);
 

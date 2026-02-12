@@ -245,7 +245,7 @@ const Index = () => {
                 className="animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <WorkerCard {...worker} onClick={() => handleWorkerClick(worker)} />
+                <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
               </div>
             ))}
           </div>
