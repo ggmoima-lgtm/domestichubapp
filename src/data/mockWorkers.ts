@@ -6,7 +6,7 @@ export interface Worker {
   rating: number;
   reviews: number;
   experience: string;
-  hourlyRate: string;
+  monthlyRate: string;
   verified: boolean;
   avatar: string;
   skills: string[];
@@ -25,7 +25,7 @@ export const mockWorkers: Worker[] = [
     rating: 4.9,
     reviews: 127,
     experience: "8 yrs",
-    hourlyRate: "R150",
+    monthlyRate: "R3,500",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     skills: ["Childcare", "Cooking", "First Aid", "Tutoring"],
@@ -41,7 +41,7 @@ export const mockWorkers: Worker[] = [
     rating: 4.8,
     reviews: 89,
     experience: "5 yrs",
-    hourlyRate: "R120",
+    monthlyRate: "R2,800",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
     skills: ["Cleaning", "Laundry", "Organizing", "Cooking"],
@@ -57,7 +57,7 @@ export const mockWorkers: Worker[] = [
     rating: 5.0,
     reviews: 64,
     experience: "10 yrs",
-    hourlyRate: "R180",
+    monthlyRate: "R4,200",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
     skills: ["Elder Care", "Medication Management", "Physical Therapy", "Companionship"],
@@ -73,7 +73,7 @@ export const mockWorkers: Worker[] = [
     rating: 4.7,
     reviews: 52,
     experience: "6 yrs",
-    hourlyRate: "R140",
+    monthlyRate: "R3,200",
     verified: false,
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face",
     skills: ["Cooking", "Baking", "Cleaning", "Grocery Shopping"],
@@ -89,7 +89,7 @@ export const mockWorkers: Worker[] = [
     rating: 4.9,
     reviews: 98,
     experience: "7 yrs",
-    hourlyRate: "R160",
+    monthlyRate: "R3,800",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face",
     skills: ["Infant Care", "Toddler Care", "Education", "Arts & Crafts"],
@@ -105,7 +105,7 @@ export const mockWorkers: Worker[] = [
     rating: 4.6,
     reviews: 41,
     experience: "4 yrs",
-    hourlyRate: "R110",
+    monthlyRate: "R2,500",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face",
     skills: ["Cleaning", "Cooking", "Childcare", "Pet Care"],

@@ -55,7 +55,7 @@ const HelperRegistration = () => {
     phone: "",
     category: "",
     experience: "",
-    hourlyRate: "",
+    monthlyRate: "",
     bio: "",
     availability: "",
   });
@@ -180,7 +180,7 @@ const HelperRegistration = () => {
           phone: formData.phone,
           category: formData.category,
           experience_years: formData.experience ? parseInt(formData.experience) : 0,
-          hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+          hourly_rate: formData.monthlyRate ? parseFloat(formData.monthlyRate) : null,
           bio: formData.bio || null,
           availability: formData.availability || null,
           skills: selectedSkills,
@@ -360,15 +360,15 @@ const HelperRegistration = () => {
             </div>
             
             <div>
-              <Label htmlFor="hourlyRate">Hourly Rate (ZAR)</Label>
+              <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
               <div className="relative mt-1">
                 <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  id="hourlyRate"
+                  id="monthlyRate"
                   type="number"
-                  placeholder="e.g., 15"
-                  value={formData.hourlyRate}
-                  onChange={(e) => handleInputChange("hourlyRate", e.target.value)}
+                  placeholder="e.g., 3500"
+                  value={formData.monthlyRate}
+                  onChange={(e) => handleInputChange("monthlyRate", e.target.value)}
                   className="pl-9"
                   min="0"
                 />

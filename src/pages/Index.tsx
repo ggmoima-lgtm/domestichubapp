@@ -95,11 +95,10 @@ const Index = () => {
     const workerYears = parseInt(worker.experience) || 0;
     const matchesExperience = workerYears >= filters.experienceMin;
 
-    // Salary filter (convert hourly rate to estimated monthly: rate * 8hrs * 22days)
-    const workerRate = parseFloat(worker.hourlyRate.replace(/[^0-9.]/g, "")) || 0;
-    const workerMonthly = workerRate * 8 * 22;
+    // Salary filter
+    const workerRate = parseFloat(worker.monthlyRate.replace(/[^0-9.]/g, "")) || 0;
     const matchesSalary =
-      workerMonthly >= filters.salaryRange[0] && workerMonthly <= filters.salaryRange[1];
+      workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
 
     return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary;
   });
