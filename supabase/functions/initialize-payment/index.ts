@@ -11,10 +11,11 @@ serve(async (req) => {
   }
 
   try {
-    const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY");
+    const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY")?.trim();
     if (!PAYSTACK_SECRET_KEY) {
       throw new Error("PAYSTACK_SECRET_KEY is not configured");
     }
+    
 
     const { email, amount, workerId, workerName, callbackUrl } = await req.json();
 
