@@ -53,19 +53,25 @@ const WorkerCard = ({
   const [isSaved, setIsSaved] = useState(false);
   const isHired = availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable" || availabilityStatus === "suspended";
   const status = statusConfig[availabilityStatus];
+  const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("saved_helpers")
-      .select("id")
-      .eq("employer_id", user.id)
-      .eq("helper_id", id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setIsSaved(true);
-      });
-  }, [user, id]);
+    if (isValidUuid) {
+      supabase
+        .from("saved_helpers")
+        .select("id")
+        .eq("employer_id", user.id)
+        .eq("helper_id", id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setIsSaved(true);
+        });
+    } else {
+      const saved = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
+      setIsSaved(saved.includes(id));
+    }
+  }, [user, id, isValidUuid]);
 
   const toggleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -73,15 +79,31 @@ const WorkerCard = ({
       toast.error("Please log in to save helpers");
       return;
     }
-    if (isSaved) {
-      await supabase.from("saved_helpers").delete().eq("employer_id", user.id).eq("helper_id", id);
-      setIsSaved(false);
-      toast.success("Removed from saved");
-    } else {
-      const { error } = await supabase.from("saved_helpers").insert({ employer_id: user.id, helper_id: id });
-      if (error) {
-        toast.error("Failed to save");
+
+    if (isValidUuid) {
+      if (isSaved) {
+        await supabase.from("saved_helpers").delete().eq("employer_id", user.id).eq("helper_id", id);
+        setIsSaved(false);
+        toast.success("Removed from saved");
       } else {
+        const { error } = await supabase.from("saved_helpers").insert({ employer_id: user.id, helper_id: id });
+        if (error) {
+          toast.error("Failed to save");
+        } else {
+          setIsSaved(true);
+          toast.success("Helper saved!");
+        }
+      }
+    } else {
+      // Fallback for mock/non-UUID data
+      const saved = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
+      if (isSaved) {
+        localStorage.setItem("saved_helpers", JSON.stringify(saved.filter((s: string) => s !== id)));
+        setIsSaved(false);
+        toast.success("Removed from saved");
+      } else {
+        saved.push(id);
+        localStorage.setItem("saved_helpers", JSON.stringify(saved));
         setIsSaved(true);
         toast.success("Helper saved!");
       }
