@@ -1,7 +1,7 @@
-import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock } from "lucide-react";
+import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -25,11 +25,33 @@ interface WorkerDetailSheetProps {
   } | null;
   isOpen: boolean;
   onClose: () => void;
+  paidAction?: "call" | "message" | null;
 }
 
-const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) => {
+const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction }: WorkerDetailSheetProps) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // Auto-trigger contact action after successful payment
+  useEffect(() => {
+    if (paidAction && worker && isOpen) {
+      toast.success("Payment successful! Connecting you now...");
+      // Small delay for user to see the success message
+      const timer = setTimeout(() => {
+        if (paidAction === "call") {
+          // Open phone dialer with a placeholder number
+          window.location.href = `tel:+27600000000`;
+        } else if (paidAction === "message") {
+          // Open WhatsApp with pre-filled message
+          const message = encodeURIComponent(
+            `Hi ${worker.name}, I found your profile on Domestic Hub and I'd like to discuss hiring you. I've paid the placement fee.`
+          );
+          window.open(`https://wa.me/27600000000?text=${message}`, "_blank");
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [paidAction, worker, isOpen]);
 
   if (!worker || !isOpen) return null;
 
@@ -40,7 +62,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
     try {
       const { data, error } = await supabase.functions.invoke("initialize-payment", {
         body: {
-          email: "customer@example.com", // In production, use logged-in user's email
+          email: "customer@example.com",
           amount: PLACEMENT_FEE,
           workerId: worker.id,
           workerName: worker.name,
@@ -87,6 +109,19 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
         </button>
 
         <div className="px-5 pb-8">
+          {/* Payment Success Banner */}
+          {paidAction && (
+            <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-2xl flex items-center gap-3">
+              <CheckCheck size={20} className="text-green-600 shrink-0" />
+              <div>
+                <p className="font-semibold text-green-800 dark:text-green-300 text-sm">Payment Successful!</p>
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  {paidAction === "call" ? "Initiating call..." : "Opening chat..."}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex items-start gap-4 mb-5">
             <div className="relative">
@@ -165,7 +200,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
           <div className="mb-5">
             <h3 className="font-bold text-foreground mb-2">About</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {worker.bio || "Dedicated and experienced domestic helper with a passion for providing excellent care. I take pride in my work and always ensure the highest standards of cleanliness and organization."}
+              {worker.bio || "Dedicated and experienced domestic helper with a passion for providing excellent care."}
             </p>
           </div>
 
@@ -190,11 +225,13 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
             </div>
           </div>
 
-          {/* Payment notice */}
-          <div className="mb-4 p-3 bg-muted rounded-2xl flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock size={14} className="shrink-0" />
-            <span>A placement fee of <strong className="text-foreground">R250</strong> is required to contact this helper via Paystack.</span>
-          </div>
+          {/* Payment notice or success */}
+          {!paidAction && (
+            <div className="mb-4 p-3 bg-muted rounded-2xl flex items-center gap-2 text-sm text-muted-foreground">
+              <Lock size={14} className="shrink-0" />
+              <span>A placement fee of <strong className="text-foreground">R250</strong> is required to contact this helper via Paystack.</span>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3">
@@ -203,19 +240,19 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
               size="lg"
               className="flex-1"
               onClick={() => handleContactClick("call")}
-              disabled={isProcessingPayment}
+              disabled={isProcessingPayment || !!paidAction}
             >
               <Phone size={18} />
-              {isProcessingPayment ? "Processing..." : "Call"}
+              {isProcessingPayment ? "Processing..." : paidAction === "call" ? "Calling..." : "Call"}
             </Button>
             <Button
               size="lg"
               className="flex-1"
               onClick={() => handleContactClick("message")}
-              disabled={isProcessingPayment}
+              disabled={isProcessingPayment || !!paidAction}
             >
               <MessageCircle size={18} />
-              {isProcessingPayment ? "Processing..." : "Message"}
+              {isProcessingPayment ? "Processing..." : paidAction === "message" ? "Opening..." : "Message"}
             </Button>
           </div>
         </div>
