@@ -360,7 +360,7 @@ const HelperRegistration = () => {
             </div>
             
             <div>
-              <Label htmlFor="hourlyRate">Hourly Rate (SGD)</Label>
+              <Label htmlFor="hourlyRate">Hourly Rate (ZAR)</Label>
               <div className="relative mt-1">
                 <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
