@@ -2,6 +2,17 @@ import { Star, MapPin, Clock, CheckCircle } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 
+type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
+
+const statusConfig: Record<HelperStatus, { label: string; emoji: string; className: string }> = {
+  available: { label: "Available", emoji: "🟢", className: "border-green-300 text-green-600" },
+  interviewing: { label: "Interviewing", emoji: "🔵", className: "border-blue-300 text-blue-600" },
+  hired_platform: { label: "Hired", emoji: "🟡", className: "border-amber-300 text-amber-600" },
+  hired_external: { label: "Employed", emoji: "🟡", className: "border-amber-300 text-amber-600" },
+  unavailable: { label: "Unavailable", emoji: "🔴", className: "border-destructive/30 text-destructive" },
+  suspended: { label: "Suspended", emoji: "⛔", className: "border-destructive/30 text-destructive" },
+};
+
 interface WorkerCardProps {
   id: string;
   name: string;
@@ -14,7 +25,7 @@ interface WorkerCardProps {
   verified: boolean;
   avatar: string;
   skills: string[];
-  availabilityStatus?: "available" | "unavailable";
+  availabilityStatus?: HelperStatus;
   onClick?: () => void;
 }
 
@@ -32,17 +43,17 @@ const WorkerCard = ({
   availabilityStatus = "available",
   onClick,
 }: WorkerCardProps) => {
-  const isUnavailable = availabilityStatus === "unavailable";
+  const isHired = availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable" || availabilityStatus === "suspended";
+  const status = statusConfig[availabilityStatus];
 
   return (
     <Card
       variant="interactive"
-      className={`overflow-hidden ${isUnavailable ? "opacity-60" : ""}`}
+      className={`overflow-hidden ${isHired ? "opacity-60" : ""}`}
       onClick={onClick}
     >
       <div className="p-4">
         <div className="flex gap-3">
-          {/* Avatar */}
           <div className="relative">
             <div className="w-16 h-16 rounded-2xl overflow-hidden bg-primary-light">
               <img src={avatar} alt={name} className="w-full h-full object-cover" />
@@ -54,16 +65,15 @@ const WorkerCard = ({
             )}
           </div>
 
-          {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h3 className="font-bold text-foreground truncate">{name}</h3>
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
-              {isUnavailable && (
-                <Badge variant="outline" className="text-[10px] shrink-0 border-amber-300 text-amber-600">
-                  🟡 Hired
+              {availabilityStatus !== "available" && (
+                <Badge variant="outline" className={`text-[10px] shrink-0 ${status.className}`}>
+                  {status.emoji} {status.label}
                 </Badge>
               )}
             </div>
@@ -86,7 +96,6 @@ const WorkerCard = ({
           </div>
         </div>
 
-        {/* Skills */}
         <div className="flex flex-wrap gap-1.5 mt-3">
           {skills.slice(0, 3).map((skill) => (
             <Badge key={skill} variant="soft" className="text-[10px]">

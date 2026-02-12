@@ -1,18 +1,44 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare } from "lucide-react";
+import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
+import { Checkbox } from "./ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+
+type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
 interface Review {
   id: string;
   rating: number;
   comment: string | null;
+  would_hire_again: boolean | null;
   created_at: string;
 }
+
+interface Placement {
+  id: string;
+  employer_name: string | null;
+  job_type: string | null;
+  job_category: string | null;
+  status: string;
+  hired_at: string;
+  ended_at: string | null;
+}
+
+const statusLabels: Record<HelperStatus, { label: string; emoji: string }> = {
+  available: { label: "Available", emoji: "🟢" },
+  interviewing: { label: "Interviewing", emoji: "🔵" },
+  hired_platform: { label: "Hired (via platform)", emoji: "🟡" },
+  hired_external: { label: "Currently Employed", emoji: "🟡" },
+  unavailable: { label: "Unavailable", emoji: "🔴" },
+  suspended: { label: "Suspended", emoji: "⛔" },
+};
 
 interface WorkerDetailSheetProps {
   worker: {
@@ -31,7 +57,7 @@ interface WorkerDetailSheetProps {
     languages?: string[];
     availability?: string;
     introVideo?: string;
-    availabilityStatus?: "available" | "unavailable";
+    availabilityStatus?: HelperStatus;
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -39,7 +65,7 @@ interface WorkerDetailSheetProps {
   onHired?: () => void;
 }
 
-const StarRating = ({ rating, onRate, interactive = false }: { rating: number; onRate?: (r: number) => void; interactive?: boolean }) => (
+const StarRating = ({ rating, onRate, interactive = false, size = 14 }: { rating: number; onRate?: (r: number) => void; interactive?: boolean; size?: number }) => (
   <div className="flex gap-1">
     {[1, 2, 3, 4, 5].map((star) => (
       <button
@@ -50,7 +76,7 @@ const StarRating = ({ rating, onRate, interactive = false }: { rating: number; o
         disabled={!interactive}
       >
         <Star
-          size={interactive ? 24 : 14}
+          size={size}
           className={star <= rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}
         />
       </button>
@@ -58,28 +84,60 @@ const StarRating = ({ rating, onRate, interactive = false }: { rating: number; o
   </div>
 );
 
+const formatDuration = (startDate: string, endDate: string | null) => {
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date();
+  const months = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+  if (months < 12) return `${months} month${months > 1 ? "s" : ""}`;
+  const years = Math.floor(months / 12);
+  const remaining = months % 12;
+  return remaining > 0 ? `${years} yr${years > 1 ? "s" : ""} ${remaining} mo` : `${years} yr${years > 1 ? "s" : ""}`;
+};
+
 const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: WorkerDetailSheetProps) => {
   const { user } = useAuth();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isHiring, setIsHiring] = useState(false);
+  const [showHireForm, setShowHireForm] = useState(false);
+  const [hireEmployerName, setHireEmployerName] = useState("");
+  const [hireJobType, setHireJobType] = useState("");
+  const [hireJobCategory, setHireJobCategory] = useState("");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
+  const [wouldHireAgain, setWouldHireAgain] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [placements, setPlacements] = useState<Placement[]>([]);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showEndAssignment, setShowEndAssignment] = useState(false);
+  const [isEndingAssignment, setIsEndingAssignment] = useState(false);
+  const [activePlacement, setActivePlacement] = useState<Placement | null>(null);
 
-  // Fetch reviews for this helper
+  // Fetch reviews and work history
   useEffect(() => {
     if (worker && isOpen) {
       supabase
         .from("reviews")
-        .select("id, rating, comment, created_at")
+        .select("id, rating, comment, would_hire_again, created_at")
         .eq("helper_id", worker.id)
         .order("created_at", { ascending: false })
         .limit(10)
         .then(({ data }) => {
           if (data) setReviews(data);
+        });
+
+      supabase
+        .from("placements")
+        .select("id, employer_name, job_type, job_category, status, hired_at, ended_at")
+        .eq("helper_id", worker.id)
+        .order("hired_at", { ascending: false })
+        .then(({ data }) => {
+          if (data) {
+            setPlacements(data);
+            const active = data.find((p) => p.status === "active");
+            setActivePlacement(active || null);
+          }
         });
     }
   }, [worker, isOpen]);
@@ -105,7 +163,9 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
   if (!worker || !isOpen) return null;
 
   const PLACEMENT_FEE = 250;
-  const isUnavailable = worker.availabilityStatus === "unavailable";
+  const status = worker.availabilityStatus || "available";
+  const isNotAvailable = status !== "available" && status !== "interviewing";
+  const statusInfo = statusLabels[status];
 
   const handleContactClick = async (type: "call" | "message") => {
     setIsProcessingPayment(true);
@@ -134,28 +194,30 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
   };
 
   const handleMarkAsHired = async () => {
-    if (!user) {
-      toast.error("Please log in first.");
-      return;
-    }
+    if (!user) { toast.error("Please log in first."); return; }
+    if (!hireEmployerName) { toast.error("Please enter your name/family name."); return; }
+    if (!hireJobType) { toast.error("Please select job type."); return; }
+    
     setIsHiring(true);
     try {
-      // Create placement record
       const { error: placementError } = await supabase.from("placements").insert({
         employer_id: user.id,
         helper_id: worker.id,
         status: "active",
+        employer_name: hireEmployerName,
+        job_type: hireJobType,
+        job_category: hireJobCategory || worker.role,
       });
       if (placementError) throw placementError;
 
-      // Update helper availability status
       const { error: updateError } = await supabase
         .from("helpers")
-        .update({ availability_status: "unavailable" })
+        .update({ availability_status: "hired_platform" })
         .eq("id", worker.id);
       if (updateError) throw updateError;
 
       toast.success(`${worker.name} has been marked as hired!`);
+      setShowHireForm(false);
       onHired?.();
     } catch (error: any) {
       console.error("Hire error:", error);
@@ -165,11 +227,45 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
     }
   };
 
-  const handleSubmitReview = async () => {
-    if (!user || reviewRating === 0) {
-      toast.error("Please select a rating.");
-      return;
+  const handleEndAssignment = async () => {
+    if (!activePlacement || !user) return;
+    setIsEndingAssignment(true);
+    try {
+      const { error: placementError } = await supabase
+        .from("placements")
+        .update({ status: "completed", ended_at: new Date().toISOString() })
+        .eq("id", activePlacement.id);
+      if (placementError) throw placementError;
+
+      const { error: helperError } = await supabase
+        .from("helpers")
+        .update({ availability_status: "available" })
+        .eq("id", worker.id);
+      if (helperError) throw helperError;
+
+      toast.success("Assignment completed! Helper is now available again.");
+      setShowEndAssignment(false);
+      setShowReviewForm(true); // Trigger review flow after ending
+      
+      // Refresh placements
+      const { data } = await supabase
+        .from("placements")
+        .select("id, employer_name, job_type, job_category, status, hired_at, ended_at")
+        .eq("helper_id", worker.id)
+        .order("hired_at", { ascending: false });
+      if (data) {
+        setPlacements(data);
+        setActivePlacement(null);
+      }
+    } catch (error: any) {
+      toast.error("Failed to end assignment. " + error.message);
+    } finally {
+      setIsEndingAssignment(false);
     }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!user || reviewRating === 0) { toast.error("Please select a rating."); return; }
     setIsSubmittingReview(true);
     try {
       const { error } = await supabase.from("reviews").insert({
@@ -177,16 +273,18 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
         helper_id: worker.id,
         rating: reviewRating,
         comment: reviewComment || null,
+        would_hire_again: wouldHireAgain,
+        placement_id: activePlacement?.id || null,
       });
       if (error) throw error;
-      toast.success("Review submitted!");
+      toast.success("Review submitted! Thank you.");
       setShowReviewForm(false);
       setReviewRating(0);
       setReviewComment("");
-      // Refresh reviews
+      setWouldHireAgain(false);
       const { data } = await supabase
         .from("reviews")
-        .select("id, rating, comment, created_at")
+        .select("id, rating, comment, would_hire_again, created_at")
         .eq("helper_id", worker.id)
         .order("created_at", { ascending: false })
         .limit(10);
@@ -197,6 +295,8 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
       setIsSubmittingReview(false);
     }
   };
+
+  const completedPlacements = placements.filter((p) => p.status === "completed");
 
   return (
     <div className="fixed inset-0 z-50">
@@ -212,11 +312,17 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
         </button>
 
         <div className="px-5 pb-8">
-          {/* Unavailable Banner */}
-          {isUnavailable && (
-            <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-2">
-              <span className="text-lg">🟡</span>
-              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Currently Employed — On Assignment</p>
+          {/* Status Banner */}
+          {status !== "available" && (
+            <div className={`mb-4 p-3 rounded-2xl flex items-center gap-2 ${
+              isNotAvailable 
+                ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" 
+                : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
+            }`}>
+              <span className="text-lg">{statusInfo.emoji}</span>
+              <p className={`text-sm font-semibold ${
+                isNotAvailable ? "text-amber-800 dark:text-amber-300" : "text-blue-800 dark:text-blue-300"
+              }`}>{statusInfo.label}</p>
             </div>
           )}
 
@@ -236,7 +342,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
           {/* Header */}
           <div className="flex items-start gap-4 mb-5">
             <div className="relative">
-              <div className={`w-20 h-20 rounded-2xl overflow-hidden bg-primary-light ${isUnavailable ? "opacity-60" : ""}`}>
+              <div className={`w-20 h-20 rounded-2xl overflow-hidden bg-primary-light ${isNotAvailable ? "opacity-60" : ""}`}>
                 <img src={worker.avatar} alt={worker.name} className="w-full h-full object-cover" />
               </div>
               {worker.verified && (
@@ -264,15 +370,8 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                 Meet {worker.name.split(" ")[0]}
               </h3>
               <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
-                <video
-                  src={worker.introVideo}
-                  controls
-                  playsInline
-                  poster={worker.avatar}
-                  className="w-full h-full object-cover"
-                  onPlay={() => setIsVideoPlaying(true)}
-                  onPause={() => setIsVideoPlaying(false)}
-                />
+                <video src={worker.introVideo} controls playsInline poster={worker.avatar} className="w-full h-full object-cover"
+                  onPlay={() => setIsVideoPlaying(true)} onPause={() => setIsVideoPlaying(false)} />
               </div>
             </div>
           )}
@@ -293,7 +392,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
           <div className="mb-5">
             <h3 className="font-bold text-foreground mb-2">About</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {worker.bio || "Dedicated and experienced domestic helper with a passion for providing excellent care."}
+              {worker.bio || "Dedicated and experienced domestic helper."}
             </p>
           </div>
 
@@ -307,12 +406,43 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
             </div>
           </div>
 
+          {/* Work History */}
+          <div className="mb-5">
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+              <Briefcase size={16} className="text-primary" />
+              Work History ({completedPlacements.length})
+            </h3>
+            {completedPlacements.length > 0 ? (
+              <div className="space-y-2">
+                {completedPlacements.map((p) => (
+                  <div key={p.id} className="bg-muted/40 rounded-2xl p-3 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center shrink-0">
+                      <Briefcase size={18} className="text-secondary-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {p.employer_name || "Private Employer"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDuration(p.hired_at, p.ended_at)}
+                        {p.job_type && ` — ${p.job_type.charAt(0).toUpperCase() + p.job_type.slice(1)}`}
+                        {p.job_category && ` — ${p.job_category}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No work history yet.</p>
+            )}
+          </div>
+
           {/* Availability */}
           <div className="mb-5">
             <h3 className="font-bold text-foreground mb-2">Availability</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={14} />
-              <span>{worker.availability || "Available Mon-Sat, Full-time or Part-time"}</span>
+              <span>{worker.availability || "Available Mon-Sat"}</span>
             </div>
           </div>
 
@@ -323,38 +453,56 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                 <MessageSquare size={16} className="text-primary" />
                 Reviews ({reviews.length})
               </h3>
-              {user && (
-                <button
-                  onClick={() => setShowReviewForm(!showReviewForm)}
-                  className="text-sm text-primary font-semibold"
-                >
-                  {showReviewForm ? "Cancel" : "Write Review"}
+              {user && !showReviewForm && (
+                <button onClick={() => setShowReviewForm(true)} className="text-sm text-primary font-semibold">
+                  Write Review
                 </button>
               )}
             </div>
 
-            {/* Review Form */}
+            {/* Enhanced Review Form */}
             {showReviewForm && (
-              <div className="bg-muted/50 rounded-2xl p-4 mb-4 space-y-3">
+              <div className="bg-muted/50 rounded-2xl p-4 mb-4 space-y-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground mb-2">Your Rating</p>
-                  <StarRating rating={reviewRating} onRate={setReviewRating} interactive />
+                  <p className="text-sm font-semibold text-foreground mb-2">Rate {worker.name.split(" ")[0]}</p>
+                  <StarRating rating={reviewRating} onRate={setReviewRating} interactive size={28} />
                 </div>
                 <Textarea
-                  placeholder="Share your experience with this helper..."
+                  placeholder="Share your experience..."
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
                   className="rounded-xl resize-none"
                   rows={3}
                 />
-                <Button
-                  size="sm"
-                  className="rounded-xl"
-                  onClick={handleSubmitReview}
-                  disabled={isSubmittingReview || reviewRating === 0}
-                >
-                  {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                </Button>
+                <div className="flex items-center gap-3 p-3 bg-card rounded-xl">
+                  <Checkbox
+                    id="hire-again"
+                    checked={wouldHireAgain}
+                    onCheckedChange={(v) => setWouldHireAgain(v === true)}
+                  />
+                  <label htmlFor="hire-again" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <ThumbsUp size={16} className="text-primary" />
+                    Would you hire again?
+                  </label>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl"
+                    onClick={() => { setShowReviewForm(false); setReviewRating(0); setReviewComment(""); }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="rounded-xl flex-1"
+                    onClick={handleSubmitReview}
+                    disabled={isSubmittingReview || reviewRating === 0}
+                  >
+                    {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -370,7 +518,13 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                       </span>
                     </div>
                     {review.comment && (
-                      <p className="text-sm text-muted-foreground">{review.comment}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{review.comment}</p>
+                    )}
+                    {review.would_hire_again && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <ThumbsUp size={12} className="text-primary" />
+                        <span className="text-xs text-primary font-semibold">Would hire again</span>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -380,24 +534,99 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
             )}
           </div>
 
-          {/* Mark as Hired Button */}
-          {!isUnavailable && user && (
+          {/* End Assignment Button (for active placements by this employer) */}
+          {activePlacement && user && activePlacement.employer_name && (
             <div className="mb-4">
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full rounded-xl border-primary text-primary hover:bg-primary/5"
-                onClick={handleMarkAsHired}
-                disabled={isHiring}
-              >
-                <UserCheck size={18} />
-                {isHiring ? "Processing..." : "Mark as Hired"}
-              </Button>
+              {!showEndAssignment ? (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full rounded-xl"
+                  onClick={() => setShowEndAssignment(true)}
+                >
+                  <CheckSquare size={18} />
+                  Assignment Completed
+                </Button>
+              ) : (
+                <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-foreground">End this assignment?</p>
+                  <p className="text-xs text-muted-foreground">
+                    {worker.name} will be marked as available again and visible to other employers.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setShowEndAssignment(false)}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" className="rounded-xl flex-1" onClick={handleEndAssignment} disabled={isEndingAssignment}>
+                      {isEndingAssignment ? "Ending..." : "Confirm End"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Mark as Hired */}
+          {!isNotAvailable && user && (
+            <div className="mb-4">
+              {!showHireForm ? (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full rounded-xl border-primary text-primary hover:bg-primary/5"
+                  onClick={() => setShowHireForm(true)}
+                >
+                  <UserCheck size={18} />
+                  Mark as Hired
+                </Button>
+              ) : (
+                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 space-y-3">
+                  <h4 className="font-bold text-foreground text-sm">Hiring Details</h4>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Your Name / Family Name *</Label>
+                    <Input
+                      placeholder="e.g., Smith Family"
+                      value={hireEmployerName}
+                      onChange={(e) => setHireEmployerName(e.target.value)}
+                      className="rounded-xl h-10 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Job Type *</Label>
+                    <Select value={hireJobType} onValueChange={setHireJobType}>
+                      <SelectTrigger className="rounded-xl h-10 mt-1"><SelectValue placeholder="Select type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="full-time">Full-time</SelectItem>
+                        <SelectItem value="part-time">Part-time</SelectItem>
+                        <SelectItem value="live-in">Live-in</SelectItem>
+                        <SelectItem value="live-out">Live-out</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Job Category</Label>
+                    <Input
+                      placeholder={worker.role}
+                      value={hireJobCategory}
+                      onChange={(e) => setHireJobCategory(e.target.value)}
+                      className="rounded-xl h-10 mt-1"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setShowHireForm(false)}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" className="rounded-xl flex-1" onClick={handleMarkAsHired} disabled={isHiring}>
+                      {isHiring ? "Processing..." : "Confirm Hire"}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Payment notice */}
-          {!paidAction && !isUnavailable && (
+          {!paidAction && !isNotAvailable && (
             <div className="mb-4 p-3 bg-muted rounded-2xl flex items-center gap-2 text-sm text-muted-foreground">
               <Lock size={14} className="shrink-0" />
               <span>A placement fee of <strong className="text-foreground">R250</strong> is required to contact this helper via Paystack.</span>
@@ -405,24 +634,17 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
           )}
 
           {/* Contact Actions */}
-          {!isUnavailable && (
+          {!isNotAvailable && (
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
-                className="flex-1"
+              <Button variant="outline" size="lg" className="flex-1"
                 onClick={() => handleContactClick("call")}
-                disabled={isProcessingPayment || !!paidAction}
-              >
+                disabled={isProcessingPayment || !!paidAction}>
                 <Phone size={18} />
                 {isProcessingPayment ? "Processing..." : paidAction === "call" ? "Calling..." : "Call"}
               </Button>
-              <Button
-                size="lg"
-                className="flex-1"
+              <Button size="lg" className="flex-1"
                 onClick={() => handleContactClick("message")}
-                disabled={isProcessingPayment || !!paidAction}
-              >
+                disabled={isProcessingPayment || !!paidAction}>
                 <MessageCircle size={18} />
                 {isProcessingPayment ? "Processing..." : paidAction === "message" ? "Opening..." : "Message"}
               </Button>
