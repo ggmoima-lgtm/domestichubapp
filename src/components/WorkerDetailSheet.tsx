@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, EyeOff, Globe, DollarSign } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, EyeOff, Globe, DollarSign, Flag } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -457,6 +457,36 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                   </div>
                 )}
               </div>
+
+              {/* Flag Video Button */}
+              {isUnlocked && user && (
+                <button
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase.from("video_flags").insert({
+                        helper_id: worker.id,
+                        flagged_by: user.id,
+                        reason: "contact_info_in_video",
+                      });
+                      if (error) {
+                        if (error.code === "23505") {
+                          toast.info("You've already flagged this video.");
+                        } else {
+                          throw error;
+                        }
+                      } else {
+                        toast.success("Video flagged for review. Thank you!");
+                      }
+                    } catch (err: any) {
+                      toast.error("Failed to flag video.");
+                    }
+                  }}
+                  className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Flag size={12} />
+                  Report video (contains contact info)
+                </button>
+              )}
             </div>
           )}
 
