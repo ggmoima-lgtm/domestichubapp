@@ -1,4 +1,4 @@
-import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react";
+import { Home, MessageCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -16,7 +16,6 @@ interface BottomNavProps {
 const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems: (NavItem & { id: string })[] = [
     { id: "home", icon: <Home size={22} />, label: "Home" },
-    { id: "post", icon: <PlusCircle size={24} />, label: "Post" },
     { id: "messages", icon: <MessageCircle size={22} />, label: "Messages" },
     { id: "profile", icon: <User size={22} />, label: "Profile" },
   ];
@@ -26,7 +25,6 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
       <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
-          const isPost = item.id === "post";
 
           return (
             <button
@@ -34,15 +32,13 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               onClick={() => onTabChange(item.id)}
               className={cn(
                 "flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-300",
-                isPost
-                  ? "gradient-primary text-primary-foreground shadow-button -mt-4 px-5 py-3 hover:scale-105"
-                  : isActive
+                isActive
                   ? "text-primary bg-primary-light"
                   : "text-muted-foreground hover:text-primary hover:bg-primary-light/50"
               )}
             >
               {item.icon}
-              <span className={cn("text-[10px] font-medium", isPost && "text-xs")}>
+              <span className="text-[10px] font-medium">
                 {item.label}
               </span>
             </button>

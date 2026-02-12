@@ -731,6 +731,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               )}
             </>
           )}
+
+          {/* Message button - always visible, greyed out when locked */}
+          {!isUnlocked && !isNotAvailable && (
+            <Button size="lg" className="w-full opacity-50 cursor-not-allowed" disabled>
+              <Lock size={16} />
+              <MessageCircle size={18} />
+              Message — Unlock to chat
+            </Button>
+          )}
         </div>
       </div>
 
