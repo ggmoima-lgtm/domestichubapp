@@ -11,6 +11,7 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import CartSheet from "@/components/CartSheet";
+import HelperHomeView from "@/components/HelperHomeView";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -50,6 +51,20 @@ const Index = () => {
   const [showUnavailable, setShowUnavailable] = useState(false);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Fetch user role
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setUserRole(data?.role || "employer");
+      });
+  }, [user]);
 
   // Fetch unlocked helper IDs for filtering
   useEffect(() => {
@@ -199,7 +214,13 @@ const Index = () => {
       </header>
 
       {/* Tab Content */}
-      {activeTab === "home" && (
+      {activeTab === "home" && userRole === "helper" && (
+        <main className="px-4 py-4">
+          <HelperHomeView />
+        </main>
+      )}
+
+      {activeTab === "home" && userRole !== "helper" && (
         <main className="px-4 py-4">
           <div className="mb-5">
             <SearchBar
