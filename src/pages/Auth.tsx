@@ -30,7 +30,7 @@ const Auth = () => {
   const [signupStep, setSignupStep] = useState<SignupStep>("role");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [loginPhone, setLoginPhone] = useState("");
+  const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -55,7 +55,10 @@ const Auth = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const email = `${loginPhone.replace(/\D/g, "")}@phone.domestichub.app`;
+      const identifier = loginIdentifier.trim();
+      const email = identifier.includes("@")
+        ? identifier
+        : `${identifier.replace(/\D/g, "")}@phone.domestichub.app`;
       const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
       if (error) throw error;
       navigate("/");
@@ -367,14 +370,14 @@ const Auth = () => {
             {mode === "login" && (
               <motion.form key="login" {...fadeSlide} onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Phone Number</Label>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Phone or Email</Label>
                   <div className="relative">
-                    <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      type="tel"
-                      placeholder="+27 XX XXX XXXX"
-                      value={loginPhone}
-                      onChange={(e) => setLoginPhone(e.target.value)}
+                      type="text"
+                      placeholder="Phone or email address"
+                      value={loginIdentifier}
+                      onChange={(e) => setLoginIdentifier(e.target.value)}
                       className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
                       required
                     />
