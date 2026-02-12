@@ -341,6 +341,35 @@ export type Database = {
           },
         ]
       }
+      saved_helpers: {
+        Row: {
+          created_at: string
+          employer_id: string
+          helper_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          employer_id: string
+          helper_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          employer_id?: string
+          helper_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_helpers_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_flags: {
         Row: {
           created_at: string

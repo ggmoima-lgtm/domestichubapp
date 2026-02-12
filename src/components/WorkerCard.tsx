@@ -1,7 +1,11 @@
-import { Star, MapPin, Clock, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, MapPin, Clock, Heart } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { getPreviewName } from "@/lib/contactMasking";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
@@ -31,6 +35,7 @@ interface WorkerCardProps {
 }
 
 const WorkerCard = ({
+  id,
   name,
   role,
   location,
@@ -44,8 +49,44 @@ const WorkerCard = ({
   availabilityStatus = "available",
   onClick,
 }: WorkerCardProps) => {
+  const { user } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
   const isHired = availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable" || availabilityStatus === "suspended";
   const status = statusConfig[availabilityStatus];
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("saved_helpers")
+      .select("id")
+      .eq("employer_id", user.id)
+      .eq("helper_id", id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setIsSaved(true);
+      });
+  }, [user, id]);
+
+  const toggleSave = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please log in to save helpers");
+      return;
+    }
+    if (isSaved) {
+      await supabase.from("saved_helpers").delete().eq("employer_id", user.id).eq("helper_id", id);
+      setIsSaved(false);
+      toast.success("Removed from saved");
+    } else {
+      const { error } = await supabase.from("saved_helpers").insert({ employer_id: user.id, helper_id: id });
+      if (error) {
+        toast.error("Failed to save");
+      } else {
+        setIsSaved(true);
+        toast.success("Helper saved!");
+      }
+    }
+  };
 
   return (
     <Card
@@ -63,15 +104,26 @@ const WorkerCard = ({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <div>
+              <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground truncate">{getPreviewName(name)}</h3>
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
-              {availabilityStatus !== "available" && (
-                <Badge variant="outline" className={`text-[10px] shrink-0 ${status.className}`}>
-                  {status.emoji} {status.label}
-                </Badge>
-              )}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {availabilityStatus !== "available" && (
+                  <Badge variant="outline" className={`text-[10px] ${status.className}`}>
+                    {status.emoji} {status.label}
+                  </Badge>
+                )}
+                <button
+                  onClick={toggleSave}
+                  className="p-1.5 rounded-full hover:bg-muted transition-colors"
+                >
+                  <Heart
+                    size={18}
+                    className={isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}
+                  />
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
