@@ -9,13 +9,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard,
-  Briefcase, Heart, Unlock, FileText, Star, Clock
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText
 } from "lucide-react";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
+
+const CATEGORIES = [
+  { value: "nanny", label: "Nanny" },
+  { value: "housekeeper", label: "Housekeeper" },
+  { value: "caregiver", label: "Caregiver" },
+  { value: "cook", label: "Cook" },
+  { value: "all-around", label: "All-around Helper" },
+];
+
+const AVAILABILITY_OPTIONS = [
+  "Full-time",
+  "Part-time",
+  "Weekends",
+  "Live-in",
+  "Live-out",
+  "Flexible",
+];
 
 interface EmployerData {
   id: string;
@@ -23,6 +48,10 @@ interface EmployerData {
   email: string | null;
   location: string | null;
   type_of_need: string | null;
+  full_name: string | null;
+  category: string | null;
+  availability: string[] | null;
+  custom_notes: string | null;
 }
 
 const EmployerProfile = () => {
@@ -51,8 +80,8 @@ const EmployerProfile = () => {
       .maybeSingle();
 
     if (data) {
-      setEmployer(data);
-      setEditData(data);
+      setEmployer(data as EmployerData);
+      setEditData(data as EmployerData);
     }
 
     const { count: unlocks } = await supabase
@@ -68,14 +97,12 @@ const EmployerProfile = () => {
     setUnlockCount(unlocks || 0);
     setReviewCount(reviews || 0);
 
-    // Fetch saved helpers from DB
     const { data: dbSaved } = await supabase
       .from("saved_helpers")
       .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status)")
       .eq("employer_id", user.id)
       .order("created_at", { ascending: false });
 
-    // Also get localStorage saved (mock data)
     const localSaved: string[] = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
     const localHelpers = localSaved.map((id) => {
       const mock = mockWorkers.find((w) => w.id === id);
@@ -96,8 +123,12 @@ const EmployerProfile = () => {
     const { error } = await supabase
       .from("employer_profiles")
       .update({
+        full_name: editData.full_name,
         location: editData.location,
         type_of_need: editData.type_of_need,
+        category: editData.category,
+        availability: editData.availability || [],
+        custom_notes: editData.custom_notes,
       })
       .eq("id", employer.id);
 
@@ -107,6 +138,15 @@ const EmployerProfile = () => {
       toast.success("Profile updated!");
       setIsEditing(false);
       fetchData();
+    }
+  };
+
+  const toggleAvailability = (option: string) => {
+    const current = editData.availability || [];
+    if (current.includes(option)) {
+      setEditData({ ...editData, availability: current.filter((a) => a !== option) });
+    } else {
+      setEditData({ ...editData, availability: [...current, option] });
     }
   };
 
@@ -130,10 +170,10 @@ const EmployerProfile = () => {
         <div className="gradient-primary p-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-primary-foreground text-xl font-bold">
-              {user?.email?.charAt(0).toUpperCase() || "E"}
+              {(employer?.full_name || user?.email)?.charAt(0).toUpperCase() || "E"}
             </div>
             <div className="text-primary-foreground">
-              <h1 className="text-xl font-bold">{user?.email?.split("@")[0] || "Employer"}</h1>
+              <h1 className="text-xl font-bold">{employer?.full_name || user?.email?.split("@")[0] || "Employer"}</h1>
               {employer?.location && (
                 <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
                   <MapPin size={14} /> {employer.location}
@@ -153,7 +193,7 @@ const EmployerProfile = () => {
           <CardTitle className="text-base">Household Info</CardTitle>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><X size={16} /></Button>
+              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }}><X size={16} /></Button>
               <Button size="sm" onClick={handleSave}><Save size={16} /> Save</Button>
             </div>
           ) : (
@@ -162,29 +202,116 @@ const EmployerProfile = () => {
             </Button>
           )}
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {isEditing ? (
             <>
               <div className="space-y-2">
-                <Label>Location / Area</Label>
-                <Input value={editData.location || ""} onChange={(e) => setEditData({ ...editData, location: e.target.value })} />
+                <Label className="flex items-center gap-1.5"><User size={14} /> Full Name</Label>
+                <Input
+                  value={editData.full_name || ""}
+                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                  placeholder="Your full name"
+                />
               </div>
               <div className="space-y-2">
-                <Label>Type of Need</Label>
-                <Input value={editData.type_of_need || ""} onChange={(e) => setEditData({ ...editData, type_of_need: e.target.value })} placeholder="e.g. Nanny, Housekeeper" />
+                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area</Label>
+                <Input
+                  value={editData.location || ""}
+                  onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                  placeholder="e.g. Sandton, Johannesburg"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Category of Need</Label>
+                <Select
+                  value={editData.category || ""}
+                  onValueChange={(val) => setEditData({ ...editData, category: val })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Type of Work</Label>
+                <Input
+                  value={editData.type_of_need || ""}
+                  onChange={(e) => setEditData({ ...editData, type_of_need: e.target.value })}
+                  placeholder="e.g. Childcare, Cooking, Cleaning"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Clock size={14} /> Availability Needed</Label>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABILITY_OPTIONS.map((option) => {
+                    const isSelected = (editData.availability || []).includes(option);
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => toggleAvailability(option)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted text-muted-foreground border-border hover:border-primary/30"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><FileText size={14} /> Custom Notes</Label>
+                <Textarea
+                  value={editData.custom_notes || ""}
+                  onChange={(e) => setEditData({ ...editData, custom_notes: e.target.value })}
+                  placeholder="Any special requirements or additional information..."
+                  rows={3}
+                />
               </div>
             </>
           ) : (
-            <div className="space-y-2 text-sm">
+            <div className="space-y-3 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin size={14} /> <span>{employer?.location || "Not set"}</span>
+                <User size={14} className="shrink-0" /> <span>{employer?.full_name || "Not set"}</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Briefcase size={14} /> <span>{employer?.type_of_need || "Not set"}</span>
+                <MapPin size={14} className="shrink-0" /> <span>{employer?.location || "Not set"}</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail size={14} /> <span>{employer?.email || user?.email || "Not set"}</span>
+                <Briefcase size={14} className="shrink-0" />
+                <span>{CATEGORIES.find((c) => c.value === employer?.category)?.label || employer?.category || "Not set"}</span>
               </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Briefcase size={14} className="shrink-0" /> <span>{employer?.type_of_need || "Not set"}</span>
+              </div>
+              <div className="flex items-start gap-2 text-muted-foreground">
+                <Clock size={14} className="shrink-0 mt-0.5" />
+                <div className="flex flex-wrap gap-1.5">
+                  {employer?.availability && employer.availability.length > 0 ? (
+                    employer.availability.map((a) => (
+                      <Badge key={a} variant="outline" className="text-[10px]">{a}</Badge>
+                    ))
+                  ) : (
+                    <span>Not set</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Mail size={14} className="shrink-0" /> <span>{employer?.email || user?.email || "Not set"}</span>
+              </div>
+              {employer?.custom_notes && (
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <FileText size={14} className="shrink-0 mt-0.5" /> <span>{employer.custom_notes}</span>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
