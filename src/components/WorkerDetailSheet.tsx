@@ -179,11 +179,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction }: WorkerDetail
           )}
 
           {/* Quick Info */}
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="bg-primary-light rounded-2xl p-3 text-center">
-              <p className="text-lg font-bold text-primary">{worker.hourlyRate}</p>
-              <p className="text-xs text-muted-foreground">per hour</p>
-            </div>
+          <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="bg-secondary rounded-2xl p-3 text-center">
               <p className="text-lg font-bold text-secondary-foreground">{worker.experience}</p>
               <p className="text-xs text-muted-foreground">experience</p>
