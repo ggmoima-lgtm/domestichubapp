@@ -15,6 +15,7 @@ export interface Worker {
   availability?: string;
   introVideo?: string;
   availabilityStatus?: "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
+  availableFrom?: string | null;
 }
 
 export const mockWorkers: Worker[] = [

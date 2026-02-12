@@ -58,6 +58,7 @@ interface WorkerDetailSheetProps {
     availability?: string;
     introVideo?: string;
     availabilityStatus?: HelperStatus;
+    availableFrom?: string | null;
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -103,6 +104,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
   const [hireEmployerName, setHireEmployerName] = useState("");
   const [hireJobType, setHireJobType] = useState("");
   const [hireJobCategory, setHireJobCategory] = useState("");
+  const [hireAvailableFrom, setHireAvailableFrom] = useState("");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
@@ -212,7 +214,10 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
 
       const { error: updateError } = await supabase
         .from("helpers")
-        .update({ availability_status: "hired_platform" })
+        .update({ 
+          availability_status: "hired_platform",
+          available_from: hireAvailableFrom || null,
+        })
         .eq("id", worker.id);
       if (updateError) throw updateError;
 
@@ -314,15 +319,22 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
         <div className="px-5 pb-8">
           {/* Status Banner */}
           {status !== "available" && (
-            <div className={`mb-4 p-3 rounded-2xl flex items-center gap-2 ${
+            <div className={`mb-4 p-3 rounded-2xl ${
               isNotAvailable 
                 ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" 
                 : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
             }`}>
-              <span className="text-lg">{statusInfo.emoji}</span>
-              <p className={`text-sm font-semibold ${
-                isNotAvailable ? "text-amber-800 dark:text-amber-300" : "text-blue-800 dark:text-blue-300"
-              }`}>{statusInfo.label}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{statusInfo.emoji}</span>
+                <p className={`text-sm font-semibold ${
+                  isNotAvailable ? "text-amber-800 dark:text-amber-300" : "text-blue-800 dark:text-blue-300"
+                }`}>
+                  {worker.availableFrom
+                    ? `Currently working — available again from ${new Date(worker.availableFrom).toLocaleDateString("en-ZA", { month: "long", day: "numeric" })}`
+                    : statusInfo.label
+                  }
+                </p>
+              </div>
             </div>
           )}
 
@@ -609,6 +621,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                       placeholder={worker.role}
                       value={hireJobCategory}
                       onChange={(e) => setHireJobCategory(e.target.value)}
+                      className="rounded-xl h-10 mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Expected available from (optional)</Label>
+                    <Input
+                      type="date"
+                      value={hireAvailableFrom}
+                      onChange={(e) => setHireAvailableFrom(e.target.value)}
                       className="rounded-xl h-10 mt-1"
                     />
                   </div>
