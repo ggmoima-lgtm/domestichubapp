@@ -22,6 +22,8 @@ const Onboarding = () => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<string | null>(null);
+  const [needsProfileCreation, setNeedsProfileCreation] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Employer fields
@@ -31,7 +33,6 @@ const Onboarding = () => {
 
   useEffect(() => {
     if (user) {
-      // Fetch the user's role from profiles
       supabase
         .from("profiles")
         .select("role, onboarding_completed")
@@ -43,10 +44,37 @@ const Onboarding = () => {
             if (data.onboarding_completed) {
               navigate("/home", { replace: true });
             }
+          } else {
+            // OAuth user with no profile yet — need role selection
+            setNeedsProfileCreation(true);
           }
+          setProfileLoading(false);
         });
     }
   }, [user, navigate]);
+
+  const handleRoleSelect = async (selectedRole: "employer" | "helper") => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      const fullName = user.user_metadata?.full_name || user.email || "User";
+      const phone = user.user_metadata?.phone || user.phone || "";
+      const { error } = await supabase.from("profiles").insert({
+        user_id: user.id,
+        full_name: fullName,
+        phone,
+        role: selectedRole,
+        onboarding_completed: false,
+      });
+      if (error) throw error;
+      setRole(selectedRole);
+      setNeedsProfileCreation(false);
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleEmployerComplete = async () => {
     if (!location) {
@@ -101,10 +129,56 @@ const Onboarding = () => {
     }
   };
 
-  if (!role) {
+  if (profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  // OAuth user needs to pick a role first
+  if (needsProfileCreation || !role) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="gradient-hero pt-12 pb-8 px-6 text-center">
+          <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+          <h1 className="text-xl font-bold text-foreground">Welcome!</h1>
+          <p className="text-sm text-muted-foreground mt-1">Tell us who you are to get started</p>
+        </div>
+        <div className="flex-1 px-5 -mt-4">
+          <div className="bg-card rounded-3xl shadow-card p-6 max-w-md mx-auto space-y-3">
+            <h2 className="text-lg font-bold text-foreground text-center mb-2">I am a...</h2>
+            <button
+              type="button"
+              onClick={() => handleRoleSelect("employer")}
+              disabled={isSubmitting}
+              className="w-full p-5 rounded-2xl border-2 border-border hover:border-primary/50 bg-card transition-all text-left flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+                <span className="text-2xl">💼</span>
+              </div>
+              <div>
+                <p className="font-bold text-foreground">Employer</p>
+                <p className="text-sm text-muted-foreground">Hiring a helper</p>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRoleSelect("helper")}
+              disabled={isSubmitting}
+              className="w-full p-5 rounded-2xl border-2 border-border hover:border-primary/50 bg-card transition-all text-left flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center">
+                <span className="text-2xl">✨</span>
+              </div>
+              <div>
+                <p className="font-bold text-foreground">Helper</p>
+                <p className="text-sm text-muted-foreground">Looking for work</p>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
