@@ -66,6 +66,10 @@ export type Database = {
           skills: string[] | null
           updated_at: string
           user_id: string | null
+          video_flag_count: number
+          video_flagged: boolean
+          video_moderation_notes: string | null
+          video_moderation_status: string
         }
         Insert: {
           availability?: string | null
@@ -88,6 +92,10 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
+          video_flag_count?: number
+          video_flagged?: boolean
+          video_moderation_notes?: string | null
+          video_moderation_status?: string
         }
         Update: {
           availability?: string | null
@@ -110,6 +118,10 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
+          video_flag_count?: number
+          video_flagged?: boolean
+          video_moderation_notes?: string | null
+          video_moderation_status?: string
         }
         Relationships: []
       }
@@ -287,6 +299,38 @@ export type Database = {
             columns: ["placement_id"]
             isOneToOne: true
             referencedRelation: "placements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_flags: {
+        Row: {
+          created_at: string
+          flagged_by: string
+          helper_id: string
+          id: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          flagged_by: string
+          helper_id: string
+          id?: string
+          reason?: string
+        }
+        Update: {
+          created_at?: string
+          flagged_by?: string
+          helper_id?: string
+          id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_flags_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
             referencedColumns: ["id"]
           },
         ]
