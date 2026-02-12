@@ -16,7 +16,6 @@ interface BottomNavProps {
 const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems: (NavItem & { id: string })[] = [
     { id: "home", icon: <Home size={22} />, label: "Home" },
-    { id: "search", icon: <Search size={22} />, label: "Search" },
     { id: "post", icon: <PlusCircle size={24} />, label: "Post" },
     { id: "messages", icon: <MessageCircle size={22} />, label: "Messages" },
     { id: "profile", icon: <User size={22} />, label: "Profile" },
