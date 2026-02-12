@@ -95,10 +95,11 @@ const Index = () => {
     const workerYears = parseInt(worker.experience) || 0;
     const matchesExperience = workerYears >= filters.experienceMin;
 
-    // Salary filter
+    // Salary filter (convert hourly rate to estimated monthly: rate * 8hrs * 22days)
     const workerRate = parseFloat(worker.hourlyRate.replace(/[^0-9.]/g, "")) || 0;
+    const workerMonthly = workerRate * 8 * 22;
     const matchesSalary =
-      workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
+      workerMonthly >= filters.salaryRange[0] && workerMonthly <= filters.salaryRange[1];
 
     return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary;
   });
@@ -108,7 +109,7 @@ const Index = () => {
     filters.jobTypes.length +
     filters.skills.length +
     (filters.experienceMin > 0 ? 1 : 0) +
-    (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 300 ? 1 : 0) +
+    (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 15000 ? 1 : 0) +
     (filters.nearMe ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {

@@ -19,7 +19,7 @@ export const defaultFilters: FilterState = {
   jobTypes: [],
   skills: [],
   experienceMin: 0,
-  salaryRange: [0, 300],
+  salaryRange: [0, 15000],
   nearMe: false,
 };
 
@@ -178,13 +178,13 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
           {/* Salary Range */}
           <div>
             <h3 className="font-bold text-foreground mb-2 flex items-center gap-2 text-sm">
-              <DollarSign size={16} className="text-primary" /> Salary Range (ZAR/hr)
+              <DollarSign size={16} className="text-primary" /> Salary Range (ZAR/month)
             </h3>
             <div className="px-1 pt-2">
               <Slider
                 min={0}
-                max={300}
-                step={10}
+                max={15000}
+                step={500}
                 value={local.salaryRange}
                 onValueChange={(v) => setLocal((p) => ({ ...p, salaryRange: v as [number, number] }))}
               />
