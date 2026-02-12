@@ -1,7 +1,9 @@
-import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play } from "lucide-react";
+import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface WorkerDetailSheetProps {
   worker: {
@@ -27,8 +29,40 @@ interface WorkerDetailSheetProps {
 
 const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   if (!worker || !isOpen) return null;
+
+  const handleContactClick = async (type: "call" | "message") => {
+    setIsProcessingPayment(true);
+    try {
+      // Extract numeric rate from string like "R150"
+      const rate = parseFloat(worker.hourlyRate.replace(/[^0-9.]/g, ""));
+      
+      const { data, error } = await supabase.functions.invoke("initialize-payment", {
+        body: {
+          email: "customer@example.com", // In production, use logged-in user's email
+          amount: rate,
+          workerId: worker.id,
+          workerName: worker.name,
+          callbackUrl: window.location.origin + "/home?payment=success&worker=" + worker.id + "&action=" + type,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.data?.authorization_url) {
+        window.location.href = data.data.authorization_url;
+      } else {
+        throw new Error("No payment URL returned");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to initialize payment. Please try again.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50">
@@ -157,15 +191,32 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
             </div>
           </div>
 
+          {/* Payment notice */}
+          <div className="mb-4 p-3 bg-muted rounded-2xl flex items-center gap-2 text-sm text-muted-foreground">
+            <Lock size={14} className="shrink-0" />
+            <span>A fee of <strong className="text-foreground">{worker.hourlyRate}</strong> is required to contact this helper via Paystack.</span>
+          </div>
+
           {/* Actions */}
           <div className="flex gap-3">
-            <Button variant="outline" size="lg" className="flex-1">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1"
+              onClick={() => handleContactClick("call")}
+              disabled={isProcessingPayment}
+            >
               <Phone size={18} />
-              Call
+              {isProcessingPayment ? "Processing..." : "Call"}
             </Button>
-            <Button size="lg" className="flex-1">
+            <Button
+              size="lg"
+              className="flex-1"
+              onClick={() => handleContactClick("message")}
+              disabled={isProcessingPayment}
+            >
               <MessageCircle size={18} />
-              Message
+              {isProcessingPayment ? "Processing..." : "Message"}
             </Button>
           </div>
         </div>
