@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, Mail, Lock, User, Phone, MapPin, Camera, Shield, ArrowRight, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Phone, MapPin, Shield, ArrowRight, ArrowLeft } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
@@ -99,11 +100,9 @@ const Auth = () => {
       {/* Header */}
       <div className="gradient-hero pt-12 pb-8 px-6 text-center">
         <div className="flex justify-center mb-3">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-button">
-            <Heart size={28} className="text-primary-foreground fill-primary-foreground" />
-          </div>
+          <img src={logo} alt="Domestic Hub" className="w-16 h-16 rounded-2xl object-contain bg-white shadow-button" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Helper Finder</h1>
+        <h1 className="text-2xl font-bold text-foreground">Domestic Hub</h1>
         <p className="text-sm text-muted-foreground mt-1">Find trusted help for your family</p>
       </div>
 

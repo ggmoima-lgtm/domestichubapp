@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, ChefHat, Grid3X3 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
@@ -64,9 +65,12 @@ const Index = () => {
       <header className="sticky top-0 z-40 glass border-b border-border">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-1">
-            <div>
-              <p className="text-xs text-muted-foreground">Welcome back</p>
-              <h2 className="text-lg font-bold text-foreground">Domestic Hub</h2>
+            <div className="flex items-center gap-2">
+              <img src={logo} alt="Domestic Hub" className="w-10 h-10 rounded-full object-contain bg-white shadow-soft" />
+              <div>
+                <p className="text-xs text-muted-foreground">Welcome back</p>
+                <h2 className="text-lg font-bold text-foreground">Domestic Hub</h2>
+              </div>
             </div>
             <div className="w-10 h-10 rounded-full gradient-warm shadow-soft" />
           </div>
