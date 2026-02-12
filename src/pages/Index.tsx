@@ -83,35 +83,51 @@ const Index = () => {
 
   // Handle payment callback (cart-based unlock)
   useEffect(() => {
-    if (paymentProcessedRef.current) return;
-    
     const payment = searchParams.get("payment");
     const workerIds = searchParams.get("worker");
     const bundleType = searchParams.get("bundle");
 
+    console.log("[UNLOCK] Effect fired:", { payment, workerIds, bundleType, userId: user?.id, processed: paymentProcessedRef.current });
+
+    if (paymentProcessedRef.current) return;
+
     if (payment === "unlock" && workerIds && bundleType) {
-      // Wait for user to be available before processing
-      if (!user) return;
+      if (!user) {
+        console.log("[UNLOCK] Waiting for user auth...");
+        return;
+      }
       
       paymentProcessedRef.current = true;
-      // Clear params to prevent re-processing
-      setSearchParams({}, { replace: true });
+      console.log("[UNLOCK] Processing unlocks for:", workerIds);
       
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
         const amount = ids.length * 50;
+        let successCount = 0;
         for (const wId of ids) {
+          console.log("[UNLOCK] Inserting unlock for helper:", wId);
           const { error } = await supabase.from("profile_unlocks").insert({
             employer_id: user.id,
             helper_id: wId,
             bundle_type: bundleType,
             amount_paid: amount / ids.length,
           });
-          if (error) console.error("Unlock insert error:", error);
+          if (error) {
+            console.error("[UNLOCK] Insert error:", error);
+          } else {
+            successCount++;
+          }
         }
         clearCart();
         setUnlockRefresh((n) => n + 1);
-        toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
+        // Clear params after processing
+        setSearchParams({}, { replace: true });
+        
+        if (successCount > 0) {
+          toast.success(`${successCount} profile${successCount > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
+        } else {
+          toast.error("Failed to record unlocks. Please contact support.");
+        }
         if (ids.length === 1) {
           const worker = mockWorkers.find((w) => w.id === ids[0]);
           if (worker) {
