@@ -12,6 +12,7 @@ import HelperRegistration from "./pages/HelperRegistration";
 import Auth from "./pages/Auth";
 import SplashScreen from "./pages/SplashScreen";
 import Onboarding from "./pages/Onboarding";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
               <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
