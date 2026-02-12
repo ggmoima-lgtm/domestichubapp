@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, MapPin, Briefcase, Wrench, Star, DollarSign, RotateCcw } from "lucide-react";
+import { X, MapPin, Briefcase, Wrench, Star, DollarSign, RotateCcw, Unlock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Slider } from "./ui/slider";
@@ -12,6 +12,7 @@ export interface FilterState {
   experienceMin: number;
   salaryRange: [number, number];
   nearMe: boolean;
+  unlockedOnly: boolean;
 }
 
 export const defaultFilters: FilterState = {
@@ -21,6 +22,7 @@ export const defaultFilters: FilterState = {
   experienceMin: 0,
   salaryRange: [0, 15000],
   nearMe: false,
+  unlockedOnly: false,
 };
 
 interface FilterSheetProps {
@@ -58,7 +60,8 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
     local.skills.length +
     (local.experienceMin > 0 ? 1 : 0) +
     (local.salaryRange[0] > 0 || local.salaryRange[1] < 300 ? 1 : 0) +
-    (local.nearMe ? 1 : 0);
+    (local.nearMe ? 1 : 0) +
+    (local.unlockedOnly ? 1 : 0);
 
   if (!isOpen) return null;
 
@@ -87,6 +90,18 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-6">
+          {/* Unlocked Only Toggle */}
+          <div className="flex items-center justify-between p-3 bg-primary-light rounded-2xl">
+            <div className="flex items-center gap-2">
+              <Unlock size={16} className="text-primary" />
+              <span className="font-semibold text-sm text-foreground">Unlocked only</span>
+            </div>
+            <Switch
+              checked={local.unlockedOnly}
+              onCheckedChange={(v) => setLocal((p) => ({ ...p, unlockedOnly: v }))}
+            />
+          </div>
+
           {/* Near Me Toggle */}
           <div className="flex items-center justify-between p-3 bg-primary-light rounded-2xl">
             <div className="flex items-center gap-2">
