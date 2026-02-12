@@ -33,8 +33,8 @@ const skillOptions = [
 ];
 
 const languageOptions = [
-  "English", "Filipino", "Mandarin", "Cantonese", "Indonesian", 
-  "Thai", "Vietnamese", "Hindi", "Tamil", "Malay"
+  "English", "Afrikaans", "isiZulu", "isiXhosa", "Sesotho", 
+  "Setswana", "Sepedi", "Xitsonga", "siSwati", "Tshivenda", "isiNdebele"
 ];
 
 const availabilityOptions = [
