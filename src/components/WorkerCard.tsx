@@ -10,7 +10,7 @@ interface WorkerCardProps {
   rating: number;
   reviews: number;
   experience: string;
-  hourlyRate: string;
+  monthlyRate: string;
   verified: boolean;
   avatar: string;
   skills: string[];
@@ -24,7 +24,7 @@ const WorkerCard = ({
   rating,
   reviews,
   experience,
-  hourlyRate,
+  monthlyRate,
   verified,
   avatar,
   skills,

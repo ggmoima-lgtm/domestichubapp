@@ -14,7 +14,7 @@ interface WorkerDetailSheetProps {
     rating: number;
     reviews: number;
     experience: string;
-    hourlyRate: string;
+    monthlyRate: string;
     verified: boolean;
     avatar: string;
     skills: string[];
