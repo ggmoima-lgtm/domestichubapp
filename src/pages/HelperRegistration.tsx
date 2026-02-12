@@ -223,7 +223,7 @@ const HelperRegistration = () => {
       }
 
       toast.success("Registration successful! Welcome aboard!");
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       console.error('Registration error:', error);
       toast.error("An unexpected error occurred. Please try again.");
