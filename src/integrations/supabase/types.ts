@@ -47,6 +47,7 @@ export type Database = {
       helpers: {
         Row: {
           availability: string | null
+          availability_status: string
           avatar_url: string | null
           bio: string | null
           category: string
@@ -67,6 +68,7 @@ export type Database = {
         }
         Insert: {
           availability?: string | null
+          availability_status?: string
           avatar_url?: string | null
           bio?: string | null
           category: string
@@ -87,6 +89,7 @@ export type Database = {
         }
         Update: {
           availability?: string | null
+          availability_status?: string
           avatar_url?: string | null
           bio?: string | null
           category?: string
@@ -106,6 +109,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      placements: {
+        Row: {
+          created_at: string
+          employer_id: string
+          ended_at: string | null
+          helper_id: string
+          hired_at: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          employer_id: string
+          ended_at?: string | null
+          helper_id: string
+          hired_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          employer_id?: string
+          ended_at?: string | null
+          helper_id?: string
+          hired_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "placements_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -139,6 +183,51 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          employer_id: string
+          helper_id: string
+          id: string
+          placement_id: string | null
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          employer_id: string
+          helper_id: string
+          id?: string
+          placement_id?: string | null
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          employer_id?: string
+          helper_id?: string
+          id?: string
+          placement_id?: string | null
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_placement_id_fkey"
+            columns: ["placement_id"]
+            isOneToOne: true
+            referencedRelation: "placements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -37,6 +37,7 @@ const Index = () => {
   const [paidAction, setPaidAction] = useState<"call" | "message" | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [showUnavailable, setShowUnavailable] = useState(false);
 
   // Handle payment callback
   useEffect(() => {
@@ -56,6 +57,9 @@ const Index = () => {
   }, []);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
+    // Hide unavailable unless toggled
+    if (!showUnavailable && worker.availabilityStatus === "unavailable") return false;
+
     // Text search
     const matchesSearch =
       !searchQuery ||
@@ -65,37 +69,31 @@ const Index = () => {
         skill.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-    // Category
     const matchesCategory =
       activeCategory === "all" ||
       worker.role.toLowerCase().includes(activeCategory.toLowerCase());
 
-    // Location filter
     const matchesLocation =
       filters.locations.length === 0 ||
       filters.locations.some((loc) =>
         worker.location.toLowerCase().includes(loc.toLowerCase())
       );
 
-    // Job type filter - match against availability
     const matchesJobType =
       filters.jobTypes.length === 0 ||
       filters.jobTypes.some((type) =>
         (worker.availability || "").toLowerCase().includes(type.toLowerCase())
       );
 
-    // Skills filter
     const matchesSkills =
       filters.skills.length === 0 ||
       filters.skills.some((skill) =>
         worker.skills.some((ws) => ws.toLowerCase().includes(skill.toLowerCase()))
       );
 
-    // Experience filter
     const workerYears = parseInt(worker.experience) || 0;
     const matchesExperience = workerYears >= filters.experienceMin;
 
-    // Salary filter
     const workerRate = parseFloat(worker.monthlyRate.replace(/[^0-9.]/g, "")) || 0;
     const matchesSalary =
       workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
@@ -176,7 +174,14 @@ const Index = () => {
               ({filteredWorkers.length})
             </span>
           </h3>
-          <button className="text-sm text-primary font-semibold">View All</button>
+          <button
+            onClick={() => setShowUnavailable(!showUnavailable)}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+              showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {showUnavailable ? "Hide unavailable" : "Show unavailable"}
+          </button>
         </div>
 
         {/* Worker Cards */}
@@ -216,6 +221,9 @@ const Index = () => {
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
         paidAction={paidAction}
+        onHired={() => {
+          handleCloseDetail();
+        }}
       />
     </div>
   );

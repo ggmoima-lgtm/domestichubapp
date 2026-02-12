@@ -14,6 +14,7 @@ export interface Worker {
   languages?: string[];
   availability?: string;
   introVideo?: string;
+  availabilityStatus?: "available" | "unavailable";
 }
 
 export const mockWorkers: Worker[] = [
