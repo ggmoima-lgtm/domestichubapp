@@ -73,6 +73,9 @@ const Index = () => {
     const bundleType = searchParams.get("bundle");
 
     if (payment === "unlock" && workerIds && bundleType && user) {
+      // Clear params immediately to prevent re-processing on re-render
+      setSearchParams({}, { replace: true });
+      
       const isValidUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
@@ -94,6 +97,7 @@ const Index = () => {
           }
         }
         clearCart();
+        // Force refresh of unlocked IDs
         setUnlockRefresh((n) => n + 1);
         toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
         if (ids.length === 1) {
@@ -105,9 +109,8 @@ const Index = () => {
         }
       };
       recordUnlocks();
-      setSearchParams({}, { replace: true });
     }
-  }, [user]);
+  }, [user, searchParams]);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
     // Hide non-available unless toggled
