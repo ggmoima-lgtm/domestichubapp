@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ interface ReviewData {
 }
 
 const HelperProfile = () => {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [helper, setHelper] = useState<HelperData | null>(null);
   const [reviews, setReviews] = useState<ReviewData[]>([]);
@@ -382,7 +384,7 @@ const HelperProfile = () => {
             <span className="flex items-center gap-3 text-sm"><Bell size={16} className="text-muted-foreground" /> Notifications</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+          <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Settings</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
