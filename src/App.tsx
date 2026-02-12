@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import HelperRegistration from "./pages/HelperRegistration";
 import Auth from "./pages/Auth";
 import SplashScreen from "./pages/SplashScreen";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
             <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />

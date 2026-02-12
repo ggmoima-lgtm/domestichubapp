@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      employer_profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          location: string | null
+          type_of_need: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          type_of_need?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          type_of_need?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       helpers: {
         Row: {
           availability: string | null
@@ -74,6 +104,39 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          onboarding_completed: boolean
+          phone: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          onboarding_completed?: boolean
+          phone: string
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          onboarding_completed?: boolean
+          phone?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
