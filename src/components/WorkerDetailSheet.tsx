@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, Phone, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, EyeOff, Globe, DollarSign, Flag } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -11,6 +11,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import UnlockBundleSheet from "./UnlockBundleSheet";
+import InAppChat from "./InAppChat";
 import { maskContactInfo, getPreviewName } from "@/lib/contactMasking";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
@@ -64,7 +65,6 @@ interface WorkerDetailSheetProps {
   } | null;
   isOpen: boolean;
   onClose: () => void;
-  paidAction?: "call" | "message" | null;
   onHired?: () => void;
 }
 
@@ -97,10 +97,10 @@ const formatDuration = (startDate: string, endDate: string | null) => {
   return remaining > 0 ? `${years} yr${years > 1 ? "s" : ""} ${remaining} mo` : `${years} yr${years > 1 ? "s" : ""}`;
 };
 
-const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: WorkerDetailSheetProps) => {
+const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailSheetProps) => {
   const { user } = useAuth();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [isHiring, setIsHiring] = useState(false);
   const [showHireForm, setShowHireForm] = useState(false);
   const [hireEmployerName, setHireEmployerName] = useState("");
@@ -173,24 +173,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
     }
   }, [worker, isOpen]);
 
-  // Auto-trigger contact action after successful payment
-  useEffect(() => {
-    if (paidAction && worker && isOpen) {
-      toast.success("Payment successful! Connecting you now...");
-      const timer = setTimeout(() => {
-        if (paidAction === "call") {
-          window.location.href = `tel:+27600000000`;
-        } else if (paidAction === "message") {
-          const message = encodeURIComponent(
-            `Hi ${worker.name}, I found your profile on Domestic Hub and I'd like to discuss hiring you. I've paid the placement fee.`
-          );
-          window.open(`https://wa.me/27600000000?text=${message}`, "_blank");
-        }
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [paidAction, worker, isOpen]);
-
   if (!worker || !isOpen) return null;
 
   const status = worker.availabilityStatus || "available";
@@ -209,34 +191,16 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
     toast.success("Profile unlocked! You now have full access for 30 days.");
   };
 
-  const handleContactClick = async (type: "call" | "message") => {
+  const handleMessageClick = () => {
     if (!isUnlocked) {
       setShowBundleSheet(true);
       return;
     }
-    setIsProcessingPayment(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("initialize-payment", {
-        body: {
-          email: user?.email || "customer@example.com",
-          amount: 250,
-          workerId: worker.id,
-          workerName: worker.name,
-          callbackUrl: window.location.origin + "/home?payment=success&worker=" + worker.id + "&action=" + type,
-        },
-      });
-      if (error) throw error;
-      if (data?.data?.authorization_url) {
-        window.location.href = data.data.authorization_url;
-      } else {
-        throw new Error("No payment URL returned");
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("Failed to initialize payment. Please try again.");
-    } finally {
-      setIsProcessingPayment(false);
+    if (!user) {
+      toast.error("Please log in to send messages.");
+      return;
     }
+    setShowChat(true);
   };
 
   const handleMarkAsHired = async () => {
@@ -381,18 +345,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
             </div>
           )}
 
-          {/* Payment Success Banner */}
-          {paidAction && (
-            <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-2xl flex items-center gap-3">
-              <CheckCheck size={20} className="text-green-600 shrink-0" />
-              <div>
-                <p className="font-semibold text-green-800 dark:text-green-300 text-sm">Payment Successful!</p>
-                <p className="text-xs text-green-600 dark:text-green-400">
-                  {paidAction === "call" ? "Initiating call..." : "Opening chat..."}
-                </p>
-              </div>
-            </div>
-          )}
+          {/* (Payment success banner removed - using in-app messaging now) */}
 
           {/* Unlock Badge */}
           {isUnlocked && (
@@ -813,22 +766,12 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
                 </div>
               )}
 
-              {/* Contact Actions - only when unlocked */}
+              {/* Message Action - only when unlocked */}
               {!isNotAvailable && (
-                <div className="flex gap-3">
-                  <Button variant="outline" size="lg" className="flex-1"
-                    onClick={() => handleContactClick("call")}
-                    disabled={isProcessingPayment || !!paidAction}>
-                    <Phone size={18} />
-                    {isProcessingPayment ? "Processing..." : paidAction === "call" ? "Calling..." : "Call"}
-                  </Button>
-                  <Button size="lg" className="flex-1"
-                    onClick={() => handleContactClick("message")}
-                    disabled={isProcessingPayment || !!paidAction}>
-                    <MessageCircle size={18} />
-                    {isProcessingPayment ? "Processing..." : paidAction === "message" ? "Opening..." : "Message"}
-                  </Button>
-                </div>
+                <Button size="lg" className="w-full" onClick={handleMessageClick}>
+                  <MessageCircle size={18} />
+                  Message {displayName.split(" ")[0]}
+                </Button>
               )}
             </>
           )}
@@ -842,6 +785,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, paidAction, onHired }: Wor
         helperName={worker.name}
         helperId={worker.id}
         onUnlocked={handleUnlockSuccess}
+      />
+
+      {/* In-App Chat */}
+      <InAppChat
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+        helperId={worker.id}
+        helperName={displayName}
+        helperAvatar={worker.avatar}
       />
     </div>
   );
