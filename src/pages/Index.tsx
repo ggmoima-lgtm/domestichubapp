@@ -7,6 +7,7 @@ import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
+import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 
 const categoryIcons = {
@@ -34,6 +35,8 @@ const Index = () => {
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [paidAction, setPaidAction] = useState<"call" | "message" | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
 
   // Handle payment callback
   useEffect(() => {
@@ -48,25 +51,65 @@ const Index = () => {
         setIsDetailOpen(true);
         setPaidAction(action);
       }
-      // Clean URL params
       setSearchParams({}, { replace: true });
     }
   }, []);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
+    // Text search
     const matchesSearch =
+      !searchQuery ||
       worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       worker.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       worker.skills.some((skill) =>
         skill.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
+    // Category
     const matchesCategory =
       activeCategory === "all" ||
       worker.role.toLowerCase().includes(activeCategory.toLowerCase());
 
-    return matchesSearch && matchesCategory;
+    // Location filter
+    const matchesLocation =
+      filters.locations.length === 0 ||
+      filters.locations.some((loc) =>
+        worker.location.toLowerCase().includes(loc.toLowerCase())
+      );
+
+    // Job type filter - match against availability
+    const matchesJobType =
+      filters.jobTypes.length === 0 ||
+      filters.jobTypes.some((type) =>
+        (worker.availability || "").toLowerCase().includes(type.toLowerCase())
+      );
+
+    // Skills filter
+    const matchesSkills =
+      filters.skills.length === 0 ||
+      filters.skills.some((skill) =>
+        worker.skills.some((ws) => ws.toLowerCase().includes(skill.toLowerCase()))
+      );
+
+    // Experience filter
+    const workerYears = parseInt(worker.experience) || 0;
+    const matchesExperience = workerYears >= filters.experienceMin;
+
+    // Salary filter
+    const workerRate = parseFloat(worker.hourlyRate.replace(/[^0-9.]/g, "")) || 0;
+    const matchesSalary =
+      workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary;
   });
+
+  const activeFilterCount =
+    filters.locations.length +
+    filters.jobTypes.length +
+    filters.skills.length +
+    (filters.experienceMin > 0 ? 1 : 0) +
+    (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 300 ? 1 : 0) +
+    (filters.nearMe ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
@@ -102,7 +145,12 @@ const Index = () => {
       <main className="px-4 py-4">
         {/* Search */}
         <div className="mb-5">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onFilter={() => setIsFilterOpen(true)}
+            filterCount={activeFilterCount}
+          />
         </div>
 
         {/* Categories */}
@@ -153,6 +201,14 @@ const Index = () => {
 
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Filter Sheet */}
+      <FilterSheet
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        filters={filters}
+        onApply={setFilters}
+      />
 
       {/* Worker Detail Sheet */}
       <WorkerDetailSheet
