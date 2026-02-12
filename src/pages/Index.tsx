@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, ChefHat, Grid3X3, ShoppingCart } from "lucide-react";
+import ProfileTab from "./ProfileTab";
+import InAppChat from "@/components/InAppChat";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
@@ -163,76 +165,87 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="px-4 py-4">
-        {/* Search */}
-        <div className="mb-5">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onFilter={() => setIsFilterOpen(true)}
-            filterCount={activeFilterCount}
-          />
-        </div>
+      {/* Tab Content */}
+      {activeTab === "home" && (
+        <main className="px-4 py-4">
+          <div className="mb-5">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onFilter={() => setIsFilterOpen(true)}
+              filterCount={activeFilterCount}
+            />
+          </div>
 
-        {/* Categories */}
-        <div className="mb-5">
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {categories.map((category) => (
-              <CategoryPill
-                key={category.id}
-                icon={categoryIcons[category.id as keyof typeof categoryIcons]}
-                label={category.label}
-                active={activeCategory === category.id}
-                onClick={() => setActiveCategory(category.id)}
-              />
+          <div className="mb-5">
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {categories.map((category) => (
+                <CategoryPill
+                  key={category.id}
+                  icon={categoryIcons[category.id as keyof typeof categoryIcons]}
+                  label={category.label}
+                  active={activeCategory === category.id}
+                  onClick={() => setActiveCategory(category.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-foreground">
+              Available Helpers
+              <span className="text-muted-foreground font-normal ml-2">
+                ({filteredWorkers.length})
+              </span>
+            </h3>
+            <button
+              onClick={() => setShowUnavailable(!showUnavailable)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+                showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {showUnavailable ? "Hide unavailable" : "Show unavailable"}
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {filteredWorkers.map((worker, index) => (
+              <div
+                key={worker.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <WorkerCard {...worker} onClick={() => handleWorkerClick(worker)} />
+              </div>
             ))}
           </div>
-        </div>
 
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-foreground">
-            Available Helpers
-            <span className="text-muted-foreground font-normal ml-2">
-              ({filteredWorkers.length})
-            </span>
-          </h3>
-          <button
-            onClick={() => setShowUnavailable(!showUnavailable)}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
-              showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {showUnavailable ? "Hide unavailable" : "Show unavailable"}
-          </button>
-        </div>
-
-        {/* Worker Cards */}
-        <div className="space-y-3">
-          {filteredWorkers.map((worker, index) => (
-            <div
-              key={worker.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <WorkerCard {...worker} onClick={() => handleWorkerClick(worker)} />
+          {filteredWorkers.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No helpers found matching your criteria.</p>
             </div>
-          ))}
-        </div>
+          )}
+        </main>
+      )}
 
-        {filteredWorkers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No helpers found matching your criteria.</p>
-          </div>
-        )}
-      </main>
+      {activeTab === "messages" && (
+        <main className="px-4 py-4">
+          <h3 className="font-bold text-foreground mb-4">Messages</h3>
+          <p className="text-sm text-muted-foreground">Your conversations will appear here.</p>
+        </main>
+      )}
+
+      {activeTab === "profile" && (
+        <main className="px-4 py-4">
+          <ProfileTab />
+        </main>
+      )}
 
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Floating Cart Button */}
-      {itemCount > 0 && (
+      {itemCount > 0 && activeTab === "home" && (
         <button
           onClick={() => setIsCartOpen(true)}
           className="fixed bottom-28 right-4 z-50 bg-primary text-primary-foreground w-14 h-14 rounded-full shadow-float flex items-center justify-center animate-fade-in"
