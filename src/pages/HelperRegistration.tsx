@@ -463,28 +463,30 @@ const HelperRegistration = () => {
           </Select>
         </section>
 
-        {/* Living Arrangement */}
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Home size={18} className="text-primary" />
-            Living Arrangement
-          </h2>
-          <Select 
-            value={formData.livingArrangement} 
-            onValueChange={(value) => handleInputChange("livingArrangement", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Live-in or Live-out?" />
-            </SelectTrigger>
-            <SelectContent>
-              {livingArrangementOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </section>
+        {/* Living Arrangement - only show for Full-time */}
+        {formData.availability === "Full-time" && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <Home size={18} className="text-primary" />
+              Living Arrangement
+            </h2>
+            <Select 
+              value={formData.livingArrangement} 
+              onValueChange={(value) => handleInputChange("livingArrangement", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Live-in or Live-out?" />
+              </SelectTrigger>
+              <SelectContent>
+                {livingArrangementOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </section>
+        )}
 
         {/* Bio */}
         <section className="space-y-3">
