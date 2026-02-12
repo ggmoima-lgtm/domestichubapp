@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, ChefHat, Grid3X3, ShoppingCart } from "lucide-react";
 import ProfileTab from "./ProfileTab";
-import InAppChat from "@/components/InAppChat";
+import MessagesList from "@/components/MessagesList";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
@@ -230,8 +230,7 @@ const Index = () => {
 
       {activeTab === "messages" && (
         <main className="px-4 py-4">
-          <h3 className="font-bold text-foreground mb-4">Messages</h3>
-          <p className="text-sm text-muted-foreground">Your conversations will appear here.</p>
+          <MessagesList />
         </main>
       )}
 
