@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "@/assets/logo.jpg";
 
 const SplashScreen = () => {
   const navigate = useNavigate();
@@ -20,9 +21,7 @@ const SplashScreen = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex flex-col items-center gap-6"
       >
-        <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
-          <span className="text-5xl">🏠</span>
-        </div>
+        <img src={logo} alt="Domestic Hub" className="w-28 h-28 rounded-3xl shadow-lg object-contain bg-white" />
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
