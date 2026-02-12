@@ -14,6 +14,7 @@ interface WorkerCardProps {
   verified: boolean;
   avatar: string;
   skills: string[];
+  availabilityStatus?: "available" | "unavailable";
   onClick?: () => void;
 }
 
@@ -28,12 +29,15 @@ const WorkerCard = ({
   verified,
   avatar,
   skills,
+  availabilityStatus = "available",
   onClick,
 }: WorkerCardProps) => {
+  const isUnavailable = availabilityStatus === "unavailable";
+
   return (
     <Card
       variant="interactive"
-      className="overflow-hidden"
+      className={`overflow-hidden ${isUnavailable ? "opacity-60" : ""}`}
       onClick={onClick}
     >
       <div className="p-4">
@@ -41,11 +45,7 @@ const WorkerCard = ({
           {/* Avatar */}
           <div className="relative">
             <div className="w-16 h-16 rounded-2xl overflow-hidden bg-primary-light">
-              <img
-                src={avatar}
-                alt={name}
-                className="w-full h-full object-cover"
-              />
+              <img src={avatar} alt={name} className="w-full h-full object-cover" />
             </div>
             {verified && (
               <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
@@ -61,6 +61,11 @@ const WorkerCard = ({
                 <h3 className="font-bold text-foreground truncate">{name}</h3>
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
+              {isUnavailable && (
+                <Badge variant="outline" className="text-[10px] shrink-0 border-amber-300 text-amber-600">
+                  🟡 Hired
+                </Badge>
+              )}
             </div>
 
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
