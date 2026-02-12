@@ -12,6 +12,8 @@ interface CartSheetProps {
 }
 
 const PRICE_PER_PROFILE = 50;
+const MIN_CHECKOUT_AMOUNT = 150;
+const MIN_PROFILES = MIN_CHECKOUT_AMOUNT / PRICE_PER_PROFILE; // 3
 
 const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
   const { items, removeItem, clearCart, itemCount } = useCart();
@@ -143,11 +145,17 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
                 Access to unlocked profiles expires after 30 days.
               </p>
 
+              {totalPrice < MIN_CHECKOUT_AMOUNT && (
+                <p className="text-xs text-destructive font-medium text-center mb-3">
+                  Add at least {MIN_PROFILES - itemCount} more profile{MIN_PROFILES - itemCount > 1 ? "s" : ""} to checkout (minimum R{MIN_CHECKOUT_AMOUNT})
+                </p>
+              )}
+
               <Button
                 size="lg"
                 className="w-full mb-3"
                 onClick={handleCheckout}
-                disabled={isProcessing}
+                disabled={isProcessing || totalPrice < MIN_CHECKOUT_AMOUNT}
               >
                 <Lock size={18} />
                 {isProcessing ? "Processing..." : `Pay R${totalPrice}`}
