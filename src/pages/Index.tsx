@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, ChefHat, Grid3X3, ShoppingCart } from "lucide-react";
@@ -52,6 +52,7 @@ const Index = () => {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const paymentProcessedRef = useRef(false);
 
   // Fetch user role
   useEffect(() => {
@@ -82,27 +83,33 @@ const Index = () => {
 
   // Handle payment callback (cart-based unlock)
   useEffect(() => {
+    if (paymentProcessedRef.current) return;
+    
     const payment = searchParams.get("payment");
     const workerIds = searchParams.get("worker");
     const bundleType = searchParams.get("bundle");
 
-    if (payment === "unlock" && workerIds && bundleType && user) {
-      // Clear params immediately to prevent re-processing on re-render
+    if (payment === "unlock" && workerIds && bundleType) {
+      // Wait for user to be available before processing
+      if (!user) return;
+      
+      paymentProcessedRef.current = true;
+      // Clear params to prevent re-processing
       setSearchParams({}, { replace: true });
       
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
         const amount = ids.length * 50;
         for (const wId of ids) {
-          await supabase.from("profile_unlocks").insert({
+          const { error } = await supabase.from("profile_unlocks").insert({
             employer_id: user.id,
             helper_id: wId,
             bundle_type: bundleType,
             amount_paid: amount / ids.length,
           });
+          if (error) console.error("Unlock insert error:", error);
         }
         clearCart();
-        // Force refresh of unlocked IDs
         setUnlockRefresh((n) => n + 1);
         toast.success(`${ids.length} profile${ids.length > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
         if (ids.length === 1) {
