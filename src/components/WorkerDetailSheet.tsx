@@ -33,16 +33,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
 
   if (!worker || !isOpen) return null;
 
+  const PLACEMENT_FEE = 250;
+
   const handleContactClick = async (type: "call" | "message") => {
     setIsProcessingPayment(true);
     try {
-      // Extract numeric rate from string like "R150"
-      const rate = parseFloat(worker.hourlyRate.replace(/[^0-9.]/g, ""));
-      
       const { data, error } = await supabase.functions.invoke("initialize-payment", {
         body: {
           email: "customer@example.com", // In production, use logged-in user's email
-          amount: rate,
+          amount: PLACEMENT_FEE,
           workerId: worker.id,
           workerName: worker.name,
           callbackUrl: window.location.origin + "/home?payment=success&worker=" + worker.id + "&action=" + type,
@@ -194,7 +193,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose }: WorkerDetailSheetProps) 
           {/* Payment notice */}
           <div className="mb-4 p-3 bg-muted rounded-2xl flex items-center gap-2 text-sm text-muted-foreground">
             <Lock size={14} className="shrink-0" />
-            <span>A fee of <strong className="text-foreground">{worker.hourlyRate}</strong> is required to contact this helper via Paystack.</span>
+            <span>A placement fee of <strong className="text-foreground">R250</strong> is required to contact this helper via Paystack.</span>
           </div>
 
           {/* Actions */}
