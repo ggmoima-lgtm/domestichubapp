@@ -61,10 +61,6 @@ const WorkerCard = ({
                 <h3 className="font-bold text-foreground truncate">{name}</h3>
                 <p className="text-sm text-muted-foreground">{role}</p>
               </div>
-              <div className="text-right shrink-0">
-                <span className="font-bold text-primary">{hourlyRate}</span>
-                <p className="text-xs text-muted-foreground">/hour</p>
-              </div>
             </div>
 
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
