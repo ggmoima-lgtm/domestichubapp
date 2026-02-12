@@ -59,11 +59,6 @@ const WorkerCard = ({
             <div className="w-16 h-16 rounded-2xl overflow-hidden bg-primary-light">
               <img src={avatar} alt={name} className="w-full h-full object-cover" />
             </div>
-            {verified && (
-              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                <CheckCircle size={14} />
-              </div>
-            )}
           </div>
 
           <div className="flex-1 min-w-0">
