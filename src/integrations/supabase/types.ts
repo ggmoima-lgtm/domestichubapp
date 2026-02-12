@@ -48,6 +48,7 @@ export type Database = {
         Row: {
           availability: string | null
           availability_status: string
+          available_from: string | null
           avatar_url: string | null
           bio: string | null
           category: string
@@ -69,6 +70,7 @@ export type Database = {
         Insert: {
           availability?: string | null
           availability_status?: string
+          available_from?: string | null
           avatar_url?: string | null
           bio?: string | null
           category: string
@@ -90,6 +92,7 @@ export type Database = {
         Update: {
           availability?: string | null
           availability_status?: string
+          available_from?: string | null
           avatar_url?: string | null
           bio?: string | null
           category?: string
