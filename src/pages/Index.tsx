@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, ChefHat, Grid3X3, ShoppingCart } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, ShoppingCart } from "lucide-react";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import BottomNav from "@/components/BottomNav";
@@ -23,7 +23,6 @@ const categoryIcons = {
   nanny: Baby,
   housekeeper: Home,
   caregiver: Heart,
-  cook: ChefHat,
 };
 
 const categories = [
@@ -31,7 +30,6 @@ const categories = [
   { id: "nanny", label: "Nannies" },
   { id: "housekeeper", label: "Housekeepers" },
   { id: "caregiver", label: "Caregivers" },
-  { id: "cook", label: "Cooks" },
 ];
 
 const Index = () => {
@@ -298,6 +296,35 @@ const Index = () => {
       {activeTab === "messages" && (
         <main className="px-4 py-4">
           <MessagesList />
+        </main>
+      )}
+
+      {activeTab === "hub" && (
+        <main className="px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
+            <span className="text-muted-foreground text-sm">
+              {mockWorkers.filter((w) => unlockedIds.includes(w.id)).length} profiles
+            </span>
+          </div>
+          <div className="space-y-3">
+            {mockWorkers
+              .filter((w) => unlockedIds.includes(w.id))
+              .map((worker, index) => (
+                <div
+                  key={worker.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
+                </div>
+              ))}
+            {mockWorkers.filter((w) => unlockedIds.includes(w.id)).length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No unlocked profiles yet. Browse helpers and unlock profiles to see them here.</p>
+              </div>
+            )}
+          </div>
         </main>
       )}
 
