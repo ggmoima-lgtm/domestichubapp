@@ -1,4 +1,4 @@
-import { Home, MessageCircle, User } from "lucide-react";
+import { Home, MessageCircle, Unlock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -17,6 +17,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems: (NavItem & { id: string })[] = [
     { id: "home", icon: <Home size={22} />, label: "Home" },
     { id: "messages", icon: <MessageCircle size={22} />, label: "Messages" },
+    { id: "hub", icon: <Unlock size={22} />, label: "Hub" },
     { id: "profile", icon: <User size={22} />, label: "Profile" },
   ];
 
