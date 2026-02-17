@@ -883,11 +883,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 <Lock size={20} className="text-primary mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Get phone number, intro video, work history, references & direct messaging.
+                  Viewing this full profile will use 1 credit. Contact details and full CV will be revealed.
                 </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
-                  <Unlock size={18} />
-                  View Full Profile — 1 Credit
+                  <Eye size={18} />
+                  View Full Profile
                 </Button>
               </div>
 

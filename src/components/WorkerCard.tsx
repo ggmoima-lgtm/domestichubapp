@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Clock, Heart, Unlock } from "lucide-react";
+import { Star, MapPin, Clock, Heart, Unlock, Eye } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { getPreviewName } from "@/lib/contactMasking";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -98,7 +99,6 @@ const WorkerCard = ({
         }
       }
     } else {
-      // Fallback for mock/non-UUID data
       const saved = JSON.parse(localStorage.getItem("saved_helpers") || "[]");
       if (isSaved) {
         localStorage.setItem("saved_helpers", JSON.stringify(saved.filter((s: string) => s !== id)));
@@ -122,8 +122,15 @@ const WorkerCard = ({
       <div className="p-4">
         <div className="flex gap-3">
           <StatusFrame status={availabilityStatus} size="sm">
-            <div className="w-16 h-16 bg-primary-light">
-              <img src={avatar} alt={name} className="w-full h-full object-cover" />
+            <div className="w-16 h-16 bg-primary-light relative overflow-hidden">
+              <img
+                src={avatar}
+                alt={name}
+                className={`w-full h-full object-cover ${!isUnlocked ? "blur-[3px] scale-110" : ""}`}
+              />
+              {!isUnlocked && (
+                <div className="absolute inset-0 bg-foreground/10" />
+              )}
             </div>
           </StatusFrame>
 
@@ -187,6 +194,20 @@ const WorkerCard = ({
             </Badge>
           )}
         </div>
+
+        {/* View Full Profile Button */}
+        <Button
+          size="sm"
+          variant={isUnlocked ? "outline" : "default"}
+          className="w-full mt-3 rounded-xl gap-1.5"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
+        >
+          <Eye size={14} />
+          {isUnlocked ? "View Full Profile" : "View Full Profile"}
+        </Button>
       </div>
     </Card>
   );

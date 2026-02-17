@@ -16,9 +16,9 @@ interface CreditBundle {
 }
 
 const creditBundles: CreditBundle[] = [
-  { id: "credits_3", credits: 3, price: 150, label: "3 Credits" },
-  { id: "credits_5", credits: 5, price: 250, label: "5 Credits", popular: true },
-  { id: "credits_10", credits: 10, price: 450, label: "10 Credits" },
+  { id: "credits_5", credits: 5, price: 250, label: "5 Credits" },
+  { id: "credits_10", credits: 10, price: 450, label: "10 Credits", popular: true },
+  { id: "credits_25", credits: 25, price: 1000, label: "25 Credits" },
 ];
 
 interface Transaction {
@@ -142,7 +142,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
               >
                 {bundle.popular && (
                   <Badge className="absolute -top-2 right-3 bg-primary text-primary-foreground text-[10px] px-2">
-                    Popular
+                    Best Value
                   </Badge>
                 )}
                 <div>
