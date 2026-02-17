@@ -79,46 +79,59 @@ const Index = () => {
       });
   }, [user, unlockRefresh]);
 
-  // Handle payment callback (cart-based unlock)
+  // Handle payment callback (cart-based unlock + credit purchase)
   useEffect(() => {
     const payment = searchParams.get("payment");
     const workerIds = searchParams.get("worker");
     const bundleType = searchParams.get("bundle");
-
-    console.log("[UNLOCK] Effect fired:", { payment, workerIds, bundleType, userId: user?.id, processed: paymentProcessedRef.current });
+    const creditsParam = searchParams.get("credits");
+    const amountParam = searchParams.get("amount");
 
     if (paymentProcessedRef.current) return;
 
+    // Credit purchase callback
+    if (payment === "credits" && creditsParam && amountParam && user) {
+      paymentProcessedRef.current = true;
+      const addCredits = async () => {
+        const { error } = await supabase.rpc("add_credits_after_purchase", {
+          p_user_id: user.id,
+          p_credits: parseInt(creditsParam),
+          p_amount: parseFloat(amountParam),
+          p_payment_ref: searchParams.get("reference") || "paystack_" + Date.now(),
+        });
+        setSearchParams({}, { replace: true });
+        if (error) {
+          console.error("Credit add error:", error);
+          toast.error("Failed to add credits. Please contact support.");
+        } else {
+          toast.success(`${creditsParam} credits added to your wallet!`);
+        }
+      };
+      addCredits();
+      return;
+    }
+
+    // Profile unlock callback
     if (payment === "unlock" && workerIds && bundleType) {
-      if (!user) {
-        console.log("[UNLOCK] Waiting for user auth...");
-        return;
-      }
+      if (!user) return;
       
       paymentProcessedRef.current = true;
-      console.log("[UNLOCK] Processing unlocks for:", workerIds);
       
       const recordUnlocks = async () => {
         const ids = workerIds.split(",");
         const amount = ids.length * 50;
         let successCount = 0;
         for (const wId of ids) {
-          console.log("[UNLOCK] Inserting unlock for helper:", wId);
           const { error } = await supabase.from("profile_unlocks").insert({
             employer_id: user.id,
             helper_id: wId,
             bundle_type: bundleType,
             amount_paid: amount / ids.length,
           });
-          if (error) {
-            console.error("[UNLOCK] Insert error:", error);
-          } else {
-            successCount++;
-          }
+          if (!error) successCount++;
         }
         clearCart();
         setUnlockRefresh((n) => n + 1);
-        // Clear params after processing
         setSearchParams({}, { replace: true });
         
         if (successCount > 0) {
