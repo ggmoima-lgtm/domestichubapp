@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, ShoppingCart, Check } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, ShoppingCart, Check, MoreHorizontal } from "lucide-react";
+import StatusFrame from "./StatusFrame";
+import ReportBlockSheet from "./ReportBlockSheet";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
@@ -119,6 +121,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
   const [showEndAssignment, setShowEndAssignment] = useState(false);
   const [isEndingAssignment, setIsEndingAssignment] = useState(false);
   const [activePlacement, setActivePlacement] = useState<Placement | null>(null);
+  const [showReportSheet, setShowReportSheet] = useState(false);
 
   // Unlock state
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -342,9 +345,14 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           <div className="w-10 h-1 bg-muted rounded-full" />
         </div>
 
-        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+        <button onClick={onClose} className="absolute top-4 right-12 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
           <X size={18} />
         </button>
+        {user && (
+          <button onClick={() => setShowReportSheet(true)} className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+            <MoreHorizontal size={18} />
+          </button>
+        )}
 
         <div className="px-5 pb-8">
           {/* Status Banner */}
@@ -380,16 +388,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
 
           {/* Header */}
           <div className="flex items-start gap-4 mb-5">
-            <div className="relative">
-              <div className={`w-20 h-20 rounded-2xl overflow-hidden bg-primary-light ${isNotAvailable ? "opacity-60" : ""}`}>
+            <StatusFrame status={status} size="lg">
+              <div className={`w-20 h-20 bg-primary-light ${isNotAvailable ? "opacity-60" : ""}`}>
                 <img src={worker.avatar} alt={displayName} className="w-full h-full object-cover" />
               </div>
-              {worker.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1">
-                  <CheckCircle size={14} />
-                </div>
-              )}
-            </div>
+            </StatusFrame>
             <div className="flex-1">
               <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
               <p className="text-muted-foreground">{worker.role}</p>
@@ -771,6 +774,14 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
         helperId={worker.id}
         helperName={displayName}
         helperAvatar={worker.avatar}
+      />
+
+      {/* Report/Block Sheet */}
+      <ReportBlockSheet
+        isOpen={showReportSheet}
+        onClose={() => setShowReportSheet(false)}
+        targetUserId={worker.id}
+        targetName={displayName}
       />
     </div>
   );

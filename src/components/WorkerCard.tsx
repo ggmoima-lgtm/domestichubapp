@@ -6,6 +6,7 @@ import { getPreviewName } from "@/lib/contactMasking";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import StatusFrame from "./StatusFrame";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
@@ -120,11 +121,11 @@ const WorkerCard = ({
     >
       <div className="p-4">
         <div className="flex gap-3">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-primary-light">
+          <StatusFrame status={availabilityStatus} size="sm">
+            <div className="w-16 h-16 bg-primary-light">
               <img src={avatar} alt={name} className="w-full h-full object-cover" />
             </div>
-          </div>
+          </StatusFrame>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">

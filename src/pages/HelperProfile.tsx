@@ -399,7 +399,15 @@ const HelperProfile = () => {
           >
             <LogOut size={16} /> Log Out
           </button>
-          <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive">
+          <button
+            onClick={async () => {
+              if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+              await signOut();
+              toast.success("Account deletion requested. We're sorry to see you go.");
+              navigate("/auth");
+            }}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
+          >
             <Trash2 size={16} /> Delete Account
           </button>
         </CardContent>

@@ -1,78 +1,90 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { MapPin, Briefcase, Clock, Users, Search } from "lucide-react";
+import { MapPin, Briefcase, Clock, Users, Search, DollarSign, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
-interface EmployerListing {
+interface JobPost {
   id: string;
-  user_id: string;
+  employer_id: string;
+  title: string;
+  category: string;
+  description: string | null;
   location: string | null;
-  type_of_need: string | null;
-  email: string | null;
+  job_type: string | null;
+  live_in_out: string | null;
+  house_size: string | null;
+  family_size: string | null;
+  duties: string[] | null;
+  hours_per_week: number | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  negotiable: boolean | null;
   created_at: string;
-  employer_name?: string;
 }
 
-const needTypeLabels: Record<string, string> = {
-  "full-time": "Full-time Helper",
-  "part-time": "Part-time Helper",
-  "live-in": "Live-in Helper",
-  "live-out": "Live-out Helper",
-};
-
-const needTypeIcons: Record<string, string> = {
-  "full-time": "🕐",
-  "part-time": "⏰",
-  "live-in": "🏠",
-  "live-out": "🚶",
+const categoryIcons: Record<string, string> = {
+  nanny: "👶",
+  housekeeper: "🏠",
+  caregiver: "❤️",
+  "all-around": "✨",
 };
 
 const HelperHomeView = () => {
   const { user } = useAuth();
-  const [listings, setListings] = useState<EmployerListing[]>([]);
+  const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [helperId, setHelperId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      const { data, error } = await supabase
-        .from("employer_profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+    fetchJobs();
+    if (user) {
+      supabase.from("helpers").select("id").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+        if (data) setHelperId(data.id);
+      });
+    }
+  }, [user]);
 
-      if (!error && data) {
-        // Fetch employer names from profiles
-        const userIds = data.map((d) => d.user_id);
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name")
-          .in("user_id", userIds);
+  const fetchJobs = async () => {
+    const { data, error } = await supabase
+      .from("job_posts")
+      .select("*")
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
 
-        const nameMap = new Map(
-          (profiles || []).map((p) => [p.user_id, p.full_name])
-        );
+    if (!error && data) setJobs(data);
+    setLoading(false);
+  };
 
-        setListings(
-          data.map((d) => ({
-            ...d,
-            employer_name: nameMap.get(d.user_id) || "Employer",
-          }))
-        );
-      }
-      setLoading(false);
-    };
+  const handleApply = async (jobId: string) => {
+    if (!helperId) {
+      toast.error("Please complete your helper profile first.");
+      return;
+    }
+    const { error } = await supabase.from("job_applications").insert({
+      job_id: jobId,
+      helper_id: helperId,
+    });
+    if (error) {
+      if (error.code === "23505") toast.info("You've already applied to this job.");
+      else toast.error("Failed to apply.");
+    } else {
+      toast.success("Application submitted!");
+    }
+  };
 
-    fetchListings();
-  }, []);
-
-  const filteredListings = listings.filter((listing) => {
+  const filteredJobs = jobs.filter((job) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
-      (listing.location || "").toLowerCase().includes(q) ||
-      (listing.type_of_need || "").toLowerCase().includes(q) ||
-      (listing.employer_name || "").toLowerCase().includes(q)
+      job.title.toLowerCase().includes(q) ||
+      job.category.toLowerCase().includes(q) ||
+      (job.location || "").toLowerCase().includes(q) ||
+      (job.description || "").toLowerCase().includes(q)
     );
   });
 
@@ -86,12 +98,11 @@ const HelperHomeView = () => {
 
   return (
     <div>
-      {/* Search */}
       <div className="mb-5">
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by location or job type..."
+            placeholder="Search jobs by title, location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 rounded-2xl h-12 bg-muted/50 border-0"
@@ -99,71 +110,86 @@ const HelperHomeView = () => {
         </div>
       </div>
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-foreground">
-          <Users size={18} className="inline mr-2 text-primary" />
-          Employers Hiring
-          <span className="text-muted-foreground font-normal ml-2">
-            ({filteredListings.length})
-          </span>
+          <Briefcase size={18} className="inline mr-2 text-primary" />
+          Job Listings
+          <span className="text-muted-foreground font-normal ml-2">({filteredJobs.length})</span>
         </h3>
       </div>
 
-      {/* Listings */}
       <div className="space-y-3">
-        {filteredListings.map((listing, index) => (
+        {filteredJobs.map((job, index) => (
           <div
-            key={listing.id}
+            key={job.id}
             className="bg-card rounded-2xl p-4 shadow-soft border border-border animate-fade-in"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div className="flex items-start gap-3">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">
-                  {needTypeIcons[listing.type_of_need || ""] || "💼"}
-                </span>
+                <span className="text-xl">{categoryIcons[job.category] || "💼"}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-foreground text-sm">
-                  {needTypeLabels[listing.type_of_need || ""] || "Helper Needed"}
-                </h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Posted by {listing.employer_name}
-                </p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {listing.location && (
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                      <MapPin size={12} />
-                      {listing.location.charAt(0).toUpperCase() + listing.location.slice(1)}
-                    </span>
+                <h4 className="font-bold text-foreground text-sm">{job.title}</h4>
+                {job.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{job.description}</p>
+                )}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {job.location && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5">
+                      <MapPin size={10} /> {job.location}
+                    </Badge>
                   )}
-                  {listing.type_of_need && (
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                      <Clock size={12} />
-                      {listing.type_of_need.charAt(0).toUpperCase() + listing.type_of_need.slice(1)}
-                    </span>
+                  {job.job_type && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5">
+                      <Clock size={10} /> {job.job_type}
+                    </Badge>
+                  )}
+                  {job.live_in_out && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5">
+                      <Home size={10} /> {job.live_in_out}
+                    </Badge>
+                  )}
+                  {(job.salary_min || job.salary_max) && (
+                    <Badge variant="outline" className="text-[10px] gap-0.5">
+                      <DollarSign size={10} />
+                      R{job.salary_min || 0} - R{job.salary_max || "?"}
+                      {job.negotiable && " (neg.)"}
+                    </Badge>
                   )}
                 </div>
+                {job.duties && job.duties.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {job.duties.slice(0, 3).map((d) => (
+                      <span key={d} className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{d}</span>
+                    ))}
+                    {job.duties.length > 3 && <span className="text-[10px] text-muted-foreground">+{job.duties.length - 3}</span>}
+                  </div>
+                )}
               </div>
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {new Date(listing.created_at).toLocaleDateString("en-ZA", {
-                  day: "numeric",
-                  month: "short",
-                })}
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                {new Date(job.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
               </span>
             </div>
+            {helperId && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full mt-3 rounded-xl"
+                onClick={() => handleApply(job.id)}
+              >
+                Apply Now
+              </Button>
+            )}
           </div>
         ))}
       </div>
 
-      {filteredListings.length === 0 && (
+      {filteredJobs.length === 0 && (
         <div className="text-center py-12">
           <Briefcase size={40} className="mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground font-medium">No employers found</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
-            Check back soon for new opportunities
-          </p>
+          <p className="text-muted-foreground font-medium">No jobs posted yet</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">Check back soon for new opportunities</p>
         </div>
       )}
     </div>
