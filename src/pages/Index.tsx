@@ -120,10 +120,11 @@ const Index = () => {
   }, [user, searchParams]);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
-    // Hide non-available unless toggled
+    // Always show unlocked helpers regardless of status; hide non-available unless toggled
     const helperStatus = worker.availabilityStatus || "available";
     const isAvailable = helperStatus === "available" || helperStatus === "interviewing";
-    if (!showUnavailable && !isAvailable) return false;
+    const isUnlockedByEmployer = unlockedIds.includes(worker.id);
+    if (!showUnavailable && !isAvailable && !isUnlockedByEmployer) return false;
 
     // Text search
     const matchesSearch =
