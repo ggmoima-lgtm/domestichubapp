@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Clock, Heart, Unlock, Eye } from "lucide-react";
+import { Star, MapPin, Clock, Heart, Unlock, Eye, Lock } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -119,6 +119,15 @@ const WorkerCard = ({
       className={`overflow-hidden ${isHired ? "opacity-60" : ""}`}
       onClick={onClick}
     >
+      {/* Status banner for unlocked but non-available helpers */}
+      {isUnlocked && (availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable") && (
+        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
+          <Lock size={12} className="text-destructive" />
+          <span className="text-xs font-semibold text-destructive">
+            {availabilityStatus === "unavailable" ? "Currently Unavailable" : "Currently Hired — Not Available"}
+          </span>
+        </div>
+      )}
       <div className="p-4">
         <div className="flex gap-3">
           <StatusFrame status={availabilityStatus} size="sm">
