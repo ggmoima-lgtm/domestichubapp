@@ -201,11 +201,14 @@ const Index = () => {
               </div>
             </div>
             {userRole !== "helper" && (
-              <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full">
+              <button
+                onClick={() => { setActiveTab("profile"); }}
+                className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors"
+              >
                 <Coins size={14} className="text-primary" />
                 <span className="text-sm font-bold text-primary">{creditBalance}</span>
                 <span className="text-xs text-muted-foreground">credits</span>
-              </div>
+              </button>
             )}
           </div>
         </div>
