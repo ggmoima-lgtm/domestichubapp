@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock, Mail, MapPin } from "lucide-react";
+import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock, Mail, MapPin, FileText } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -41,6 +41,7 @@ const Auth = () => {
   const [area, setArea] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   if (loading) {
     return (
@@ -115,6 +116,14 @@ const Auth = () => {
         });
         if (profileError) {
           console.error("Profile creation error:", profileError);
+        }
+
+        // Record terms acceptance
+        if (termsAccepted) {
+          await supabase.from("terms_acceptances").insert({
+            user_id: data.user.id,
+            terms_version: "1.0",
+          });
         }
       }
 
@@ -252,6 +261,24 @@ const Auth = () => {
         </div>
       </div>
 
+      {/* Terms acceptance */}
+      <div className="space-y-2">
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="mt-1 rounded border-border accent-primary"
+          />
+          <span className="text-xs text-muted-foreground">
+            I agree to the{" "}
+            <a href="/terms" target="_blank" className="text-primary font-semibold hover:underline">Terms & Conditions</a>
+            {" "}and{" "}
+            <a href="/privacy" target="_blank" className="text-primary font-semibold hover:underline">Privacy Policy</a>
+          </span>
+        </label>
+      </div>
+
       <Button
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
@@ -262,6 +289,10 @@ const Auth = () => {
           }
           if (!signupEmail.includes("@")) {
             toast({ title: "Please enter a valid email", variant: "destructive" });
+            return;
+          }
+          if (!termsAccepted) {
+            toast({ title: "Please accept the Terms & Conditions", variant: "destructive" });
             return;
           }
           handleSendOtp();
