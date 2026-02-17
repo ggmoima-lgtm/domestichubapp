@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      badge_awards: {
+        Row: {
+          awarded_at: string
+          badge_id: string
+          helper_id: string
+          id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_id: string
+          helper_id: string
+          id?: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_id?: string
+          helper_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badge_awards_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badge_awards_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      badges: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          key: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          key: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          key?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      blocked_users: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       employer_profiles: {
         Row: {
           availability: string[] | null
@@ -134,6 +221,117 @@ export type Database = {
           video_flagged?: boolean
           video_moderation_notes?: string | null
           video_moderation_status?: string
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          created_at: string
+          helper_id: string
+          id: string
+          job_id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          helper_id: string
+          id?: string
+          job_id: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          helper_id?: string
+          id?: string
+          job_id?: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_posts: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duties: string[] | null
+          employer_id: string
+          family_size: string | null
+          hours_per_week: number | null
+          house_size: string | null
+          id: string
+          job_type: string | null
+          live_in_out: string | null
+          location: string | null
+          negotiable: boolean | null
+          salary_max: number | null
+          salary_min: number | null
+          skills_required: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          duties?: string[] | null
+          employer_id: string
+          family_size?: string | null
+          hours_per_week?: number | null
+          house_size?: string | null
+          id?: string
+          job_type?: string | null
+          live_in_out?: string | null
+          location?: string | null
+          negotiable?: boolean | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills_required?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duties?: string[] | null
+          employer_id?: string
+          family_size?: string | null
+          hours_per_week?: number | null
+          house_size?: string | null
+          id?: string
+          job_type?: string | null
+          live_in_out?: string | null
+          location?: string | null
+          negotiable?: boolean | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills_required?: string[] | null
+          status?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -391,6 +589,54 @@ export type Database = {
           },
         ]
       }
+      user_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       video_flags: {
         Row: {
           created_at: string
@@ -428,10 +674,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -558,6 +810,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
