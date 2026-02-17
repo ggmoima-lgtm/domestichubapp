@@ -16,6 +16,8 @@ import {
   Heart, ChevronRight, LogOut, Trash2, Bell, Lock, Mail,
   FileText, Calendar, DollarSign, Users
 } from "lucide-react";
+import ChangePhoneSheet from "@/components/ChangePhoneSheet";
+import NotificationPreferences from "@/components/NotificationPreferences";
 
 interface HelperData {
   id: string;
@@ -54,6 +56,7 @@ const HelperProfile = () => {
   const [editData, setEditData] = useState<Partial<HelperData>>({});
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("profile");
+  const [showChangePhone, setShowChangePhone] = useState(false);
 
   useEffect(() => {
     if (user) fetchHelperData();
@@ -374,14 +377,25 @@ const HelperProfile = () => {
         </CardContent>
       </Card>
 
+      {/* Notifications */}
+      <NotificationPreferences />
+
       {/* Account Controls */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 p-2">
+          <button onClick={() => setShowChangePhone(true)} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><Phone size={16} className="text-muted-foreground" /> Change Phone Number</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
           <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Settings</span>
+            <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Policy</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
+          <button onClick={() => navigate("/terms")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Terms & Conditions</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
           <Separator className="my-2" />
@@ -412,6 +426,14 @@ const HelperProfile = () => {
           </button>
         </CardContent>
       </Card>
+
+      {/* Change Phone Sheet */}
+      <ChangePhoneSheet
+        isOpen={showChangePhone}
+        onClose={() => setShowChangePhone(false)}
+        currentPhone={helper?.phone || ""}
+        onChanged={() => fetchHelperData()}
+      />
     </div>
   );
 };

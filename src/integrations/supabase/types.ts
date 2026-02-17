@@ -101,6 +101,63 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       employer_profiles: {
         Row: {
           availability: string[] | null
@@ -221,6 +278,48 @@ export type Database = {
           video_flagged?: boolean
           video_moderation_notes?: string | null
           video_moderation_status?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          credits_purchased: number
+          id: string
+          invoice_number: string
+          payment_method: string | null
+          payment_reference: string | null
+          status: string
+          tax: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credits_purchased?: number
+          id?: string
+          invoice_number: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          status?: string
+          tax?: number
+          total: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credits_purchased?: number
+          id?: string
+          invoice_number?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          status?: string
+          tax?: number
+          total?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -373,6 +472,48 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          admin_actions: boolean
+          created_at: string
+          credits: boolean
+          hire_updates: boolean
+          id: string
+          interviews: boolean
+          messages: boolean
+          profile_unlocks: boolean
+          reviews: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_actions?: boolean
+          created_at?: string
+          credits?: boolean
+          hire_updates?: boolean
+          id?: string
+          interviews?: boolean
+          messages?: boolean
+          profile_unlocks?: boolean
+          reviews?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_actions?: boolean
+          created_at?: string
+          credits?: boolean
+          hire_updates?: boolean
+          id?: string
+          interviews?: boolean
+          messages?: boolean
+          profile_unlocks?: boolean
+          reviews?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       placements: {
         Row: {
           created_at: string
@@ -512,6 +653,33 @@ export type Database = {
         }
         Relationships: []
       }
+      push_tokens: {
+        Row: {
+          created_at: string
+          device_info: string | null
+          id: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           comment: string | null
@@ -588,6 +756,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      terms_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          terms_version: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          terms_version: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          terms_version?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_reports: {
         Row: {
@@ -674,6 +863,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits_after_purchase: {
+        Args: {
+          p_amount: number
+          p_credits: number
+          p_payment_ref: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      deduct_credits_for_unlock: {
+        Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

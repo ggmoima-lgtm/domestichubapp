@@ -20,9 +20,13 @@ import {
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard,
-  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
+import CreditWalletCard from "@/components/CreditWalletCard";
+import InvoiceHistory from "@/components/InvoiceHistory";
+import ChangePhoneSheet from "@/components/ChangePhoneSheet";
+import NotificationPreferences from "@/components/NotificationPreferences";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
@@ -67,6 +71,8 @@ const EmployerProfile = () => {
   const [savedHelpers, setSavedHelpers] = useState<any[]>([]);
   const [showCreateJob, setShowCreateJob] = useState(false);
   const [jobCount, setJobCount] = useState(0);
+  const [showChangePhone, setShowChangePhone] = useState(false);
+  const [userPhone, setUserPhone] = useState("");
 
   useEffect(() => {
     if (user) fetchData();
@@ -124,6 +130,13 @@ const EmployerProfile = () => {
       .eq("employer_id", user.id)
       .eq("status", "active");
     setJobCount(jobs || 0);
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("phone")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setUserPhone(profile?.phone || "");
 
     setLoading(false);
   };
@@ -390,18 +403,11 @@ const EmployerProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Payments */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Payments</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1 p-2">
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><CreditCard size={16} className="text-muted-foreground" /> Purchase History</span>
-            <ChevronRight size={16} className="text-muted-foreground" />
-          </button>
-        </CardContent>
-      </Card>
+      {/* Credit Wallet */}
+      <CreditWalletCard />
+
+      {/* Invoice History */}
+      <InvoiceHistory />
 
       {/* Reviews Given */}
       <Card>
@@ -417,14 +423,25 @@ const EmployerProfile = () => {
         </CardContent>
       </Card>
 
+      {/* Notifications */}
+      <NotificationPreferences />
+
       {/* Settings */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 p-2">
+          <button onClick={() => setShowChangePhone(true)} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><Phone size={16} className="text-muted-foreground" /> Change Phone Number</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
           <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy</span>
+            <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Policy</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
+          <button onClick={() => navigate("/terms")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Terms & Conditions</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
           <Separator className="my-2" />
@@ -445,9 +462,8 @@ const EmployerProfile = () => {
           <button
             onClick={async () => {
               if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
-              const { error } = await supabase.auth.admin.deleteUser(user!.id).catch(() => ({ error: null }));
               await signOut();
-              toast.success("Account deleted. We're sorry to see you go.");
+              toast.success("Account deletion requested. We're sorry to see you go.");
               navigate("/auth");
             }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
@@ -462,6 +478,14 @@ const EmployerProfile = () => {
         isOpen={showCreateJob}
         onClose={() => setShowCreateJob(false)}
         onCreated={fetchData}
+      />
+
+      {/* Change Phone Sheet */}
+      <ChangePhoneSheet
+        isOpen={showChangePhone}
+        onClose={() => setShowChangePhone(false)}
+        currentPhone={userPhone}
+        onChanged={(p) => setUserPhone(p)}
       />
     </div>
   );
