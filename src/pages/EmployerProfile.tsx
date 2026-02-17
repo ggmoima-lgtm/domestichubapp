@@ -20,8 +20,9 @@ import {
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard,
-  Briefcase, Heart, Unlock, Star, User, Clock, FileText
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus
 } from "lucide-react";
+import CreateJobSheet from "@/components/CreateJobSheet";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
@@ -29,7 +30,6 @@ const CATEGORIES = [
   { value: "nanny", label: "Nanny" },
   { value: "housekeeper", label: "Housekeeper" },
   { value: "caregiver", label: "Caregiver" },
-  { value: "cook", label: "Cook" },
   { value: "all-around", label: "All-around Helper" },
 ];
 
@@ -65,6 +65,8 @@ const EmployerProfile = () => {
   const [reviewCount, setReviewCount] = useState(0);
   const [showSavedHelpers, setShowSavedHelpers] = useState(false);
   const [savedHelpers, setSavedHelpers] = useState<any[]>([]);
+  const [showCreateJob, setShowCreateJob] = useState(false);
+  const [jobCount, setJobCount] = useState(0);
 
   useEffect(() => {
     if (user) fetchData();
@@ -115,6 +117,14 @@ const EmployerProfile = () => {
     }));
 
     setSavedHelpers([...dbHelpers, ...localHelpers]);
+
+    const { count: jobs } = await supabase
+      .from("job_posts")
+      .select("*", { count: "exact", head: true })
+      .eq("employer_id", user.id)
+      .eq("status", "active");
+    setJobCount(jobs || 0);
+
     setLoading(false);
   };
 
@@ -319,10 +329,17 @@ const EmployerProfile = () => {
 
       {/* Job Management */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">Job Management</CardTitle>
+          <Button size="sm" onClick={() => setShowCreateJob(true)} className="gap-1">
+            <Plus size={14} /> Post Job
+          </Button>
         </CardHeader>
         <CardContent className="space-y-1 p-2">
+          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><Briefcase size={16} className="text-primary" /> Active Jobs</span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">{jobCount} <ChevronRight size={16} /></span>
+          </button>
           <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Unlock size={16} className="text-primary" /> Unlocked Profiles</span>
             <span className="flex items-center gap-1 text-sm text-muted-foreground">{unlockCount} <ChevronRight size={16} /></span>
@@ -425,11 +442,27 @@ const EmployerProfile = () => {
           >
             <LogOut size={16} /> Log Out
           </button>
-          <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive">
+          <button
+            onClick={async () => {
+              if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+              const { error } = await supabase.auth.admin.deleteUser(user!.id).catch(() => ({ error: null }));
+              await signOut();
+              toast.success("Account deleted. We're sorry to see you go.");
+              navigate("/auth");
+            }}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
+          >
             <Trash2 size={16} /> Delete Account
           </button>
         </CardContent>
       </Card>
+
+      {/* Create Job Sheet */}
+      <CreateJobSheet
+        isOpen={showCreateJob}
+        onClose={() => setShowCreateJob(false)}
+        onCreated={fetchData}
+      />
     </div>
   );
 };

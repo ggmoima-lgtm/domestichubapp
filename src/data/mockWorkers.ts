@@ -122,5 +122,4 @@ export const categories = [
   { id: "nanny", label: "Nannies", icon: "Baby" },
   { id: "housekeeper", label: "Housekeepers", icon: "Home" },
   { id: "caregiver", label: "Caregivers", icon: "Heart" },
-  { id: "cook", label: "Cooks", icon: "ChefHat" },
 ];
