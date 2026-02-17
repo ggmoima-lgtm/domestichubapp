@@ -893,7 +893,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 ) : (
                   <Button size="lg" className="w-full" onClick={() => { addItem(worker); toast.success(`${getPreviewName(worker.name)} added`); }}>
                     <ShoppingCart size={18} />
-                    Add Helper — R50
+                    Add Helper — 1 Credit
                   </Button>
                 )}
               </div>
