@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, ShoppingCart } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, Coins } from "lucide-react";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import BottomNav from "@/components/BottomNav";
@@ -10,12 +10,10 @@ import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
-import CartSheet from "@/components/CartSheet";
 import HelperHomeView from "@/components/HelperHomeView";
 import { mockWorkers, Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 
 const categoryIcons = {
@@ -35,14 +33,12 @@ const categories = [
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { itemCount, clearCart } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
@@ -50,6 +46,7 @@ const Index = () => {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
 
   // Fetch user role
@@ -79,17 +76,27 @@ const Index = () => {
       });
   }, [user, unlockRefresh]);
 
-  // Handle payment callback (cart-based unlock + credit purchase)
+  // Fetch credit balance
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("credit_wallets")
+      .select("balance")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setCreditBalance(data?.balance ?? 0);
+      });
+  }, [user, unlockRefresh]);
+
+  // Handle payment callback (credit purchase)
   useEffect(() => {
     const payment = searchParams.get("payment");
-    const workerIds = searchParams.get("worker");
-    const bundleType = searchParams.get("bundle");
     const creditsParam = searchParams.get("credits");
     const amountParam = searchParams.get("amount");
 
     if (paymentProcessedRef.current) return;
 
-    // Credit purchase callback
     if (payment === "credits" && creditsParam && amountParam && user) {
       paymentProcessedRef.current = true;
       const addCredits = async () => {
@@ -105,49 +112,10 @@ const Index = () => {
           toast.error("Failed to add credits. Please contact support.");
         } else {
           toast.success(`${creditsParam} credits added to your wallet!`);
+          setCreditBalance((b) => b + parseInt(creditsParam));
         }
       };
       addCredits();
-      return;
-    }
-
-    // Profile unlock callback
-    if (payment === "unlock" && workerIds && bundleType) {
-      if (!user) return;
-      
-      paymentProcessedRef.current = true;
-      
-      const recordUnlocks = async () => {
-        const ids = workerIds.split(",");
-        const amount = ids.length * 50;
-        let successCount = 0;
-        for (const wId of ids) {
-          const { error } = await supabase.from("profile_unlocks").insert({
-            employer_id: user.id,
-            helper_id: wId,
-            bundle_type: bundleType,
-            amount_paid: amount / ids.length,
-          });
-          if (!error) successCount++;
-        }
-        clearCart();
-        setUnlockRefresh((n) => n + 1);
-        setSearchParams({}, { replace: true });
-        
-        if (successCount > 0) {
-          toast.success(`${successCount} profile${successCount > 1 ? "s" : ""} unlocked! Full access for 30 days.`);
-        } else {
-          toast.error("Failed to record unlocks. Please contact support.");
-        }
-        if (ids.length === 1) {
-          const worker = mockWorkers.find((w) => w.id === ids[0]);
-          if (worker) {
-            setSelectedWorker(worker);
-            setIsDetailOpen(true);
-          }
-        }
-      };
-      recordUnlocks();
     }
   }, [user, searchParams]);
 
@@ -232,7 +200,13 @@ const Index = () => {
                 <h2 className="text-lg font-bold text-foreground">Domestic Hub</h2>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full gradient-warm shadow-soft" />
+            {userRole !== "helper" && (
+              <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full">
+                <Coins size={14} className="text-primary" />
+                <span className="text-sm font-bold text-primary">{creditBalance}</span>
+                <span className="text-xs text-muted-foreground">credits</span>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -350,21 +324,8 @@ const Index = () => {
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Floating Cart Button */}
-      {itemCount > 0 && activeTab === "home" && (
-        <button
-          onClick={() => setIsCartOpen(true)}
-          className="fixed bottom-28 right-4 z-50 bg-primary text-primary-foreground w-14 h-14 rounded-full shadow-float flex items-center justify-center animate-fade-in"
-        >
-          <ShoppingCart size={22} />
-          <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-            {itemCount}
-          </span>
-        </button>
-      )}
 
-      {/* Cart Sheet */}
-      <CartSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
 
       {/* Filter Sheet */}
       <FilterSheet
