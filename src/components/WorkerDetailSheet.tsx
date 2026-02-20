@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Phone, Award, Unlock } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Phone, Award, Unlock, AlertTriangle } from "lucide-react";
 import StatusFrame from "./StatusFrame";
 import ReportBlockSheet from "./ReportBlockSheet";
 import { Button } from "./ui/button";
@@ -572,16 +572,37 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           {/* ======= LOCKED SECTIONS ======= */}
           {isUnlocked ? (
             <>
-              {/* Phone Number - UNLOCKED */}
+              {/* Phone Number + Call Button - UNLOCKED */}
               {worker.phone && (
                 <div className="mb-5">
                   <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
                     <Phone size={16} className="text-primary" />
                     Phone Number
                   </h3>
-                  <a href={`tel:${worker.phone}`} className="text-sm text-primary font-semibold hover:underline">
-                    {worker.phone}
-                  </a>
+                  <div className="flex items-center gap-3">
+                    <a href={`tel:${worker.phone}`} className="text-sm text-primary font-semibold hover:underline">
+                      {worker.phone}
+                    </a>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 text-xs"
+                      onClick={() => {
+                        const confirmed = window.confirm(
+                          "Off-Platform Disclaimer\n\nBy calling this helper directly, you acknowledge that any arrangements made outside DomesticHub are between you and the helper. DomesticHub is not liable for off-platform agreements.\n\nSee our full Off-Platform Liability policy in Settings.\n\nProceed with call?"
+                        );
+                        if (confirmed && worker.phone) {
+                          window.location.href = `tel:${worker.phone}`;
+                        }
+                      }}
+                    >
+                      <Phone size={12} /> Call
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-1">
+                    <AlertTriangle size={10} /> Off-platform arrangements are at your own risk.{" "}
+                    <a href="/off-platform-liability" target="_blank" className="text-primary underline">Learn more</a>
+                  </p>
                 </div>
               )}
 

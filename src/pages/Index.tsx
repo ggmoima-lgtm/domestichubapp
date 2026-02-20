@@ -4,6 +4,7 @@ import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, Grid3X3, Coins } from "lucide-react";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
+import LowCreditBanner from "@/components/LowCreditBanner";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
 import CategoryPill from "@/components/CategoryPill";
@@ -235,6 +236,7 @@ const Index = () => {
 
       {activeTab === "home" && userRole !== "helper" && (
         <main className="px-4 py-4">
+          <LowCreditBanner onBuyCredits={() => setActiveTab("profile")} />
           <div className="mb-5">
             <SearchBar
               value={searchQuery}
