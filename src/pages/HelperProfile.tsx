@@ -41,6 +41,8 @@ interface HelperData {
   gender: string | null;
   nationality: string | null;
   living_arrangement: string | null;
+  verification_status?: string;
+  verification_date?: string | null;
 }
 
 interface ReviewData {
@@ -199,6 +201,42 @@ const HelperProfile = () => {
               </Badge>
             )}
           </div>
+        </div>
+
+        {/* Identity Verification */}
+        <div className="px-4 py-3">
+          {helper.verification_status === "verified" ? (
+            <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl">
+              <ShieldCheck size={18} className="text-green-600 dark:text-green-400" />
+              <div>
+                <p className="text-sm font-semibold text-green-800 dark:text-green-300">Identity Verified</p>
+                <p className="text-xs text-green-700 dark:text-green-400">
+                  Verified on {helper.verification_date ? new Date(helper.verification_date).toLocaleDateString() : "N/A"}
+                </p>
+              </div>
+            </div>
+          ) : helper.verification_status === "failed" ? (
+            <div className="flex items-center justify-between p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <div>
+                <p className="text-sm font-semibold text-destructive">Verification Failed</p>
+                <p className="text-xs text-muted-foreground">Please try again</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => toast.info("SimplyID integration: redirect to verification portal")}>
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-xl">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Verify Your Identity</p>
+                <p className="text-xs text-muted-foreground">Get the ID Verified badge</p>
+              </div>
+              <Button size="sm" onClick={() => toast.info("SimplyID integration: redirect to verification portal")}>
+                <ShieldCheck size={14} />
+                Verify
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Availability Toggle */}
