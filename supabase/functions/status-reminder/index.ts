@@ -34,11 +34,40 @@ Deno.serve(async (req) => {
     }
 
     const reminders: string[] = [];
+    const autoUnavailable: string[] = [];
+
+    // Check for helpers who haven't responded in 28+ days (2x reminder period) → auto-set unavailable
+    const twentyEightDaysAgo = new Date();
+    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
 
     for (const helper of staleHelpers || []) {
       if (!helper.user_id) continue;
 
-      // Check notification preferences
+      const lastUpdate = new Date(helper.updated_at);
+
+      // If 28+ days stale, auto-set to unavailable
+      if (lastUpdate <= twentyEightDaysAgo) {
+        await supabase
+          .from("helpers")
+          .update({ availability_status: "unavailable" })
+          .eq("id", helper.id);
+
+        await supabase.from("audit_logs").insert({
+          actor_id: helper.user_id,
+          action: "auto_set_unavailable",
+          target_type: "helper",
+          target_id: helper.id,
+          details: {
+            last_updated: helper.updated_at,
+            reason: "No response to availability reminder after 28 days",
+          },
+        });
+
+        autoUnavailable.push(helper.full_name);
+        continue;
+      }
+
+      // Otherwise send reminder
       const { data: prefs } = await supabase
         .from("notification_preferences")
         .select("hire_updates")
@@ -47,18 +76,15 @@ Deno.serve(async (req) => {
 
       if (prefs && prefs.hire_updates === false) continue;
 
-      // Get push tokens
       const { data: tokens } = await supabase
         .from("push_tokens")
         .select("token")
         .eq("user_id", helper.user_id);
 
       if (tokens && tokens.length > 0) {
-        // In production, send actual push notification here
         console.log(`Would send reminder to ${helper.full_name} (${helper.user_id})`);
       }
 
-      // Log the reminder as an audit entry
       await supabase.from("audit_logs").insert({
         actor_id: helper.user_id,
         action: "status_reminder_sent",
@@ -77,7 +103,9 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         reminders_sent: reminders.length,
-        helpers: reminders,
+        auto_unavailable: autoUnavailable.length,
+        helpers_reminded: reminders,
+        helpers_set_unavailable: autoUnavailable,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

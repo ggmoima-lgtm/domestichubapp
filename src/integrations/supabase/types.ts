@@ -258,6 +258,9 @@ export type Database = {
           skills: string[] | null
           updated_at: string
           user_id: string | null
+          verification_date: string | null
+          verification_reference_id: string | null
+          verification_status: string
           video_flag_count: number
           video_flagged: boolean
           video_moderation_notes: string | null
@@ -290,6 +293,9 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
+          verification_date?: string | null
+          verification_reference_id?: string | null
+          verification_status?: string
           video_flag_count?: number
           video_flagged?: boolean
           video_moderation_notes?: string | null
@@ -322,6 +328,9 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
+          verification_date?: string | null
+          verification_reference_id?: string | null
+          verification_status?: string
           video_flag_count?: number
           video_flagged?: boolean
           video_moderation_notes?: string | null
