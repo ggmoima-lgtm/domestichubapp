@@ -26,7 +26,7 @@ const HeroSection = ({ onFindHelpers, onPostProfile }: HeroSectionProps) => {
           </h1>
 
           <p className="text-sm text-muted-foreground mb-5 max-w-xs">
-            Connect with verified nannies, housekeepers, and caregivers in your area.
+            Connecting Homes With Trusted Hands. Find verified nannies, housekeepers, and caregivers in your area.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
