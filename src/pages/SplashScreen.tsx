@@ -37,7 +37,7 @@ const SplashScreen = () => {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="text-white/80 text-sm mt-2"
         >
-          Your trusted home services marketplace
+          Connecting Homes With Trusted Hands
         </motion.p>
       </motion.div>
 
