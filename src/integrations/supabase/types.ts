@@ -192,12 +192,20 @@ export type Database = {
         Row: {
           availability: string[] | null
           category: string | null
+          city: string | null
+          country: string | null
           created_at: string
           custom_notes: string | null
           email: string | null
+          formatted_address: string | null
           full_name: string | null
           id: string
+          latitude: number | null
           location: string | null
+          longitude: number | null
+          place_id: string | null
+          province: string | null
+          suburb: string | null
           type_of_need: string | null
           updated_at: string
           user_id: string
@@ -205,12 +213,20 @@ export type Database = {
         Insert: {
           availability?: string[] | null
           category?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           custom_notes?: string | null
           email?: string | null
+          formatted_address?: string | null
           full_name?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          place_id?: string | null
+          province?: string | null
+          suburb?: string | null
           type_of_need?: string | null
           updated_at?: string
           user_id: string
@@ -218,12 +234,20 @@ export type Database = {
         Update: {
           availability?: string[] | null
           category?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           custom_notes?: string | null
           email?: string | null
+          formatted_address?: string | null
           full_name?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          place_id?: string | null
+          province?: string | null
+          suburb?: string | null
           type_of_need?: string | null
           updated_at?: string
           user_id?: string
