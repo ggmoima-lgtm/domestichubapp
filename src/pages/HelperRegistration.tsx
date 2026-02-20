@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, FileText, Users, Save } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,8 +81,7 @@ const HelperRegistration = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [idDocFile, setIdDocFile] = useState<File | null>(null);
-  const [references, setReferences] = useState([{ name: "", phone: "", relationship: "" }]);
+  const [references] = useState<{ name: string; phone: string; relationship: string }[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Load draft on mount
@@ -95,7 +94,7 @@ const HelperRegistration = () => {
         if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
         if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
         if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
-        if (draft.references) setReferences(draft.references);
+        // References removed - no longer stored
         toast.info("Draft restored from your last session");
       }
     } catch {}
@@ -156,27 +155,6 @@ const HelperRegistration = () => {
     }
   };
 
-  const handleIdDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) { toast.error("Document must be less than 10MB"); return; }
-      setIdDocFile(file);
-    }
-  };
-
-  const addReference = () => {
-    if (references.length < 3) setReferences([...references, { name: "", phone: "", relationship: "" }]);
-  };
-
-  const updateReference = (index: number, field: string, value: string) => {
-    const updated = [...references];
-    updated[index] = { ...updated[index], [field]: value };
-    setReferences(updated);
-  };
-
-  const removeReference = (index: number) => {
-    setReferences(references.filter((_, i) => i !== index));
-  };
 
   const uploadFile = async (userId: string, file: File, bucket: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
@@ -217,10 +195,9 @@ const HelperRegistration = () => {
       const userId = authData.user.id;
 
       // Upload files in parallel
-      const [videoUrl, avatarUrl, idDocUrl] = await Promise.all([
+      const [videoUrl, avatarUrl] = await Promise.all([
         videoFile ? uploadFile(userId, videoFile, 'helper-videos') : Promise.resolve(null),
         avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
-        idDocFile ? uploadFile(userId, idDocFile, 'helper-documents') : Promise.resolve(null),
       ]);
 
       // Create profiles row
@@ -234,9 +211,6 @@ const HelperRegistration = () => {
         area: formData.area || null,
       });
       if (profilesError) console.error('Profiles row error:', profilesError);
-
-      // Filter valid references
-      const validRefs = references.filter(r => r.name && r.phone);
 
       // Create helper profile
       const { error: profileError } = await supabase.from('helpers').insert({
@@ -257,8 +231,8 @@ const HelperRegistration = () => {
         age: formData.age ? parseInt(formData.age) : null,
         gender: formData.gender || null,
         nationality: formData.nationality || null,
-        id_document_url: idDocUrl,
-        references_info: validRefs.length > 0 ? validRefs : [],
+        id_document_url: null,
+        references_info: [],
         living_arrangement: formData.livingArrangement || null,
       } as any);
 
@@ -506,51 +480,15 @@ const HelperRegistration = () => {
           <Textarea id="bio" placeholder="Tell families about yourself, your experience, and what makes you a great helper..." value={formData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} rows={4} />
         </section>
 
-        {/* ID Document Upload */}
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <FileText size={18} className="text-primary" /> ID Document
+        {/* ID Verification Notice */}
+        <section className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-4">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2 mb-2">
+            <CheckCircle size={18} className="text-primary" /> Identity Verification
           </h2>
-          <p className="text-sm text-muted-foreground">Upload a copy of your ID or passport for verification</p>
-          {idDocFile ? (
-            <div className="flex items-center justify-between bg-muted/50 rounded-xl p-3">
-              <span className="text-sm truncate">{idDocFile.name}</span>
-              <Button type="button" variant="ghost" size="sm" onClick={() => setIdDocFile(null)}>Remove</Button>
-            </div>
-          ) : (
-            <label className="block">
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-2xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
-                <FileText size={28} className="mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm font-medium text-foreground">Tap to upload ID</p>
-                <p className="text-xs text-muted-foreground mt-1">PDF, JPG, PNG up to 10MB</p>
-              </div>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleIdDocChange} className="hidden" />
-            </label>
-          )}
-        </section>
-
-        {/* References */}
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Users size={18} className="text-primary" /> References
-          </h2>
-          <p className="text-sm text-muted-foreground">Add up to 3 references from previous employers</p>
-          {references.map((ref, index) => (
-            <div key={index} className="bg-muted/50 rounded-xl p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-foreground">Reference {index + 1}</span>
-                {references.length > 1 && (
-                  <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs h-6" onClick={() => removeReference(index)}>Remove</Button>
-                )}
-              </div>
-              <Input placeholder="Reference name" value={ref.name} onChange={(e) => updateReference(index, "name", e.target.value)} className="text-sm" />
-              <Input placeholder="Phone number" value={ref.phone} onChange={(e) => updateReference(index, "phone", e.target.value)} className="text-sm" />
-              <Input placeholder="Relationship (e.g., Former employer)" value={ref.relationship} onChange={(e) => updateReference(index, "relationship", e.target.value)} className="text-sm" />
-            </div>
-          ))}
-          {references.length < 3 && (
-            <Button type="button" variant="outline" size="sm" onClick={addReference} className="w-full">+ Add Reference</Button>
-          )}
+          <p className="text-sm text-muted-foreground">
+            After registration, you can verify your identity through our secure 3rd-party verification partner (SimplyID). 
+            No documents are stored in our app — verification is handled externally.
+          </p>
         </section>
 
         {/* Intro Video */}
