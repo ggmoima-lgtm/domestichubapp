@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       badge_awards: {
         Row: {
           awarded_at: string
@@ -202,6 +232,7 @@ export type Database = {
       }
       helpers: {
         Row: {
+          age: number | null
           availability: string | null
           availability_status: string
           available_from: string | null
@@ -212,13 +243,18 @@ export type Database = {
           email: string
           experience_years: number | null
           full_name: string
+          gender: string | null
           has_work_permit: boolean | null
           hourly_rate: number | null
           id: string
+          id_document_url: string | null
           intro_video_url: string | null
           is_verified: boolean | null
           languages: string[] | null
+          living_arrangement: string | null
+          nationality: string | null
           phone: string
+          references_info: Json | null
           skills: string[] | null
           updated_at: string
           user_id: string | null
@@ -228,6 +264,7 @@ export type Database = {
           video_moderation_status: string
         }
         Insert: {
+          age?: number | null
           availability?: string | null
           availability_status?: string
           available_from?: string | null
@@ -238,13 +275,18 @@ export type Database = {
           email: string
           experience_years?: number | null
           full_name: string
+          gender?: string | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
+          id_document_url?: string | null
           intro_video_url?: string | null
           is_verified?: boolean | null
           languages?: string[] | null
+          living_arrangement?: string | null
+          nationality?: string | null
           phone: string
+          references_info?: Json | null
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
@@ -254,6 +296,7 @@ export type Database = {
           video_moderation_status?: string
         }
         Update: {
+          age?: number | null
           availability?: string | null
           availability_status?: string
           available_from?: string | null
@@ -264,13 +307,18 @@ export type Database = {
           email?: string
           experience_years?: number | null
           full_name?: string
+          gender?: string | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
+          id_document_url?: string | null
           intro_video_url?: string | null
           is_verified?: boolean | null
           languages?: string[] | null
+          living_arrangement?: string | null
+          nationality?: string | null
           phone?: string
+          references_info?: Json | null
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
@@ -652,6 +700,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          bonus_credits: number | null
+          code: string
+          created_at: string | null
+          current_uses: number | null
+          discount_percent: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+        }
+        Insert: {
+          bonus_credits?: number | null
+          code: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_percent?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+        }
+        Update: {
+          bonus_credits?: number | null
+          code?: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_percent?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+        }
+        Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          id: string
+          promo_code_id: string
+          redeemed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          promo_code_id: string
+          redeemed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          promo_code_id?: string
+          redeemed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_tokens: {
         Row: {

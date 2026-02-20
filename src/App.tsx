@@ -14,6 +14,10 @@ import Onboarding from "./pages/Onboarding";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import AdminDashboard from "./pages/AdminDashboard";
+import RefundPolicy from "./pages/RefundPolicy";
+import UnlockDisclaimer from "./pages/UnlockDisclaimer";
+import POPIACompliance from "./pages/POPIACompliance";
+import OffPlatformLiability from "./pages/OffPlatformLiability";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +36,10 @@ const App = () => (
               <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsConditions />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
+              <Route path="/popia" element={<POPIACompliance />} />
+              <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

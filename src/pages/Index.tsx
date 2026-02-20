@@ -166,17 +166,28 @@ const Index = () => {
 
     const matchesUnlocked = !filters.unlockedOnly || unlockedIds.includes(worker.id);
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked;
+    const matchesLanguages =
+      filters.languages.length === 0 ||
+      filters.languages.some((lang) =>
+        (worker.languages || []).some((wl: string) => wl.toLowerCase().includes(lang.toLowerCase()))
+      );
+
+    const matchesVerified = !filters.verifiedOnly || worker.verified;
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified;
   });
 
   const activeFilterCount =
     filters.locations.length +
     filters.jobTypes.length +
     filters.skills.length +
+    filters.languages.length +
     (filters.experienceMin > 0 ? 1 : 0) +
     (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 15000 ? 1 : 0) +
     (filters.nearMe ? 1 : 0) +
-    (filters.unlockedOnly ? 1 : 0);
+    (filters.unlockedOnly ? 1 : 0) +
+    (filters.verifiedOnly ? 1 : 0) +
+    (filters.minRating > 0 ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);

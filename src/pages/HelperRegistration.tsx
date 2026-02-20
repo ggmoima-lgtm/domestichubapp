@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, FileText, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,12 +45,14 @@ const livingArrangementOptions = [
   "Live-in", "Live-out", "Either"
 ];
 
+const genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say"];
+const nationalityOptions = ["South African", "Zimbabwean", "Mozambican", "Malawian", "Lesotho", "Swazi", "Other"];
+
 const HelperRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  // Form state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -62,6 +64,11 @@ const HelperRegistration = () => {
     bio: "",
     availability: "",
     livingArrangement: "",
+    age: "",
+    gender: "",
+    nationality: "",
+    city: "",
+    area: "",
   });
   
   const [hasWorkPermit, setHasWorkPermit] = useState(false);
@@ -69,6 +76,11 @@ const HelperRegistration = () => {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [idDocFile, setIdDocFile] = useState<File | null>(null);
+  const [references, setReferences] = useState([{ name: "", phone: "", relationship: "" }]);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -76,149 +88,156 @@ const HelperRegistration = () => {
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills(prev => 
-      prev.includes(skill) 
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
     );
   };
 
   const toggleLanguage = (language: string) => {
     setSelectedLanguages(prev => 
-      prev.includes(language) 
-        ? prev.filter(l => l !== language)
-        : [...prev, language]
+      prev.includes(language) ? prev.filter(l => l !== language) : [...prev, language]
     );
   };
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 100 * 1024 * 1024) {
-        toast.error("Video file must be less than 100MB");
-        return;
-      }
+      if (file.size > 100 * 1024 * 1024) { toast.error("Video must be less than 100MB"); return; }
       setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
     }
   };
 
-  const uploadVideo = async (userId: string): Promise<string | null> => {
-    if (!videoFile) return null;
-
-    const fileExt = videoFile.name.split('.').pop();
-    const fileName = `${userId}/${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('helper-videos')
-      .upload(fileName, videoFile);
-
-    if (uploadError) {
-      console.error('Video upload error:', uploadError);
-      return null;
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { toast.error("Photo must be less than 5MB"); return; }
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     }
+  };
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('helper-videos')
-      .getPublicUrl(fileName);
+  const handleIdDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { toast.error("Document must be less than 10MB"); return; }
+      setIdDocFile(file);
+    }
+  };
 
+  const addReference = () => {
+    if (references.length < 3) setReferences([...references, { name: "", phone: "", relationship: "" }]);
+  };
+
+  const updateReference = (index: number, field: string, value: string) => {
+    const updated = [...references];
+    updated[index] = { ...updated[index], [field]: value };
+    setReferences(updated);
+  };
+
+  const removeReference = (index: number) => {
+    setReferences(references.filter((_, i) => i !== index));
+  };
+
+  const uploadFile = async (userId: string, file: File, bucket: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    const { error } = await supabase.storage.from(bucket).upload(fileName, file);
+    if (error) { console.error(`Upload error (${bucket}):`, error); return null; }
+    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
     return publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.fullName || !formData.email || !formData.password || !formData.phone || !formData.category) {
-      toast.error("Please fill in all required fields");
-      return;
+      toast.error("Please fill in all required fields"); return;
     }
-
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    if (selectedSkills.length === 0) {
-      toast.error("Please select at least one skill");
-      return;
-    }
+    if (formData.password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
+    if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
 
     setIsSubmitting(true);
 
     try {
-      // 1. Create user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        }
+        options: { emailRedirectTo: `${window.location.origin}/` }
       });
 
       if (authError) {
-        if (authError.message.includes("already registered")) {
-          toast.error("This email is already registered. Please login instead.");
-        } else {
-          toast.error(authError.message);
-        }
-        setIsSubmitting(false);
-        return;
+        if (authError.message.includes("already registered")) toast.error("This email is already registered. Please login instead.");
+        else toast.error(authError.message);
+        setIsSubmitting(false); return;
       }
 
-      if (!authData.user) {
-        toast.error("Failed to create account");
-        setIsSubmitting(false);
-        return;
-      }
+      if (!authData.user) { toast.error("Failed to create account"); setIsSubmitting(false); return; }
 
-      // 2. Upload video if provided
-      const videoUrl = await uploadVideo(authData.user.id);
+      const userId = authData.user.id;
 
-      // 3. Create profiles row (for auth/onboarding guard)
-      const { error: profilesError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: authData.user.id,
-          full_name: formData.fullName,
-          phone: formData.phone,
-          role: 'helper',
-          onboarding_completed: true,
-        });
+      // Upload files in parallel
+      const [videoUrl, avatarUrl, idDocUrl] = await Promise.all([
+        videoFile ? uploadFile(userId, videoFile, 'helper-videos') : Promise.resolve(null),
+        avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
+        idDocFile ? uploadFile(userId, idDocFile, 'helper-documents') : Promise.resolve(null),
+      ]);
 
-      if (profilesError) {
-        console.error('Profiles row error:', profilesError);
-      }
+      // Create profiles row
+      const { error: profilesError } = await supabase.from('profiles').insert({
+        user_id: userId,
+        full_name: formData.fullName,
+        phone: formData.phone,
+        role: 'helper',
+        onboarding_completed: true,
+        city: formData.city || null,
+        area: formData.area || null,
+      });
+      if (profilesError) console.error('Profiles row error:', profilesError);
 
-      // 4. Create helper profile
-      const { error: profileError } = await supabase
-        .from('helpers')
-        .insert({
-          user_id: authData.user.id,
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          category: formData.category,
-          experience_years: formData.experience ? parseInt(formData.experience) : 0,
-          hourly_rate: formData.monthlyRate ? parseFloat(formData.monthlyRate) : null,
-          bio: formData.bio || null,
-          availability: formData.availability || null,
-          skills: selectedSkills,
-          languages: selectedLanguages,
-          has_work_permit: hasWorkPermit,
-          intro_video_url: videoUrl,
-        });
+      // Filter valid references
+      const validRefs = references.filter(r => r.name && r.phone);
+
+      // Create helper profile
+      const { error: profileError } = await supabase.from('helpers').insert({
+        user_id: userId,
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        category: formData.category,
+        experience_years: formData.experience ? parseInt(formData.experience) : 0,
+        hourly_rate: formData.monthlyRate ? parseFloat(formData.monthlyRate) : null,
+        bio: formData.bio || null,
+        availability: formData.availability || null,
+        skills: selectedSkills,
+        languages: selectedLanguages,
+        has_work_permit: hasWorkPermit,
+        intro_video_url: videoUrl,
+        avatar_url: avatarUrl,
+        age: formData.age ? parseInt(formData.age) : null,
+        gender: formData.gender || null,
+        nationality: formData.nationality || null,
+        id_document_url: idDocUrl,
+        references_info: validRefs.length > 0 ? validRefs : [],
+        living_arrangement: formData.livingArrangement || null,
+      } as any);
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
         toast.error("Failed to create profile. Please try again.");
-        setIsSubmitting(false);
-        return;
+        setIsSubmitting(false); return;
       }
 
-      // 4. Trigger video moderation if video was uploaded
+      // Terms acceptance
+      await supabase.from('terms_acceptances').insert({
+        user_id: userId,
+        terms_version: '1.0',
+      });
+
+      // Trigger video moderation
       if (videoUrl) {
         supabase.functions.invoke("moderate-video", {
-          body: { helperId: authData.user.id },
+          body: { helperId: userId },
         }).catch(err => console.error("Video moderation trigger failed:", err));
       }
 
@@ -234,13 +253,9 @@ const HelperRegistration = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate("/")}
-            className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors"
-          >
+          <button onClick={() => navigate("/")} className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
             <ArrowLeft size={20} className="text-foreground" />
           </button>
           <h1 className="text-lg font-bold text-foreground">Helper Registration</h1>
@@ -248,74 +263,97 @@ const HelperRegistration = () => {
       </header>
 
       <form onSubmit={handleSubmit} className="p-4 pb-24 space-y-6">
+        {/* Profile Photo */}
+        <section className="flex flex-col items-center gap-3">
+          <label className="relative cursor-pointer">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted border-2 border-dashed border-primary/30 flex items-center justify-center">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <Camera size={32} className="text-muted-foreground" />
+              )}
+            </div>
+            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow-soft">
+              <Camera size={12} />
+            </div>
+            <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+          </label>
+          <p className="text-xs text-muted-foreground">Upload profile photo</p>
+        </section>
+
         {/* Account Information */}
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <User size={18} className="text-primary" />
-            Account Information
+            <User size={18} className="text-primary" /> Account Information
           </h2>
-          
           <div className="space-y-3">
             <div>
               <Label htmlFor="fullName">Full Name *</Label>
-              <Input
-                id="fullName"
-                placeholder="Enter your full name"
-                value={formData.fullName}
-                onChange={(e) => handleInputChange("fullName", e.target.value)}
-                className="mt-1"
-              />
+              <Input id="fullName" placeholder="Enter your full name" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} className="mt-1" />
             </div>
-            
             <div>
               <Label htmlFor="email">Email Address *</Label>
               <div className="relative mt-1">
                 <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="pl-9"
-                />
+                <Input id="email" type="email" placeholder="your@email.com" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} className="pl-9" />
               </div>
             </div>
-
             <div>
               <Label htmlFor="password">Password *</Label>
               <div className="relative mt-1">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Create a password (min 6 characters)"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="Create a password (min 6 characters)" value={formData.password} onChange={(e) => handleInputChange("password", e.target.value)} className="pr-10" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-            
             <div>
               <Label htmlFor="phone">Phone Number *</Label>
               <div className="relative mt-1">
                 <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+65 9123 4567"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="pl-9"
-                />
+                <Input id="phone" type="tel" placeholder="+27 81 234 5678" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} className="pl-9" />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Personal Details */}
+        <section className="space-y-4">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Users size={18} className="text-primary" /> Personal Details
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="age">Age</Label>
+              <Input id="age" type="number" placeholder="e.g., 28" value={formData.age} onChange={(e) => handleInputChange("age", e.target.value)} className="mt-1" min="18" max="70" />
+            </div>
+            <div>
+              <Label>Gender</Label>
+              <Select value={formData.gender} onValueChange={(v) => handleInputChange("gender", v)}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {genderOptions.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label>Nationality</Label>
+            <Select value={formData.nationality} onValueChange={(v) => handleInputChange("nationality", v)}>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Select nationality" /></SelectTrigger>
+              <SelectContent>
+                {nationalityOptions.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input id="city" placeholder="e.g., Johannesburg" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="area">Area</Label>
+              <Input id="area" placeholder="e.g., Sandton" value={formData.area} onChange={(e) => handleInputChange("area", e.target.value)} className="mt-1" />
             </div>
           </div>
         </section>
@@ -324,80 +362,38 @@ const HelperRegistration = () => {
         <section className="bg-muted/50 rounded-2xl p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="workPermit" className="text-base font-semibold">
-                Work Permit
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Do you have all required work permits?
-              </p>
+              <Label htmlFor="workPermit" className="text-base font-semibold">Work Permit</Label>
+              <p className="text-sm text-muted-foreground">Do you have all required work permits?</p>
             </div>
-            <Switch
-              id="workPermit"
-              checked={hasWorkPermit}
-              onCheckedChange={setHasWorkPermit}
-            />
+            <Switch id="workPermit" checked={hasWorkPermit} onCheckedChange={setHasWorkPermit} />
           </div>
-          {hasWorkPermit && (
-            <p className="text-xs text-primary mt-2 flex items-center gap-1">
-              ✓ Verified work permit holder
-            </p>
-          )}
+          {hasWorkPermit && <p className="text-xs text-primary mt-2 flex items-center gap-1">✓ Verified work permit holder</p>}
         </section>
 
         {/* Professional Details */}
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Briefcase size={18} className="text-primary" />
-            Professional Details
+            <Briefcase size={18} className="text-primary" /> Professional Details
           </h2>
-          
           <div className="space-y-3">
             <div>
               <Label htmlFor="category">Category *</Label>
-              <Select 
-                value={formData.category} 
-                onValueChange={(value) => handleInputChange("category", value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select your category" />
-                </SelectTrigger>
+              <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select your category" /></SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
+                  {categories.map((cat) => <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            
             <div>
               <Label htmlFor="experience">Years of Experience</Label>
-              <Input
-                id="experience"
-                type="number"
-                placeholder="e.g., 5"
-                value={formData.experience}
-                onChange={(e) => handleInputChange("experience", e.target.value)}
-                className="mt-1"
-                min="0"
-                max="50"
-              />
+              <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
             </div>
-            
             <div>
               <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
-                <Input
-                  id="monthlyRate"
-                  type="number"
-                  placeholder="e.g., 3500"
-                  value={formData.monthlyRate}
-                  onChange={(e) => handleInputChange("monthlyRate", e.target.value)}
-                  className="pl-9"
-                  min="0"
-                />
+                <Input id="monthlyRate" type="number" placeholder="e.g., 3500" value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
               </div>
             </div>
           </div>
@@ -408,12 +404,7 @@ const HelperRegistration = () => {
           <h2 className="text-base font-semibold text-foreground">Skills *</h2>
           <div className="flex flex-wrap gap-2">
             {skillOptions.map((skill) => (
-              <Badge
-                key={skill}
-                variant={selectedSkills.includes(skill) ? "default" : "outline"}
-                className="cursor-pointer transition-all"
-                onClick={() => toggleSkill(skill)}
-              >
+              <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
                 {skill}
               </Badge>
             ))}
@@ -423,17 +414,11 @@ const HelperRegistration = () => {
         {/* Languages */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Globe size={18} className="text-primary" />
-            Languages
+            <Globe size={18} className="text-primary" /> Languages
           </h2>
           <div className="flex flex-wrap gap-2">
             {languageOptions.map((language) => (
-              <Badge
-                key={language}
-                variant={selectedLanguages.includes(language) ? "default" : "outline"}
-                className="cursor-pointer transition-all"
-                onClick={() => toggleLanguage(language)}
-              >
+              <Badge key={language} variant={selectedLanguages.includes(language) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleLanguage(language)}>
                 {language}
               </Badge>
             ))}
@@ -443,46 +428,26 @@ const HelperRegistration = () => {
         {/* Availability */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Clock size={18} className="text-primary" />
-            Availability
+            <Clock size={18} className="text-primary" /> Availability
           </h2>
-          <Select 
-            value={formData.availability} 
-            onValueChange={(value) => handleInputChange("availability", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select your availability" />
-            </SelectTrigger>
+          <Select value={formData.availability} onValueChange={(value) => handleInputChange("availability", value)}>
+            <SelectTrigger><SelectValue placeholder="Select your availability" /></SelectTrigger>
             <SelectContent>
-              {availabilityOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+              {availabilityOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
             </SelectContent>
           </Select>
         </section>
 
-        {/* Living Arrangement - only show for Full-time */}
+        {/* Living Arrangement */}
         {formData.availability === "Full-time" && (
           <section className="space-y-3">
             <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Home size={18} className="text-primary" />
-              Living Arrangement
+              <Home size={18} className="text-primary" /> Living Arrangement
             </h2>
-            <Select 
-              value={formData.livingArrangement} 
-              onValueChange={(value) => handleInputChange("livingArrangement", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Live-in or Live-out?" />
-              </SelectTrigger>
+            <Select value={formData.livingArrangement} onValueChange={(value) => handleInputChange("livingArrangement", value)}>
+              <SelectTrigger><SelectValue placeholder="Live-in or Live-out?" /></SelectTrigger>
               <SelectContent>
-                {livingArrangementOptions.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
+                {livingArrangementOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
               </SelectContent>
             </Select>
           </section>
@@ -491,80 +456,101 @@ const HelperRegistration = () => {
         {/* Bio */}
         <section className="space-y-3">
           <Label htmlFor="bio">About You</Label>
-          <Textarea
-            id="bio"
-            placeholder="Tell families about yourself, your experience, and what makes you a great helper..."
-            value={formData.bio}
-            onChange={(e) => handleInputChange("bio", e.target.value)}
-            rows={4}
-          />
+          <Textarea id="bio" placeholder="Tell families about yourself, your experience, and what makes you a great helper..." value={formData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} rows={4} />
+        </section>
+
+        {/* ID Document Upload */}
+        <section className="space-y-3">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <FileText size={18} className="text-primary" /> ID Document
+          </h2>
+          <p className="text-sm text-muted-foreground">Upload a copy of your ID or passport for verification</p>
+          {idDocFile ? (
+            <div className="flex items-center justify-between bg-muted/50 rounded-xl p-3">
+              <span className="text-sm truncate">{idDocFile.name}</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setIdDocFile(null)}>Remove</Button>
+            </div>
+          ) : (
+            <label className="block">
+              <div className="border-2 border-dashed border-muted-foreground/30 rounded-2xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                <FileText size={28} className="mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm font-medium text-foreground">Tap to upload ID</p>
+                <p className="text-xs text-muted-foreground mt-1">PDF, JPG, PNG up to 10MB</p>
+              </div>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleIdDocChange} className="hidden" />
+            </label>
+          )}
+        </section>
+
+        {/* References */}
+        <section className="space-y-3">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Users size={18} className="text-primary" /> References
+          </h2>
+          <p className="text-sm text-muted-foreground">Add up to 3 references from previous employers</p>
+          {references.map((ref, index) => (
+            <div key={index} className="bg-muted/50 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground">Reference {index + 1}</span>
+                {references.length > 1 && (
+                  <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs h-6" onClick={() => removeReference(index)}>Remove</Button>
+                )}
+              </div>
+              <Input placeholder="Reference name" value={ref.name} onChange={(e) => updateReference(index, "name", e.target.value)} className="text-sm" />
+              <Input placeholder="Phone number" value={ref.phone} onChange={(e) => updateReference(index, "phone", e.target.value)} className="text-sm" />
+              <Input placeholder="Relationship (e.g., Former employer)" value={ref.relationship} onChange={(e) => updateReference(index, "relationship", e.target.value)} className="text-sm" />
+            </div>
+          ))}
+          {references.length < 3 && (
+            <Button type="button" variant="outline" size="sm" onClick={addReference} className="w-full">+ Add Reference</Button>
+          )}
         </section>
 
         {/* Intro Video */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Upload size={18} className="text-primary" />
-            Introduction Video
+            <Upload size={18} className="text-primary" /> Introduction Video
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Record a short video (max 2 min) introducing yourself to families
-          </p>
+          <p className="text-sm text-muted-foreground">Record a short video (max 2 min) introducing yourself to families</p>
           <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mt-2">
             <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">⚠️ Important Rule</p>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
               Do <strong>not</strong> share any contact details in your video — no phone numbers, email, WhatsApp, or social media handles. Videos with contact info will be automatically rejected.
             </p>
           </div>
-          
           {videoPreview ? (
             <div className="relative rounded-2xl overflow-hidden bg-muted">
-              <video 
-                src={videoPreview} 
-                controls 
-                className="w-full aspect-video object-cover"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => {
-                  setVideoFile(null);
-                  setVideoPreview(null);
-                }}
-              >
-                Remove
-              </Button>
+              <video src={videoPreview} controls className="w-full aspect-video object-cover" />
+              <Button type="button" variant="secondary" size="sm" className="absolute top-2 right-2" onClick={() => { setVideoFile(null); setVideoPreview(null); }}>Remove</Button>
             </div>
           ) : (
             <label className="block">
               <div className="border-2 border-dashed border-muted-foreground/30 rounded-2xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
                 <Upload size={32} className="mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm font-medium text-foreground">
-                  Tap to upload video
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  MP4, MOV up to 100MB
-                </p>
+                <p className="text-sm font-medium text-foreground">Tap to upload video</p>
+                <p className="text-xs text-muted-foreground mt-1">MP4, MOV up to 100MB</p>
               </div>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={handleVideoChange}
-                className="hidden"
-              />
+              <input type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
             </label>
           )}
         </section>
 
+        {/* Terms & Conditions */}
+        <section className="bg-muted/50 rounded-2xl p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1 h-4 w-4 rounded border-input accent-primary" />
+            <span className="text-sm text-foreground">
+              I agree to the{" "}
+              <a href="/terms" target="_blank" className="text-primary underline">Terms & Conditions</a>
+              {" "}and{" "}
+              <a href="/privacy" target="_blank" className="text-primary underline">Privacy Policy</a> *
+            </span>
+          </label>
+        </section>
+
         {/* Submit Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-          <Button 
-            type="submit" 
-            className="w-full" 
-            size="lg"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
             {isSubmitting ? "Creating Account..." : "Complete Registration"}
           </Button>
         </div>
