@@ -153,9 +153,6 @@ const Auth = () => {
         onClick={() => { setSelectedRole("employer"); setSignupStep("details"); }}
         className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
       >
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-secondary/60 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-          <Briefcase size={22} className="text-secondary-foreground" />
-        </div>
         <div className="flex-1">
           <p className="font-bold text-foreground">Employer</p>
           <p className="text-xs text-muted-foreground">Hiring a helper</p>
@@ -167,9 +164,6 @@ const Auth = () => {
         onClick={() => { setSelectedRole("helper"); setSignupStep("details"); }}
         className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
       >
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-          <Sparkles size={22} className="text-accent-foreground" />
-        </div>
         <div className="flex-1">
           <p className="font-bold text-foreground">Helper</p>
           <p className="text-xs text-muted-foreground">Looking for work</p>
