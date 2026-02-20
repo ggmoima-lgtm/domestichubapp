@@ -14,7 +14,7 @@ import {
   Star, Phone, ShieldCheck, Award, Edit3, Save, X, Camera,
   Video, MapPin, Briefcase, Clock, Globe, MessageCircle,
   Heart, ChevronRight, LogOut, Trash2, Bell, Lock, Mail,
-  FileText, Calendar, DollarSign, Users
+  FileText, Calendar, DollarSign, Users, Shield
 } from "lucide-react";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
@@ -37,6 +37,10 @@ interface HelperData {
   is_verified: boolean | null;
   intro_video_url: string | null;
   has_work_permit: boolean | null;
+  age: number | null;
+  gender: string | null;
+  nationality: string | null;
+  living_arrangement: string | null;
 }
 
 interface ReviewData {
@@ -390,12 +394,20 @@ const HelperProfile = () => {
             <span className="flex items-center gap-3 text-sm"><Phone size={16} className="text-muted-foreground" /> Change Phone Number</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
-          <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+           <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Policy</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
           <button onClick={() => navigate("/terms")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Terms & Conditions</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
+          <button onClick={() => navigate("/refund-policy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Refund Policy</span>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
+          <button onClick={() => navigate("/popia")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+            <span className="flex items-center gap-3 text-sm"><Shield size={16} className="text-muted-foreground" /> POPIA Compliance</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
           <Separator className="my-2" />
