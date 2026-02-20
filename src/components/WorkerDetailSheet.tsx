@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Phone, Award, Unlock, AlertTriangle } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Award, Unlock } from "lucide-react";
 import StatusFrame from "./StatusFrame";
 import ReportBlockSheet from "./ReportBlockSheet";
 import { Button } from "./ui/button";
@@ -572,39 +572,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           {/* ======= LOCKED SECTIONS ======= */}
           {isUnlocked ? (
             <>
-              {/* Phone Number + Call Button - UNLOCKED */}
-              {worker.phone && (
-                <div className="mb-5">
-                  <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
-                    <Phone size={16} className="text-primary" />
-                    Phone Number
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    <a href={`tel:${worker.phone}`} className="text-sm text-primary font-semibold hover:underline">
-                      {worker.phone}
-                    </a>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 text-xs"
-                      onClick={() => {
-                        const confirmed = window.confirm(
-                          "Off-Platform Disclaimer\n\nBy calling this helper directly, you acknowledge that any arrangements made outside DomesticHub are between you and the helper. DomesticHub is not liable for off-platform agreements.\n\nSee our full Off-Platform Liability policy in Settings.\n\nProceed with call?"
-                        );
-                        if (confirmed && worker.phone) {
-                          window.location.href = `tel:${worker.phone}`;
-                        }
-                      }}
-                    >
-                      <Phone size={12} /> Call
-                    </Button>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-1.5 flex items-center gap-1">
-                    <AlertTriangle size={10} /> Off-platform arrangements are at your own risk.{" "}
-                    <a href="/off-platform-liability" target="_blank" className="text-primary underline">Learn more</a>
-                  </p>
-                </div>
-              )}
+              {/* Phone number hidden per spec - no call feature */}
 
               {/* Intro Video - UNLOCKED */}
               {worker.introVideo && (
@@ -888,14 +856,14 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 </p>
               </div>
 
-              {/* Locked preview for phone */}
+              {/* Contact details locked - messaging only */}
               <div className="mb-5 p-4 bg-muted/30 rounded-2xl border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Lock size={14} className="text-muted-foreground" />
-                  <h3 className="font-bold text-foreground text-sm">Contact Details</h3>
+                  <h3 className="font-bold text-foreground text-sm">Direct Messaging</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Phone number and direct contact will be available after unlocking.
+                  Unlock this profile to chat directly with this helper.
                 </p>
               </div>
 
@@ -904,7 +872,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 <Lock size={20} className="text-primary mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Viewing this full profile will use 1 credit. Contact details and full CV will be revealed.
+                  Use 1 credit to unlock full profile, intro video, work history, reviews, and direct messaging.
                 </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   <Eye size={18} />
@@ -932,6 +900,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
         helperId={worker.id}
         helperName={displayName}
         helperAvatar={worker.avatar}
+        onHired={onHired}
       />
 
       {/* Unlock Confirm Sheet */}

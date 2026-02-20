@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Lock, Unlock, Coins, X, CheckCircle } from "lucide-react";
+import { Lock, Unlock, Coins, X, CheckCircle, AlertTriangle } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+
+import { Checkbox } from "./ui/checkbox";
 
 interface UnlockConfirmSheetProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
   const { user } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -103,7 +106,7 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
               <div className="bg-muted/40 rounded-2xl p-4 mb-5">
                 <p className="text-xs font-bold text-foreground mb-2 uppercase tracking-wide">What you'll unlock</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {["Phone number", "Intro video", "Work history & references", "Reviews", "Direct messaging", "30-day access"].map((item) => (
+                  {["Full name", "Intro video", "Work history & references", "Reviews", "Direct messaging", "30-day access"].map((item) => (
                     <div key={item} className="flex items-center gap-1.5">
                       <CheckCircle size={12} className="text-primary shrink-0" />
                       <span className="text-xs text-muted-foreground">{item}</span>
@@ -112,7 +115,28 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
                 </div>
               </div>
 
-              <Button size="lg" className="w-full" onClick={handleUnlock} disabled={isProcessing}>
+              {/* Off-platform disclaimer */}
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-3 mb-5">
+                <div className="flex items-start gap-2 mb-2">
+                  <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-800 dark:text-amber-300 font-semibold">Off-Platform Disclaimer</p>
+                </div>
+                <p className="text-[11px] text-amber-700 dark:text-amber-400 mb-3">
+                  If you choose to communicate outside this platform, Domestic Hub is not liable for any agreements, payments, or incidents.
+                </p>
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="disclaimer"
+                    checked={acceptedDisclaimer}
+                    onCheckedChange={(v) => setAcceptedDisclaimer(v === true)}
+                  />
+                  <label htmlFor="disclaimer" className="text-[11px] text-foreground font-medium cursor-pointer">
+                    I understand and agree
+                  </label>
+                </div>
+              </div>
+
+              <Button size="lg" className="w-full" onClick={handleUnlock} disabled={isProcessing || !acceptedDisclaimer}>
                 <Unlock size={18} />
                 {isProcessing ? "Unlocking..." : "Use 1 Credit to Unlock"}
               </Button>

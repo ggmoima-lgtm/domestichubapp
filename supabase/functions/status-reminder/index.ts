@@ -15,14 +15,14 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Find helpers who haven't updated their status in 7+ days
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Find helpers who haven't updated their status in 14+ days
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
     const { data: staleHelpers, error } = await supabase
       .from("helpers")
       .select("id, user_id, full_name, updated_at, availability_status")
-      .lt("updated_at", sevenDaysAgo.toISOString())
+      .lt("updated_at", fourteenDaysAgo.toISOString())
       .in("availability_status", ["available", "interviewing"]);
 
     if (error) {

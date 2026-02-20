@@ -2,3 +2,9 @@ project_id = "qlvcirkyharrarblgdue"
 
 [functions.status-reminder]
 verify_jwt = false
+
+[functions.auto-refund]
+verify_jwt = false
+
+[functions.simply-id-webhook]
+verify_jwt = false
