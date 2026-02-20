@@ -3,32 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-const CONTACT_PATTERNS = [
-  // Phone numbers
-  /(\+?\d{1,4}[\s\-.]?)?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g,
-  // Email
-  /[a-zA-Z0-9._%+\-]+\s*(?:at|@)\s*[a-zA-Z0-9.\-]+\s*(?:dot|\.)\s*[a-zA-Z]{2,}/gi,
-  // WhatsApp mentions
-  /whatsapp|whats\s*app|wa\s*me/gi,
-  // Social media handles/platforms
-  /(?:facebook|instagram|twitter|tiktok|telegram|signal|wechat|line)\b/gi,
-  // "call me", "text me", "message me" patterns
-  /(?:call|text|message|contact|reach|find)\s*me\s*(?:at|on|@)?\s*/gi,
-  // Spelled out numbers (e.g. "zero eight two")
-  /(?:zero|one|two|three|four|five|six|seven|eight|nine)(?:\s+(?:zero|one|two|three|four|five|six|seven|eight|nine)){5,}/gi,
-];
-
-function containsContactInfo(text: string): { found: boolean; matches: string[] } {
-  const matches: string[] = [];
-  for (const pattern of CONTACT_PATTERNS) {
-    const found = text.match(pattern);
-    if (found) matches.push(...found);
-  }
-  return { found: matches.length > 0, matches };
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -36,6 +12,52 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate the caller
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userSupabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userSupabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Check admin role
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { helperId } = await req.json();
     if (!helperId) {
       return new Response(JSON.stringify({ error: "helperId required" }), {
@@ -44,21 +66,17 @@ serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get helper's video URL
-    const { data: helper, error: helperError } = await supabase
+    const { data: helper, error: helperError } = await supabaseAdmin
       .from("helpers")
       .select("intro_video_url, full_name")
       .eq("id", helperId)
       .single();
 
     if (helperError || !helper?.intro_video_url) {
-      // No video, mark as approved (nothing to moderate)
-      await supabase
+      await supabaseAdmin
         .from("helpers")
         .update({ video_moderation_status: "approved" })
         .eq("id", helperId);
@@ -69,12 +87,12 @@ serve(async (req) => {
     }
 
     // Update status to reviewing
-    await supabase
+    await supabaseAdmin
       .from("helpers")
       .update({ video_moderation_status: "reviewing" })
       .eq("id", helperId);
 
-    // Use Lovable AI (Gemini) to analyze the video for contact info
+    // Use Lovable AI to analyze the video for contact info
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -128,7 +146,6 @@ Respond with a JSON object only:
       const aiData = await aiResponse.json();
       const content = aiData.choices?.[0]?.message?.content || "";
       try {
-        // Extract JSON from response
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           moderationResult = JSON.parse(jsonMatch[0]);
@@ -138,13 +155,12 @@ Respond with a JSON object only:
       }
     }
 
-    // Determine final status
     const status = moderationResult.has_contact_info ? "rejected" : "approved";
-    const notes = moderationResult.has_contact_info 
+    const notes = moderationResult.has_contact_info
       ? `Auto-rejected: ${moderationResult.details} (confidence: ${moderationResult.confidence})`
       : `Auto-approved: ${moderationResult.details}`;
 
-    await supabase
+    await supabaseAdmin
       .from("helpers")
       .update({
         video_moderation_status: status,
@@ -158,7 +174,7 @@ Respond with a JSON object only:
     );
   } catch (error) {
     console.error("Moderation error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Moderation failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
