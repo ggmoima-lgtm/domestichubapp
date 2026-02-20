@@ -21,7 +21,7 @@ const SplashScreen = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex flex-col items-center gap-6"
       >
-        <img src={logo} alt="Domestic Hub" className="w-28 h-28 rounded-3xl shadow-lg object-contain bg-white" />
+        <img src={logo} alt="Domestic Hub" className="w-40 h-40 rounded-3xl shadow-lg object-contain bg-white" />
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
