@@ -363,11 +363,8 @@ const Auth = () => {
           className="flex justify-center mb-4"
         >
           <div className="relative">
-            <div className="w-20 h-20 rounded-[1.25rem] overflow-hidden bg-card shadow-card border border-border/50">
+            <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden bg-card shadow-card border border-border/50">
               <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain" />
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-sm">
-              <Shield size={12} className="text-primary-foreground" />
             </div>
           </div>
         </motion.div>
@@ -377,7 +374,7 @@ const Auth = () => {
           transition={{ delay: 0.15, duration: 0.35 }}
         >
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Domestic Hub</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Find trusted help for your family</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Connecting homes with trusted hands</p>
         </motion.div>
       </div>
 
