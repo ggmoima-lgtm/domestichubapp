@@ -20,9 +20,9 @@ const HeroSection = ({ onFindHelpers, onPostProfile }: HeroSectionProps) => {
           </div>
 
           <h1 className="text-2xl font-bold text-foreground mb-2 leading-tight">
-            Find Trusted Help
+            Connecting Homes
             <br />
-            <span className="text-primary">For Your Family</span>
+            <span className="text-primary">With Trusted Hands</span>
           </h1>
 
           <p className="text-sm text-muted-foreground mb-5 max-w-xs">
