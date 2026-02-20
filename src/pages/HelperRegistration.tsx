@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, FileText, Users } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, FileText, Users, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,10 +48,13 @@ const livingArrangementOptions = [
 const genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say"];
 const nationalityOptions = ["South African", "Zimbabwean", "Mozambican", "Malawian", "Lesotho", "Swazi", "Other"];
 
+const DRAFT_KEY = "helper_registration_draft";
+
 const HelperRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -81,6 +84,43 @@ const HelperRegistration = () => {
   const [idDocFile, setIdDocFile] = useState<File | null>(null);
   const [references, setReferences] = useState([{ name: "", phone: "", relationship: "" }]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        if (draft.formData) setFormData(draft.formData);
+        if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
+        if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
+        if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
+        if (draft.references) setReferences(draft.references);
+        toast.info("Draft restored from your last session");
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save draft every 30 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      saveDraft();
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+
+  const saveDraft = useCallback(() => {
+    try {
+      const draft = { formData, hasWorkPermit, selectedSkills, selectedLanguages, references, savedAt: new Date().toISOString() };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      setDraftSaved(true);
+      setTimeout(() => setDraftSaved(false), 2000);
+    } catch {}
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -242,6 +282,7 @@ const HelperRegistration = () => {
       }
 
       toast.success("Registration successful! Welcome aboard!");
+      clearDraft();
       navigate("/");
     } catch (error) {
       console.error('Registration error:', error);
@@ -254,11 +295,17 @@ const HelperRegistration = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/")} className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
-            <ArrowLeft size={20} className="text-foreground" />
-          </button>
-          <h1 className="text-lg font-bold text-foreground">Helper Registration</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate("/")} className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
+              <ArrowLeft size={20} className="text-foreground" />
+            </button>
+            <h1 className="text-lg font-bold text-foreground">Helper Registration</h1>
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={saveDraft} className="gap-1.5 text-xs">
+            <Save size={14} />
+            {draftSaved ? "Saved!" : "Save Draft"}
+          </Button>
         </div>
       </header>
 

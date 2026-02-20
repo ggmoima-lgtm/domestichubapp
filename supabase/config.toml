@@ -1,1 +1,4 @@
 project_id = "qlvcirkyharrarblgdue"
+
+[functions.status-reminder]
+verify_jwt = false
