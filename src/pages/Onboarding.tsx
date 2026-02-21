@@ -10,10 +10,10 @@ import { MapPin, Home, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 const needTypes = [
-  { id: "full-time", label: "Full-time", icon: "🕐", desc: "Monday to Friday, all day" },
-  { id: "part-time", label: "Part-time", icon: "⏰", desc: "A few hours or days per week" },
-  { id: "live-in", label: "Live-in", icon: "🏠", desc: "Helper lives with you" },
-  { id: "live-out", label: "Live-out", icon: "🚶", desc: "Helper commutes daily" },
+  { id: "full-time", label: "Full-time", desc: "Monday to Friday, all day" },
+  { id: "part-time", label: "Part-time", desc: "A few hours or days per week" },
+  { id: "live-in", label: "Live-in", desc: "Helper lives with you" },
+  { id: "live-out", label: "Live-out", desc: "Helper commutes daily" },
 ];
 
 const Onboarding = () => {
@@ -295,7 +295,6 @@ const Onboarding = () => {
                         : "border-border hover:border-primary/40"
                     }`}
                   >
-                    <span className="text-2xl">{type.icon}</span>
                     <div className="flex-1">
                       <p className="font-semibold text-foreground text-sm">{type.label}</p>
                       <p className="text-xs text-muted-foreground">{type.desc}</p>
