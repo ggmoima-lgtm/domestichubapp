@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,14 +54,13 @@ const DRAFT_KEY = "helper_registration_draft";
 
 const HelperRegistration = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    password: "",
     phone: "",
     category: "",
     experience: "",
@@ -85,17 +85,23 @@ const HelperRegistration = () => {
   const [references] = useState<{ name: string; phone: string; relationship: string }[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+  // Auto-fill email from authenticated user
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email! }));
+    }
+  }, [user]);
+
   // Load draft on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
         const draft = JSON.parse(saved);
-        if (draft.formData) setFormData(draft.formData);
+        if (draft.formData) setFormData(prev => ({ ...prev, ...draft.formData, email: prev.email }));
         if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
         if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
         if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
-        // References removed - no longer stored
         toast.info("Draft restored from your last session");
       }
     } catch {}
@@ -169,31 +175,20 @@ const HelperRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.email || !formData.password || !formData.phone || !formData.category) {
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.category) {
       toast.error("Please fill in all required fields"); return;
     }
-    if (formData.password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
+
+    if (!user) {
+      toast.error("You must be logged in to register as a helper"); return;
+    }
 
     setIsSubmitting(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: { emailRedirectTo: `${window.location.origin}/` }
-      });
-
-      if (authError) {
-        if (authError.message.includes("already registered")) toast.error("This email is already registered. Please login instead.");
-        else toast.error(authError.message);
-        setIsSubmitting(false); return;
-      }
-
-      if (!authData.user) { toast.error("Failed to create account"); setIsSubmitting(false); return; }
-
-      const userId = authData.user.id;
+      const userId = user.id;
 
       // Upload files in parallel
       const [videoUrl, avatarUrl] = await Promise.all([
@@ -314,20 +309,12 @@ const HelperRegistration = () => {
               <Input id="fullName" placeholder="Enter your full name" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} className="mt-1" />
             </div>
             <div>
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">Email Address</Label>
               <div className="relative mt-1">
                 <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="your@email.com" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} className="pl-9" />
+                <Input id="email" type="email" value={formData.email} disabled className="pl-9 bg-muted/50" />
               </div>
-            </div>
-            <div>
-              <Label htmlFor="password">Password *</Label>
-              <div className="relative mt-1">
-                <Input id="password" type={showPassword ? "text" : "password"} placeholder="Create a password (min 6 characters)" value={formData.password} onChange={(e) => handleInputChange("password", e.target.value)} className="pr-10" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">From your signup account</p>
             </div>
             <div>
               <Label htmlFor="phone">Phone Number *</Label>
