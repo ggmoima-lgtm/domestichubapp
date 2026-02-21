@@ -131,7 +131,7 @@ const Auth = () => {
       }
 
       toast({ title: "Account created!", description: "Please check your email to verify your account." });
-      navigate("/");
+      navigate(selectedRole === "helper" ? "/register/helper" : "/");
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
