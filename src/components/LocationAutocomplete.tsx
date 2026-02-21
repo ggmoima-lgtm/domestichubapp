@@ -45,6 +45,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
   const [suggestions, setSuggestions] = useState<Prediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [servicesReady, setServicesReady] = useState(false);
   const autocompleteServiceRef = useRef<any>(null);
   const placesServiceRef = useRef<any>(null);
   const sessionTokenRef = useRef<any>(null);
@@ -62,6 +63,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
     const div = document.createElement("div");
     placesServiceRef.current = new g.maps.places.PlacesService(div);
     sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
+    setServicesReady(true);
   }, [mapsReady]);
 
   const handleInputChange = useCallback(
@@ -83,6 +85,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
           sessionToken: sessionTokenRef.current,
         },
         (predictions: any[] | null, status: string) => {
+          console.log("[LocationAutocomplete] predictions status:", status, "count:", predictions?.length);
           if (status === "OK" && predictions) {
             setSuggestions(predictions);
             setShowSuggestions(true);
@@ -240,9 +243,11 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
           onBlur={() => {
             setTimeout(() => setShowSuggestions(false), 200);
           }}
-          placeholder={placeholder || "Search your area..."}
+          placeholder={!servicesReady ? "Loading Google Maps..." : (placeholder || "Search your area...")}
           className="rounded-xl h-12 pl-9 pr-12"
           autoComplete="off"
+          disabled={!servicesReady}
+          readOnly={false}
         />
         <button
           type="button"
