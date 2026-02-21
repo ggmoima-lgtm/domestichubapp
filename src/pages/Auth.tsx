@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock, Mail, MapPin, FileText } from "lucide-react";
+import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -229,31 +230,17 @@ const Auth = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">City</Label>
-          <div className="relative">
-            <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="e.g. Johannesburg"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
-              required
-            />
-          </div>
-        </div>
-        <div>
-          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Area</Label>
-          <Input
-            placeholder="e.g. Sandton"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            className="rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
-            required
+      <div>
+          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Location</Label>
+          <LocationAutocomplete
+            value={null}
+            onChange={(loc: LocationData) => {
+              setCity(loc.city || loc.suburb || "");
+              setArea(loc.suburb || loc.city || "");
+            }}
+            placeholder="Search your area..."
           />
         </div>
-      </div>
 
       {/* Terms acceptance */}
       <div className="space-y-2">
@@ -277,8 +264,8 @@ const Auth = () => {
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !signupEmail || !phone || !city || !area) {
-            toast({ title: "Please fill all fields", variant: "destructive" });
+          if (!fullName || !signupEmail || !phone || !city) {
+            toast({ title: "Please fill all fields including location", variant: "destructive" });
             return;
           }
           if (!signupEmail.includes("@")) {
