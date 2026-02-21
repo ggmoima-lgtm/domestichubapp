@@ -685,32 +685,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 )}
               </div>
 
-              {/* End Assignment Button */}
-              {activePlacement && user && activePlacement.employer_name && (
-                <div className="mb-4">
-                  {!showEndAssignment ? (
-                    <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => setShowEndAssignment(true)}>
-                      <CheckSquare size={18} />
-                      Assignment Completed
-                    </Button>
-                  ) : (
-                    <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
-                      <p className="text-sm font-semibold text-foreground">End this assignment?</p>
-                      <p className="text-xs text-muted-foreground">
-                        {worker.name} will be marked as available again and visible to other employers.
-                      </p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setShowEndAssignment(false)}>
-                          Cancel
-                        </Button>
-                        <Button size="sm" className="rounded-xl flex-1" onClick={handleEndAssignment} disabled={isEndingAssignment}>
-                          {isEndingAssignment ? "Ending..." : "Confirm End"}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* Mark as Hired */}
               {!isNotAvailable && user && (
