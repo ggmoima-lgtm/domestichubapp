@@ -6,6 +6,7 @@ import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
 import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import LocationAutocomplete, { LocationData } from "./LocationAutocomplete";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -34,7 +35,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [jobType, setJobType] = useState("");
   const [liveInOut, setLiveInOut] = useState("");
   const [houseSize, setHouseSize] = useState("");
@@ -66,7 +67,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
         title,
         category,
         description: description || null,
-        location: location || null,
+        location: locationData?.formatted_address || null,
         job_type: jobType || null,
         live_in_out: liveInOut || null,
         house_size: houseSize || null,
@@ -82,7 +83,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       onCreated();
       onClose();
       // Reset
-      setTitle(""); setCategory(""); setDescription(""); setLocation("");
+      setTitle(""); setCategory(""); setDescription(""); setLocationData(null);
       setJobType(""); setLiveInOut(""); setHouseSize(""); setFamilySize("");
       setDuties([]); setHoursPerWeek(""); setSalaryMin(""); setSalaryMax("");
     } catch (err: any) {
@@ -133,7 +134,11 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground">Location</Label>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Sandton, Johannesburg" className="rounded-xl h-12" />
+            <LocationAutocomplete
+              value={locationData}
+              onChange={setLocationData}
+              placeholder="e.g. Sandton, Johannesburg"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
