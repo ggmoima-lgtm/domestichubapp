@@ -81,6 +81,9 @@ const EmployerProfile = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
   const [selectedAppMeta, setSelectedAppMeta] = useState<{ jobTitle: string; date: string }>({ jobTitle: "", date: "" });
   const [showFullProfile, setShowFullProfile] = useState(false);
+  const [showHires, setShowHires] = useState(false);
+  const [hires, setHires] = useState<any[]>([]);
+  const [hireCount, setHireCount] = useState(0);
 
   useEffect(() => {
     if (user) fetchData();
@@ -145,6 +148,17 @@ const EmployerProfile = () => {
       .select("id, title")
       .eq("employer_id", user.id);
 
+    // Fetch placements (hired helpers)
+    const { data: placementsData } = await supabase
+      .from("placements")
+      .select("id, helper_id, employer_name, job_type, job_category, status, hired_at, ended_at, helpers(id, full_name, avatar_url, category, availability_status)")
+      .eq("employer_id", user.id)
+      .order("hired_at", { ascending: false });
+
+    const hiredHelperIds = (placementsData || []).map((p: any) => p.helper_id);
+    setHires(placementsData || []);
+    setHireCount(placementsData?.length || 0);
+
     if (jobPosts && jobPosts.length > 0) {
       const jobIds = jobPosts.map(j => j.id);
       const { data: apps, count: appCount } = await supabase
@@ -153,12 +167,13 @@ const EmployerProfile = () => {
         .in("job_id", jobIds)
         .order("created_at", { ascending: false });
 
-      const enrichedApps = (apps || []).map(app => ({
+      // Filter out helpers who have been hired (have active placements)
+      const enrichedApps = (apps || []).filter(app => !hiredHelperIds.includes(app.helper_id)).map(app => ({
         ...app,
         job_title: jobPosts.find(j => j.id === app.job_id)?.title || "Unknown Job",
       }));
       setApplications(enrichedApps);
-      setApplicationCount(appCount || 0);
+      setApplicationCount(enrichedApps.length);
     }
 
     const { data: profile } = await supabase
@@ -488,10 +503,61 @@ const EmployerProfile = () => {
             </div>
           )}
 
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Users size={16} className="text-muted-foreground" /> Hires Made</span>
-            <ChevronRight size={16} className="text-muted-foreground" />
+          <button
+            onClick={() => setShowHires(!showHires)}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+          >
+            <span className="flex items-center gap-3 text-sm"><Users size={16} className="text-primary" /> Hires Made</span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              {hireCount}
+              {showHires ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
           </button>
+
+          {showHires && (
+            <div className="px-3 pb-2 space-y-2">
+              {hires.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">No hires made yet.</p>
+              ) : (
+                hires.map((hire: any) => (
+                  <div
+                    key={hire.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                    onClick={() => {
+                      const h = hire.helpers;
+                      if (!h) return;
+                      setSelectedApplicant(h);
+                      setSelectedAppMeta({ jobTitle: hire.job_category || "General", date: hire.hired_at });
+                      setShowFullProfile(true);
+                    }}
+                  >
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
+                      {hire.helpers?.avatar_url ? (
+                        <img src={hire.helpers.avatar_url} alt={hire.helpers.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary font-bold">
+                          {hire.helpers?.full_name?.charAt(0) || "?"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{hire.helpers?.full_name || "Unknown"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{hire.job_category || "Helper"} · {hire.job_type || "Full-time"}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Hired {new Date(hire.hired_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={hire.status === "active" ? "default" : "outline"}
+                      className="text-[10px] shrink-0"
+                    >
+                      {hire.status === "active" ? "✅ Active" : hire.status === "completed" ? "✓ Completed" : hire.status}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
