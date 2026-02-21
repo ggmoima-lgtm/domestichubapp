@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
 import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Eye, EyeOff, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -367,14 +368,17 @@ const HelperRegistration = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" placeholder="e.g., Johannesburg" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} className="mt-1" />
-            </div>
-            <div>
-              <Label htmlFor="area">Area</Label>
-              <Input id="area" placeholder="e.g., Sandton" value={formData.area} onChange={(e) => handleInputChange("area", e.target.value)} className="mt-1" />
+          <div>
+            <Label>Location</Label>
+            <div className="mt-1">
+              <LocationAutocomplete
+                value={null}
+                onChange={(loc: LocationData) => {
+                  handleInputChange("city", loc.city || loc.suburb || "");
+                  handleInputChange("area", loc.suburb || loc.city || "");
+                }}
+                placeholder="Search your city or area..."
+              />
             </div>
           </div>
         </section>
