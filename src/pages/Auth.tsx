@@ -40,6 +40,8 @@ const Auth = () => {
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -92,7 +94,7 @@ const Auth = () => {
     setIsSubmitting(true);
     try {
       const email = signupEmail.trim();
-      const password = `phone_${phone.replace(/\D/g, "")}_secure`;
+      const password = signupPassword;
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -231,6 +233,39 @@ const Auth = () => {
       </div>
 
       <div>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Password</Label>
+        <div className="relative">
+          <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="password"
+            placeholder="Create a password"
+            value={signupPassword}
+            onChange={(e) => setSignupPassword(e.target.value)}
+            className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            required
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Confirm Password</Label>
+        <div className="relative">
+          <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            required
+          />
+        </div>
+        {confirmPassword && signupPassword !== confirmPassword && (
+          <p className="text-[11px] text-destructive mt-1.5">Passwords do not match</p>
+        )}
+      </div>
+
+      <div>
           <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Location</Label>
           <LocationAutocomplete
             value={null}
@@ -264,12 +299,20 @@ const Auth = () => {
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !signupEmail || !phone || !city) {
+          if (!fullName || !signupEmail || !phone || !city || !signupPassword) {
             toast({ title: "Please fill all fields including location", variant: "destructive" });
             return;
           }
           if (!signupEmail.includes("@")) {
             toast({ title: "Please enter a valid email", variant: "destructive" });
+            return;
+          }
+          if (signupPassword.length < 6) {
+            toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+            return;
+          }
+          if (signupPassword !== confirmPassword) {
+            toast({ title: "Passwords do not match", variant: "destructive" });
             return;
           }
           if (!termsAccepted) {
