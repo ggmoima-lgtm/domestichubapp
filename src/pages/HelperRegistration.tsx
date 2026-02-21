@@ -191,6 +191,7 @@ const HelperRegistration = () => {
       toast.error("Please fill in all required fields"); return;
     }
     if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
+    if (!videoFile) { toast.error("Please upload an intro video"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
 
     if (!user) {
@@ -497,7 +498,7 @@ const HelperRegistration = () => {
         {/* Intro Video */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Upload size={18} className="text-primary" /> Introduction Video
+            <Upload size={18} className="text-primary" /> Introduction Video *
           </h2>
           <p className="text-sm text-muted-foreground">Record a short video (max 2 min) introducing yourself to families</p>
           <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mt-2">
