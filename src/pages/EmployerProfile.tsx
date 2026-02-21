@@ -73,6 +73,9 @@ const EmployerProfile = () => {
   const [jobCount, setJobCount] = useState(0);
   const [showChangePhone, setShowChangePhone] = useState(false);
   const [userPhone, setUserPhone] = useState("");
+  const [showApplications, setShowApplications] = useState(false);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [applicationCount, setApplicationCount] = useState(0);
 
   useEffect(() => {
     if (user) fetchData();
@@ -130,6 +133,28 @@ const EmployerProfile = () => {
       .eq("employer_id", user.id)
       .eq("status", "active");
     setJobCount(jobs || 0);
+
+    // Fetch applications for employer's jobs
+    const { data: jobPosts } = await supabase
+      .from("job_posts")
+      .select("id, title")
+      .eq("employer_id", user.id);
+
+    if (jobPosts && jobPosts.length > 0) {
+      const jobIds = jobPosts.map(j => j.id);
+      const { data: apps, count: appCount } = await supabase
+        .from("job_applications")
+        .select("*, helpers(id, full_name, avatar_url, category, phone)", { count: "exact" })
+        .in("job_id", jobIds)
+        .order("created_at", { ascending: false });
+
+      const enrichedApps = (apps || []).map(app => ({
+        ...app,
+        job_title: jobPosts.find(j => j.id === app.job_id)?.title || "Unknown Job",
+      }));
+      setApplications(enrichedApps);
+      setApplicationCount(appCount || 0);
+    }
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -396,6 +421,59 @@ const EmployerProfile = () => {
               )}
             </div>
           )}
+          <button
+            onClick={() => setShowApplications(!showApplications)}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+          >
+            <span className="flex items-center gap-3 text-sm">
+              <FileText size={16} className="text-primary" /> Applications
+              {applicationCount > 0 && (
+                <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {applicationCount}
+                </span>
+              )}
+            </span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              {applicationCount}
+              {showApplications ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
+          </button>
+
+          {showApplications && (
+            <div className="px-3 pb-2 space-y-2">
+              {applications.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">No applications received yet.</p>
+              ) : (
+                applications.map((app: any) => (
+                  <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
+                      {app.helpers?.avatar_url ? (
+                        <img src={app.helpers.avatar_url} alt={app.helpers.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary font-bold">
+                          {app.helpers?.full_name?.charAt(0) || "?"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{app.helpers?.full_name || "Unknown"}</p>
+                      <p className="text-xs text-muted-foreground truncate">Applied for: {app.job_title}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(app.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : "outline"}
+                      className="text-[10px] shrink-0"
+                    >
+                      {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
           <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Users size={16} className="text-muted-foreground" /> Hires Made</span>
             <ChevronRight size={16} className="text-muted-foreground" />
