@@ -574,58 +574,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             <>
               {/* Phone number hidden per spec - no call feature */}
 
-              {/* Intro Video - UNLOCKED */}
-              {worker.introVideo && (
-                <div className="mb-5">
-                  <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
-                    <Play size={16} className="text-primary" />
-                    Meet {displayName.split(" ")[0]}
-                  </h3>
-                  <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
-                    <video
-                      src={worker.introVideo}
-                      controls
-                      playsInline
-                      controlsList="nodownload"
-                      poster={worker.avatar}
-                      className="w-full h-full object-cover"
-                      onPlay={() => setIsVideoPlaying(true)}
-                      onPause={() => setIsVideoPlaying(false)}
-                      onContextMenu={(e) => e.preventDefault()}
-                    />
-                  </div>
-                  {/* Flag Video Button */}
-                  {user && (
-                    <button
-                      onClick={async () => {
-                        try {
-                          const { error } = await supabase.from("video_flags").insert({
-                            helper_id: worker.id,
-                            flagged_by: user.id,
-                            reason: "contact_info_in_video",
-                          });
-                          if (error) {
-                            if (error.code === "23505") {
-                              toast.info("You've already flagged this video.");
-                            } else {
-                              throw error;
-                            }
-                          } else {
-                            toast.success("Video flagged for review. Thank you!");
-                          }
-                        } catch (err: any) {
-                          toast.error("Failed to flag video.");
-                        }
-                      }}
-                      className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <Flag size={12} />
-                      Report video (contains contact info)
-                    </button>
-                  )}
-                </div>
-              )}
-
+              {/* Phone number hidden per spec - no call feature */}
               {/* Work History / References - UNLOCKED */}
               <div className="mb-5">
                 <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
@@ -826,24 +775,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </>
           ) : (
             <>
-              {/* Locked preview for video */}
-              {worker.introVideo && (
-                <div className="mb-5">
-                  <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
-                    <Play size={16} className="text-primary" />
-                    Intro Video
-                  </h3>
-                  <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
-                    <img src={worker.avatar} alt="" className="w-full h-full object-cover blur-md scale-110" />
-                    <div className="absolute inset-0 bg-foreground/30 flex flex-col items-center justify-center gap-2">
-                      <div className="w-14 h-14 rounded-full bg-card/90 flex items-center justify-center shadow-float">
-                        <Lock size={22} className="text-muted-foreground" />
-                      </div>
-                      <p className="text-sm font-bold text-white">Unlock to watch intro</p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Video is shown in the main section above */}
 
               {/* Locked preview for work history & references */}
               <div className="mb-5 p-4 bg-muted/30 rounded-2xl border border-border">
