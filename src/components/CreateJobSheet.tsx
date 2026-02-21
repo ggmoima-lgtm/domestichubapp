@@ -105,7 +105,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
           <X size={18} />
         </button>
 
-        <div className="px-5 pb-8 space-y-4">
+        <div className="px-5 pb-24 space-y-4">
           <div className="flex items-center gap-2">
             <Briefcase size={20} className="text-primary" />
             <h3 className="font-bold text-foreground text-lg">Post a Job</h3>
