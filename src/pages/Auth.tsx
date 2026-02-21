@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, User, ArrowRight, ArrowLeft, Briefcase, Sparkles, Shield, Lock, Mail, MapPin, FileText } from "lucide-react";
+import { PasswordInput } from "@/components/PasswordInput";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
@@ -236,8 +237,7 @@ const Auth = () => {
         <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Password</Label>
         <div className="relative">
           <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="Create a password"
             value={signupPassword}
             onChange={(e) => setSignupPassword(e.target.value)}
@@ -251,8 +251,7 @@ const Auth = () => {
         <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Confirm Password</Label>
         <div className="relative">
           <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="Confirm your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -490,8 +489,7 @@ const Auth = () => {
                   <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Password</Label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      type="password"
+                    <PasswordInput
                       placeholder="••••••••"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
