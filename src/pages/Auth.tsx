@@ -505,11 +505,27 @@ const Auth = () => {
                     type="button"
                     onClick={async () => {
                       const identifier = loginIdentifier.trim();
-                      if (!identifier || !identifier.includes("@")) {
-                        toast({ title: "Enter your email address first", variant: "destructive" });
+                      if (!identifier) {
+                        toast({ title: "Enter your phone number or email first", variant: "destructive" });
                         return;
                       }
-                      const { error } = await supabase.auth.resetPasswordForEmail(identifier, {
+                      let email = identifier;
+                      // If it's a phone number, look up the email from profiles
+                      if (!identifier.includes("@")) {
+                        const phone = identifier.replace(/\D/g, "");
+                        const { data } = await supabase
+                          .from("profiles")
+                          .select("email")
+                          .or(`phone.eq.${phone},phone.eq.+27${phone},phone.eq.0${phone}`)
+                          .limit(1)
+                          .maybeSingle();
+                        if (!data?.email) {
+                          toast({ title: "Phone number not found", description: "No account found with this phone number.", variant: "destructive" });
+                          return;
+                        }
+                        email = data.email;
+                      }
+                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
                         redirectTo: `${window.location.origin}/reset-password`,
                       });
                       if (error) {
