@@ -28,6 +28,7 @@ import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
+import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
@@ -78,6 +79,8 @@ const EmployerProfile = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [applicationCount, setApplicationCount] = useState(0);
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
+  const [selectedAppMeta, setSelectedAppMeta] = useState<{ jobTitle: string; date: string }>({ jobTitle: "", date: "" });
+  const [showFullProfile, setShowFullProfile] = useState(false);
 
   useEffect(() => {
     if (user) fetchData();
@@ -453,25 +456,8 @@ const EmployerProfile = () => {
                     onClick={() => {
                       const h = app.helpers;
                       if (!h) return;
-                      setSelectedApplicant({
-                        id: h.id,
-                        name: h.full_name || "Unknown",
-                        role: h.category || "Helper",
-                        location: "",
-                        rating: 0,
-                        reviews: 0,
-                        experience: h.experience_years ? `${h.experience_years} years` : "",
-                        monthlyRate: h.hourly_rate ? `R${h.hourly_rate}/hr` : "",
-                        verified: h.is_verified || false,
-                        avatar: h.avatar_url || "/placeholder.svg",
-                        skills: h.skills || [],
-                        bio: h.bio || "",
-                        languages: h.languages || [],
-                        availability: h.availability || "",
-                        introVideo: h.intro_video_url || "",
-                        availabilityStatus: h.availability_status || "available",
-                        availableFrom: h.available_from || null,
-                      });
+                      setSelectedApplicant(h);
+                      setSelectedAppMeta({ jobTitle: app.job_title, date: app.created_at });
                     }}
                   >
                     <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
@@ -594,11 +580,39 @@ const EmployerProfile = () => {
         onChanged={(p) => setUserPhone(p)}
       />
 
-      {/* Applicant Profile Sheet */}
-      <WorkerDetailSheet
-        worker={selectedApplicant}
-        isOpen={!!selectedApplicant}
+      {/* Application Preview Sheet */}
+      <ApplicationPreviewSheet
+        isOpen={!!selectedApplicant && !showFullProfile}
         onClose={() => setSelectedApplicant(null)}
+        helper={selectedApplicant}
+        jobTitle={selectedAppMeta.jobTitle}
+        applicationDate={selectedAppMeta.date}
+        onViewFullProfile={() => setShowFullProfile(true)}
+      />
+
+      {/* Full Profile Sheet (after unlock) */}
+      <WorkerDetailSheet
+        worker={showFullProfile && selectedApplicant ? {
+          id: selectedApplicant.id,
+          name: selectedApplicant.full_name || "Unknown",
+          role: selectedApplicant.category || "Helper",
+          location: "",
+          rating: 0,
+          reviews: 0,
+          experience: selectedApplicant.experience_years ? `${selectedApplicant.experience_years} years` : "",
+          monthlyRate: selectedApplicant.hourly_rate ? `R${selectedApplicant.hourly_rate}/hr` : "",
+          verified: selectedApplicant.is_verified || false,
+          avatar: selectedApplicant.avatar_url || "/placeholder.svg",
+          skills: selectedApplicant.skills || [],
+          bio: selectedApplicant.bio || "",
+          languages: selectedApplicant.languages || [],
+          availability: selectedApplicant.availability || "",
+          introVideo: selectedApplicant.intro_video_url || "",
+          availabilityStatus: selectedApplicant.availability_status || "available",
+          availableFrom: selectedApplicant.available_from || null,
+        } : null}
+        isOpen={showFullProfile && !!selectedApplicant}
+        onClose={() => { setShowFullProfile(false); setSelectedApplicant(null); }}
         onHired={fetchData}
       />
     </div>
