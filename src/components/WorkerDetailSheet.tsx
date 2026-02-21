@@ -369,7 +369,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           </button>
         )}
 
-        <div className="px-5 pb-8">
+        <div className="px-5 pb-28">
           {/* Status Banner */}
           {status !== "available" && (
             <div className={`mb-4 p-3 rounded-2xl ${
@@ -927,7 +927,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             <button onClick={() => setShowCreditStore(false)} className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
               <X size={18} />
             </button>
-            <div className="px-5 pb-8">
+            <div className="px-5 pb-28">
               <h2 className="text-xl font-bold text-foreground text-center mb-4">Buy Credits</h2>
               <CreditWalletCard onPurchaseComplete={() => setShowCreditStore(false)} />
             </div>

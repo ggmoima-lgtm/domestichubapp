@@ -159,7 +159,7 @@ const HelperProfile = () => {
   }
 
   return (
-    <div className="pb-8 space-y-4">
+    <div className="pb-28 space-y-4">
       {/* Profile Header */}
       <Card variant="gradient" className="overflow-hidden">
         <div className="gradient-primary p-6 pb-8">
