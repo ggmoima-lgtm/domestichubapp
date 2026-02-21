@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Home, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
-
+import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 const needTypes = [
   { id: "full-time", label: "Full-time", icon: "🕐", desc: "Monday to Friday, all day" },
   { id: "part-time", label: "Part-time", icon: "⏰", desc: "A few hours or days per week" },
@@ -27,7 +27,7 @@ const Onboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Employer fields
-  const [location, setLocation] = useState("");
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [typeOfNeed, setTypeOfNeed] = useState("");
   const [email, setEmail] = useState("");
 
@@ -77,8 +77,8 @@ const Onboarding = () => {
   };
 
   const handleEmployerComplete = async () => {
-    if (!location) {
-      toast({ title: "Please enter your location", variant: "destructive" });
+    if (!locationData) {
+      toast({ title: "Please select your location", variant: "destructive" });
       return;
     }
     if (!typeOfNeed) {
@@ -87,12 +87,19 @@ const Onboarding = () => {
     }
     setIsSubmitting(true);
     try {
-      // Save employer profile
       const { error: empError } = await supabase.from("employer_profiles").insert({
         user_id: user!.id,
-        location,
+        location: locationData.formatted_address,
         type_of_need: typeOfNeed,
         email: email || null,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        suburb: locationData.suburb,
+        city: locationData.city,
+        province: locationData.province,
+        country: locationData.country,
+        formatted_address: locationData.formatted_address,
+        place_id: locationData.place_id,
       });
       if (empError) throw empError;
 
@@ -245,18 +252,17 @@ const Onboarding = () => {
               </div>
               <div>
                 <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Area / Neighborhood</Label>
-                <Input
+                <LocationAutocomplete
+                  value={locationData}
+                  onChange={setLocationData}
                   placeholder="e.g., Sandton, Johannesburg"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="rounded-xl h-12"
                 />
               </div>
               <Button
                 className="w-full h-12 rounded-xl"
                 onClick={() => {
-                  if (!location) {
-                    toast({ title: "Please enter your location", variant: "destructive" });
+                  if (!locationData) {
+                    toast({ title: "Please select your location", variant: "destructive" });
                     return;
                   }
                   setStep(2);
