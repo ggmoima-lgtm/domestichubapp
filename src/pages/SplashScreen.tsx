@@ -14,14 +14,14 @@ const SplashScreen = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/90 to-primary">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-primary">
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex flex-col items-center gap-6"
       >
-        <img src={logo} alt="Domestic Hub" className="w-52 h-52 object-contain mix-blend-screen" />
+        <img src={logo} alt="Domestic Hub" className="w-52 h-52 object-contain mix-blend-multiply" />
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
