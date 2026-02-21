@@ -85,10 +85,22 @@ const HelperRegistration = () => {
   const [references] = useState<{ name: string; phone: string; relationship: string }[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // Auto-fill email from authenticated user
+  // Auto-fill email and phone from authenticated user
   useEffect(() => {
-    if (user?.email) {
-      setFormData(prev => ({ ...prev, email: user.email! }));
+    if (user) {
+      if (user.email) {
+        setFormData(prev => ({ ...prev, email: user.email! }));
+      }
+      // Fetch phone from profiles table
+      supabase.from("profiles").select("phone, full_name").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+        if (data) {
+          setFormData(prev => ({
+            ...prev,
+            phone: data.phone || prev.phone,
+            fullName: data.full_name || prev.fullName,
+          }));
+        }
+      });
     }
   }, [user]);
 
