@@ -179,7 +179,7 @@ const HelperHomeView = () => {
                 {new Date(job.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
               </span>
             </div>
-            {helperId && (
+            {helperId ? (
               <Button
                 size="sm"
                 variant={appliedJobIds.has(job.id) ? "secondary" : "outline"}
@@ -188,6 +188,15 @@ const HelperHomeView = () => {
                 disabled={appliedJobIds.has(job.id)}
               >
                 {appliedJobIds.has(job.id) ? "Already Applied ✓" : "Apply Now"}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full mt-3 rounded-xl"
+                onClick={() => toast.error("Please complete your helper profile first.")}
+              >
+                Apply Now
               </Button>
             )}
           </div>
