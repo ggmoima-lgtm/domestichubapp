@@ -42,6 +42,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
   const [familySize, setFamilySize] = useState("");
   const [duties, setDuties] = useState<string[]>([]);
   const [hoursPerWeek, setHoursPerWeek] = useState("");
+  const [daysPerWeek, setDaysPerWeek] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [negotiable, setNegotiable] = useState(true);
@@ -85,7 +86,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       // Reset
       setTitle(""); setCategory(""); setDescription(""); setLocationData(null);
       setJobType(""); setLiveInOut(""); setHouseSize(""); setFamilySize("");
-      setDuties([]); setHoursPerWeek(""); setSalaryMin(""); setSalaryMax("");
+      setDuties([]); setHoursPerWeek(""); setDaysPerWeek(""); setSalaryMin(""); setSalaryMax("");
     } catch (err: any) {
       toast.error("Failed to post job: " + err.message);
     } finally {
@@ -195,10 +196,26 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground">Hours per Week</Label>
-            <Input type="number" value={hoursPerWeek} onChange={(e) => setHoursPerWeek(e.target.value)} placeholder="e.g. 40" className="rounded-xl h-12" />
-          </div>
+          {jobType === "part-time" && (
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">Days per Week</Label>
+              <Select value={daysPerWeek} onValueChange={setDaysPerWeek}>
+                <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select days" /></SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6].map((d) => (
+                    <SelectItem key={d} value={String(d)}>{d} {d === 1 ? "day" : "days"}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {jobType !== "full-time" && jobType !== "part-time" && (
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">Hours per Week</Label>
+              <Input type="number" value={hoursPerWeek} onChange={(e) => setHoursPerWeek(e.target.value)} placeholder="e.g. 40" className="rounded-xl h-12" />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
