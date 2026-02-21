@@ -38,25 +38,11 @@ serve(async (req) => {
 
     const userId = claimsData.claims.sub;
 
-    // Check admin role
+    // Use service role for admin operations
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-
-    const { data: roleData } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
-      return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     const { helperId } = await req.json();
     if (!helperId) {
@@ -66,20 +52,39 @@ serve(async (req) => {
       });
     }
 
+    // Verify the caller owns this helper profile or is admin
+    const isOwner = helperId === userId;
+
+    if (!isOwner) {
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
 
-    // Get helper's video URL
+    // Get helper's video URL (helperId here is user_id)
     const { data: helper, error: helperError } = await supabaseAdmin
       .from("helpers")
-      .select("intro_video_url, full_name")
-      .eq("id", helperId)
+      .select("id, intro_video_url, full_name")
+      .eq("user_id", helperId)
       .single();
 
     if (helperError || !helper?.intro_video_url) {
       await supabaseAdmin
         .from("helpers")
         .update({ video_moderation_status: "approved" })
-        .eq("id", helperId);
+        .eq("user_id", helperId);
 
       return new Response(JSON.stringify({ status: "no_video", moderation: "approved" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -90,7 +95,7 @@ serve(async (req) => {
     await supabaseAdmin
       .from("helpers")
       .update({ video_moderation_status: "reviewing" })
-      .eq("id", helperId);
+      .eq("id", helper.id);
 
     // Use Lovable AI to analyze the video for contact info
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -166,7 +171,7 @@ Respond with a JSON object only:
         video_moderation_status: status,
         video_moderation_notes: notes,
       })
-      .eq("id", helperId);
+      .eq("id", helper.id);
 
     return new Response(
       JSON.stringify({ status, details: moderationResult }),
