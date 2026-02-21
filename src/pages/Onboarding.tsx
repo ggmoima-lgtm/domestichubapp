@@ -277,7 +277,7 @@ const Onboarding = () => {
           {step === 2 && (
             <div className="space-y-4">
               <div className="text-center mb-2">
-                <img src={logo} alt="Domestic Hub" className="w-12 h-12 rounded-2xl object-contain mx-auto mb-3 mix-blend-multiply" />
+                <img src={logo} alt="Domestic Hub" className="w-28 h-28 rounded-2xl object-contain mx-auto mb-3 mix-blend-multiply" />
                 <h2 className="text-lg font-bold text-foreground">What type of help?</h2>
                 <p className="text-sm text-muted-foreground">Select what best fits your needs</p>
               </div>
