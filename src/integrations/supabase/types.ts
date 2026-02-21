@@ -1029,6 +1029,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      helper_applied_to_employer: {
+        Args: { p_employer_id: string; p_helper_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
