@@ -27,6 +27,7 @@ import CreditWalletCard from "@/components/CreditWalletCard";
 import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
+import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
@@ -76,6 +77,7 @@ const EmployerProfile = () => {
   const [showApplications, setShowApplications] = useState(false);
   const [applications, setApplications] = useState<any[]>([]);
   const [applicationCount, setApplicationCount] = useState(0);
+  const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
 
   useEffect(() => {
     if (user) fetchData();
@@ -144,7 +146,7 @@ const EmployerProfile = () => {
       const jobIds = jobPosts.map(j => j.id);
       const { data: apps, count: appCount } = await supabase
         .from("job_applications")
-        .select("*, helpers(id, full_name, avatar_url, category, phone)", { count: "exact" })
+        .select("*, helpers(id, full_name, avatar_url, category, phone, bio, languages, availability, intro_video_url, availability_status, available_from, skills, experience_years, hourly_rate, is_verified)", { count: "exact" })
         .in("job_id", jobIds)
         .order("created_at", { ascending: false });
 
@@ -445,7 +447,33 @@ const EmployerProfile = () => {
                 <p className="text-xs text-muted-foreground py-2">No applications received yet.</p>
               ) : (
                 applications.map((app: any) => (
-                  <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
+                  <div
+                    key={app.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                    onClick={() => {
+                      const h = app.helpers;
+                      if (!h) return;
+                      setSelectedApplicant({
+                        id: h.id,
+                        name: h.full_name || "Unknown",
+                        role: h.category || "Helper",
+                        location: "",
+                        rating: 0,
+                        reviews: 0,
+                        experience: h.experience_years ? `${h.experience_years} years` : "",
+                        monthlyRate: h.hourly_rate ? `R${h.hourly_rate}/hr` : "",
+                        verified: h.is_verified || false,
+                        avatar: h.avatar_url || "/placeholder.svg",
+                        skills: h.skills || [],
+                        bio: h.bio || "",
+                        languages: h.languages || [],
+                        availability: h.availability || "",
+                        introVideo: h.intro_video_url || "",
+                        availabilityStatus: h.availability_status || "available",
+                        availableFrom: h.available_from || null,
+                      });
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
                       {app.helpers?.avatar_url ? (
                         <img src={app.helpers.avatar_url} alt={app.helpers.full_name} className="w-full h-full object-cover" />
@@ -456,7 +484,7 @@ const EmployerProfile = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate">{app.helpers?.full_name || "Unknown"}</p>
+                      <p className="text-sm font-semibold truncate">{getPreviewName(app.helpers?.full_name || "Unknown")}</p>
                       <p className="text-xs text-muted-foreground truncate">Applied for: {app.job_title}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {new Date(app.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
@@ -564,6 +592,14 @@ const EmployerProfile = () => {
         onClose={() => setShowChangePhone(false)}
         currentPhone={userPhone}
         onChanged={(p) => setUserPhone(p)}
+      />
+
+      {/* Applicant Profile Sheet */}
+      <WorkerDetailSheet
+        worker={selectedApplicant}
+        isOpen={!!selectedApplicant}
+        onClose={() => setSelectedApplicant(null)}
+        onHired={fetchData}
       />
     </div>
   );
