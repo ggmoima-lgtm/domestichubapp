@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, ArrowRight } from "lucide-react";
@@ -90,8 +90,7 @@ const ResetPassword = () => {
             <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">New Password</Label>
             <div className="relative">
               <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="Min 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -104,8 +103,7 @@ const ResetPassword = () => {
             <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Confirm Password</Label>
             <div className="relative">
               <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
