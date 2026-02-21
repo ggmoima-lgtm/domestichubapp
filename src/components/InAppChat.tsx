@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Send, UserCheck, CalendarCheck } from "lucide-react";
+import { X, Send, UserCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -239,18 +239,6 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 text-xs"
-              onClick={() => {
-                const msg = `Hi ${helperName}, I'd like to schedule an interview with you. When are you available?`;
-                setNewMessage(msg);
-              }}
-            >
-              <CalendarCheck size={14} />
-              Interview
-            </Button>
             <Button
               size="sm"
               variant={isHired ? "destructive" : "outline"}
