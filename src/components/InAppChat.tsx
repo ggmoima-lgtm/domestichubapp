@@ -118,13 +118,45 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
       return;
     }
 
+    // Determine receiver: if I'm the helper, find the employer from past messages
+    let receiverId = helper.user_id;
+    if (user.id === helper.user_id) {
+      // I'm the helper — find the other participant (employer)
+      const { data: pastMsg } = await supabase
+        .from("messages")
+        .select("sender_id, receiver_id")
+        .eq("helper_id", helperId)
+        .neq("sender_id", user.id)
+        .limit(1)
+        .single();
+
+      if (pastMsg) {
+        receiverId = pastMsg.sender_id;
+      } else {
+        // Try from messages where I received
+        const { data: pastMsg2 } = await supabase
+          .from("messages")
+          .select("sender_id")
+          .eq("helper_id", helperId)
+          .eq("receiver_id", user.id)
+          .limit(1)
+          .single();
+        if (pastMsg2) {
+          receiverId = pastMsg2.sender_id;
+        } else {
+          toast.error("Unable to find conversation partner.");
+          return;
+        }
+      }
+    }
+
     setIsSending(true);
     const content = newMessage.trim();
     setNewMessage("");
 
     const { error } = await supabase.from("messages").insert({
       sender_id: user.id,
-      receiver_id: helper.user_id,
+      receiver_id: receiverId,
       helper_id: helperId,
       content,
     });
