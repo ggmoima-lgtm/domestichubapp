@@ -22,9 +22,10 @@ interface InAppChatProps {
   helperName: string;
   helperAvatar: string;
   onHired?: () => void;
+  isHired?: boolean;
 }
 
-const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHired }: InAppChatProps) => {
+const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHired, isHired }: InAppChatProps) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -135,6 +136,40 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
     setIsSending(false);
   };
 
+  const handleUnhire = async () => {
+    if (!user) return;
+    setIsHiring(true);
+    try {
+      // Find active placement
+      const { data: placement } = await supabase
+        .from("placements")
+        .select("id")
+        .eq("employer_id", user.id)
+        .eq("helper_id", helperId)
+        .eq("status", "active")
+        .single();
+
+      if (!placement) throw new Error("No active placement found");
+
+      await supabase
+        .from("placements")
+        .update({ status: "completed", ended_at: new Date().toISOString() })
+        .eq("id", placement.id);
+
+      await supabase
+        .from("helpers")
+        .update({ availability_status: "available" })
+        .eq("id", helperId);
+
+      toast.success(`${helperName} has been unhired.`);
+      onHired?.();
+    } catch (error: any) {
+      toast.error("Failed to unhire. " + error.message);
+    } finally {
+      setIsHiring(false);
+    }
+  };
+
   const handleMarkAsHired = async () => {
     if (!user) return;
     setIsHiring(true);
@@ -206,12 +241,12 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
           <div className="flex items-center gap-2">
             <Button
               size="sm"
-              variant="outline"
+              variant={isHired ? "destructive" : "outline"}
               className="gap-1.5 text-xs"
-              onClick={() => setShowHireConfirm(true)}
+              onClick={() => isHired ? handleUnhire() : setShowHireConfirm(true)}
             >
               <UserCheck size={14} />
-              Mark as Hired
+              {isHired ? "Unhire" : "Mark as Hired"}
             </Button>
             <button onClick={onClose} className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
               <X size={18} />

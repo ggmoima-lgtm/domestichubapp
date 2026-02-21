@@ -277,6 +277,41 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
       console.error("Hire error:", error);
       toast.error("Failed to mark as hired. " + error.message);
     } finally {
+    setIsHiring(false);
+    }
+  };
+
+  const handleUnhire = async () => {
+    if (!activePlacement || !user) return;
+    setIsHiring(true);
+    try {
+      const { error: placementError } = await supabase
+        .from("placements")
+        .update({ status: "completed", ended_at: new Date().toISOString() })
+        .eq("id", activePlacement.id);
+      if (placementError) throw placementError;
+
+      const { error: helperError } = await supabase
+        .from("helpers")
+        .update({ availability_status: "available" })
+        .eq("id", worker.id);
+      if (helperError) throw helperError;
+
+      toast.success(`${worker.name} has been unhired and is now available.`);
+      setActivePlacement(null);
+
+      const { data } = await supabase
+        .from("placements")
+        .select("id, employer_name, job_type, job_category, status, hired_at, ended_at")
+        .eq("helper_id", worker.id)
+        .order("hired_at", { ascending: false });
+      if (data) {
+        setPlacements(data);
+      }
+      onHired?.();
+    } catch (error: any) {
+      toast.error("Failed to unhire. " + error.message);
+    } finally {
       setIsHiring(false);
     }
   };
@@ -686,17 +721,25 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               </div>
 
 
-              {/* Mark as Hired */}
-              {!isNotAvailable && user && (
+              {/* Mark as Hired / Unhire */}
+              {user && (
                 <div className="mb-4">
-                  {!showHireForm ? (
+                  {activePlacement ? (
+                    <Button variant="destructive" size="lg"
+                      className="w-full rounded-xl"
+                      onClick={handleUnhire}
+                      disabled={isHiring}>
+                      <UserCheck size={18} />
+                      {isHiring ? "Processing..." : "Unhire"}
+                    </Button>
+                  ) : !isNotAvailable && !showHireForm ? (
                     <Button variant="outline" size="lg"
                       className="w-full rounded-xl border-primary text-primary hover:bg-primary/5"
                       onClick={() => setShowHireForm(true)}>
                       <UserCheck size={18} />
                       Mark as Hired
                     </Button>
-                  ) : (
+                  ) : !isNotAvailable ? (
                     <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 space-y-3">
                       <h4 className="font-bold text-foreground text-sm">Hiring Details</h4>
                       <div>
@@ -735,7 +778,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                         </Button>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               )}
 
@@ -807,6 +850,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
         helperName={displayName}
         helperAvatar={worker.avatar}
         onHired={onHired}
+        isHired={!!activePlacement}
       />
 
       {/* Unlock Confirm Sheet */}
