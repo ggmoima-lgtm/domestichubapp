@@ -39,12 +39,19 @@ const HelperHomeView = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [helperId, setHelperId] = useState<string | null>(null);
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchJobs();
     if (user) {
       supabase.from("helpers").select("id").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-        if (data) setHelperId(data.id);
+        if (data) {
+          setHelperId(data.id);
+          // Fetch existing applications
+          supabase.from("job_applications").select("job_id").eq("helper_id", data.id).then(({ data: apps }) => {
+            if (apps) setAppliedJobIds(new Set(apps.map(a => a.job_id)));
+          });
+        }
       });
     }
   }, [user]);
@@ -73,6 +80,7 @@ const HelperHomeView = () => {
       if (error.code === "23505") toast.info("You've already applied to this job.");
       else toast.error("Failed to apply.");
     } else {
+      setAppliedJobIds(prev => new Set(prev).add(jobId));
       toast.success("Application submitted!");
     }
   };
@@ -174,11 +182,12 @@ const HelperHomeView = () => {
             {helperId && (
               <Button
                 size="sm"
-                variant="outline"
+                variant={appliedJobIds.has(job.id) ? "secondary" : "outline"}
                 className="w-full mt-3 rounded-xl"
                 onClick={() => handleApply(job.id)}
+                disabled={appliedJobIds.has(job.id)}
               >
-                Apply Now
+                {appliedJobIds.has(job.id) ? "Already Applied ✓" : "Apply Now"}
               </Button>
             )}
           </div>
