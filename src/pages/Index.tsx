@@ -12,7 +12,7 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
-import { mockWorkers, Worker } from "@/data/mockWorkers";
+import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ const Index = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
+  const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
 
   // Fetch user role
   useEffect(() => {
@@ -63,6 +64,39 @@ const Index = () => {
         setUserRole(data?.role || "employer");
       });
   }, [user]);
+
+  // Fetch helpers from database
+  useEffect(() => {
+    if (!user) return;
+    const fetchHelpers = async () => {
+      const { data: helpers } = await supabase
+        .from("helpers")
+        .select("*");
+      
+      const mapped: Worker[] = (helpers || []).map((h) => ({
+        id: h.id,
+        name: h.full_name,
+        role: h.category,
+        location: "",
+        rating: 0,
+        reviews: 0,
+        experience: `${h.experience_years || 0} yrs`,
+        monthlyRate: h.hourly_rate ? `R${h.hourly_rate}` : "Negotiable",
+        verified: h.is_verified || false,
+        avatar: h.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+        skills: h.skills || [],
+        bio: h.bio || undefined,
+        languages: h.languages || undefined,
+        availability: h.availability || undefined,
+        introVideo: h.intro_video_url || undefined,
+        availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
+        availableFrom: h.available_from || null,
+        phone: h.phone || undefined,
+      }));
+      setDbHelpers(mapped);
+    };
+    fetchHelpers();
+  }, [user, unlockRefresh]);
 
   // Fetch unlocked helper IDs and full helper profiles
   useEffect(() => {
@@ -166,7 +200,7 @@ const Index = () => {
     addCredits();
   }, [user, searchParams]);
 
-  const filteredWorkers = mockWorkers.filter((worker) => {
+  const filteredWorkers = dbHelpers.filter((worker) => {
     // Always show unlocked helpers regardless of status; hide non-available unless toggled
     const helperStatus = worker.availabilityStatus || "available";
     const isAvailable = helperStatus === "available" || helperStatus === "interviewing";
