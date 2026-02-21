@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import HelperRegistration from "./pages/HelperRegistration";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import SplashScreen from "./pages/SplashScreen";
 import Onboarding from "./pages/Onboarding";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -30,6 +31,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
               <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />

@@ -500,6 +500,29 @@ const Auth = () => {
                     />
                   </div>
                 </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const identifier = loginIdentifier.trim();
+                      if (!identifier || !identifier.includes("@")) {
+                        toast({ title: "Enter your email address first", variant: "destructive" });
+                        return;
+                      }
+                      const { error } = await supabase.auth.resetPasswordForEmail(identifier, {
+                        redirectTo: `${window.location.origin}/reset-password`,
+                      });
+                      if (error) {
+                        toast({ title: "Error", description: error.message, variant: "destructive" });
+                      } else {
+                        toast({ title: "Reset link sent!", description: "Check your email for a password reset link." });
+                      }
+                    }}
+                    className="text-xs text-primary font-semibold hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <Button type="submit" className="w-full h-12 rounded-xl font-semibold shadow-sm" disabled={isSubmitting}>
                   {isSubmitting ? "Logging in..." : (
                     <>Log In <ArrowRight size={16} className="ml-1" /></>
