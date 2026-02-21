@@ -209,8 +209,8 @@ const HelperRegistration = () => {
         avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
       ]);
 
-      // Create profiles row
-      const { error: profilesError } = await supabase.from('profiles').insert({
+      // Upsert profiles row (update if exists, insert if not)
+      const { error: profilesError } = await supabase.from('profiles').upsert({
         user_id: userId,
         full_name: formData.fullName,
         phone: formData.phone,
@@ -218,7 +218,7 @@ const HelperRegistration = () => {
         onboarding_completed: true,
         city: formData.city || null,
         area: formData.area || null,
-      });
+      }, { onConflict: 'user_id' });
       if (profilesError) console.error('Profiles row error:', profilesError);
 
       // Create helper profile
