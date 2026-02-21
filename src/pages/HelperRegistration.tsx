@@ -382,16 +382,16 @@ const HelperRegistration = () => {
           </div>
         </section>
 
-        {/* Work Permit Toggle */}
+        {/* Work Documentation Toggle */}
         <section className="bg-muted/50 rounded-2xl p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="workPermit" className="text-base font-semibold">Work Permit</Label>
-              <p className="text-sm text-muted-foreground">Do you have all required work permits?</p>
+              <Label htmlFor="workPermit" className="text-base font-semibold">Work Documentation</Label>
+              <p className="text-sm text-muted-foreground">Do you have all required work documentation?</p>
             </div>
             <Switch id="workPermit" checked={hasWorkPermit} onCheckedChange={setHasWorkPermit} />
           </div>
-          {hasWorkPermit && <p className="text-xs text-primary mt-2 flex items-center gap-1">✓ Verified work permit holder</p>}
+          {hasWorkPermit && <p className="text-xs text-primary mt-2 flex items-center gap-1">✓ Verified work documentation holder</p>}
         </section>
 
         {/* Professional Details */}
