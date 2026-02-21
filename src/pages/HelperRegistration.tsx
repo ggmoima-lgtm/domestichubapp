@@ -391,7 +391,7 @@ const HelperRegistration = () => {
             </div>
             <Switch id="workPermit" checked={hasWorkPermit} onCheckedChange={setHasWorkPermit} />
           </div>
-          {hasWorkPermit && <p className="text-xs text-primary mt-2 flex items-center gap-1">✓ Verified work documentation holder</p>}
+          
         </section>
 
         {/* Professional Details */}
