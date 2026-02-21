@@ -92,32 +92,44 @@ const Index = () => {
 
   // Handle payment callback (credit purchase)
   useEffect(() => {
+    if (paymentProcessedRef.current) return;
+    if (!user) return;
+
     const payment = searchParams.get("payment");
     const creditsParam = searchParams.get("credits");
     const amountParam = searchParams.get("amount");
 
-    if (paymentProcessedRef.current) return;
+    if (payment !== "credits" || !creditsParam || !amountParam) return;
 
-    if (payment === "credits" && creditsParam && amountParam && user) {
-      paymentProcessedRef.current = true;
-      const addCredits = async () => {
-        const { error } = await supabase.rpc("add_credits_after_purchase", {
+    paymentProcessedRef.current = true;
+    // Clear URL params immediately to prevent re-processing on re-renders
+    const credits = parseInt(creditsParam);
+    const amount = parseFloat(amountParam);
+    const paymentRef = searchParams.get("reference") || searchParams.get("trxref") || "paystack_" + Date.now();
+    setSearchParams({}, { replace: true });
+
+    const addCredits = async () => {
+      try {
+        const { data, error } = await supabase.rpc("add_credits_after_purchase", {
           p_user_id: user.id,
-          p_credits: parseInt(creditsParam),
-          p_amount: parseFloat(amountParam),
-          p_payment_ref: searchParams.get("reference") || "paystack_" + Date.now(),
+          p_credits: credits,
+          p_amount: amount,
+          p_payment_ref: paymentRef,
         });
-        setSearchParams({}, { replace: true });
         if (error) {
           console.error("Credit add error:", error);
           toast.error("Failed to add credits. Please contact support.");
         } else {
-          toast.success(`${creditsParam} credits added to your wallet!`);
-          setCreditBalance((b) => b + parseInt(creditsParam));
+          toast.success(`${credits} credits added to your wallet!`);
+          setCreditBalance((b) => b + credits);
+          setUnlockRefresh((r) => r + 1);
         }
-      };
-      addCredits();
-    }
+      } catch (err) {
+        console.error("Credit add exception:", err);
+        toast.error("Failed to add credits. Please contact support.");
+      }
+    };
+    addCredits();
   }, [user, searchParams]);
 
   const filteredWorkers = mockWorkers.filter((worker) => {
