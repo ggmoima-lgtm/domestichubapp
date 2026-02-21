@@ -133,7 +133,7 @@ const ApplicationPreviewSheet = ({
             <X size={18} />
           </button>
 
-          <div className="px-5 pb-8">
+          <div className="px-5 pb-28">
             {/* Applied For Banner */}
             <div className="bg-primary/5 border border-primary/10 rounded-2xl p-3 mb-5">
               <p className="text-xs text-muted-foreground">Applied for</p>
