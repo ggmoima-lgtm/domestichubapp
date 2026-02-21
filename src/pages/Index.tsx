@@ -310,13 +310,13 @@ const Index = () => {
       )}
 
       {activeTab === "messages" && (
-        <main className="px-4 py-4">
+        <main className="px-4 py-4 pb-24">
           <MessagesList />
         </main>
       )}
 
       {activeTab === "hub" && (
-        <main className="px-4 py-4">
+        <main className="px-4 py-4 pb-24">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
             <span className="text-muted-foreground text-sm">
@@ -345,7 +345,7 @@ const Index = () => {
       )}
 
       {activeTab === "profile" && (
-        <main className="px-4 py-4">
+        <main className="px-4 py-4 pb-24">
           <ProfileTab />
         </main>
       )}
