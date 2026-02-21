@@ -277,9 +277,7 @@ const Onboarding = () => {
           {step === 2 && (
             <div className="space-y-4">
               <div className="text-center mb-2">
-                <div className="w-14 h-14 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-3">
-                  <Home size={24} className="text-secondary-foreground" />
-                </div>
+                <img src={logo} alt="Domestic Hub" className="w-12 h-12 rounded-2xl object-contain mx-auto mb-3 mix-blend-multiply" />
                 <h2 className="text-lg font-bold text-foreground">What type of help?</h2>
                 <p className="text-sm text-muted-foreground">Select what best fits your needs</p>
               </div>
