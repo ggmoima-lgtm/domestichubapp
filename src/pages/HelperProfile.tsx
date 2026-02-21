@@ -143,9 +143,17 @@ const HelperProfile = () => {
 
   if (!helper) {
     return (
-      <div className="p-6 text-center">
-        <p className="text-muted-foreground mb-4">No helper profile found. Register as a helper first.</p>
-        <Button onClick={() => window.location.href = "/register/helper"}>Register as Helper</Button>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <Briefcase size={28} className="text-primary" />
+        </div>
+        <h2 className="text-lg font-bold text-foreground">No Helper Profile Yet</h2>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          Create your helper profile to start finding work opportunities.
+        </p>
+        <Button onClick={() => navigate("/register/helper")} className="rounded-xl h-12 px-6 font-semibold">
+          Register as a Helper
+        </Button>
       </div>
     );
   }
