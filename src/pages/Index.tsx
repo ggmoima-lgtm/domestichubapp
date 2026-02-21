@@ -45,6 +45,7 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showUnavailable, setShowUnavailable] = useState(false);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+  const [unlockedHelpers, setUnlockedHelpers] = useState<Worker[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [creditBalance, setCreditBalance] = useState(0);
@@ -63,18 +64,51 @@ const Index = () => {
       });
   }, [user]);
 
-  // Fetch unlocked helper IDs for filtering
+  // Fetch unlocked helper IDs and full helper profiles
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("profile_unlocks")
-      .select("helper_id")
-      .eq("employer_id", user.id)
-      .gte("expires_at", new Date().toISOString())
-      .then(({ data }) => {
-        const dbIds = (data || []).map((d) => d.helper_id);
-        setUnlockedIds(dbIds);
-      });
+    const fetchUnlocks = async () => {
+      const { data: unlocks } = await supabase
+        .from("profile_unlocks")
+        .select("helper_id")
+        .eq("employer_id", user.id)
+        .gte("expires_at", new Date().toISOString());
+      
+      const dbIds = (unlocks || []).map((d) => d.helper_id);
+      setUnlockedIds(dbIds);
+
+      if (dbIds.length > 0) {
+        const { data: helpers } = await supabase
+          .from("helpers")
+          .select("*")
+          .in("id", dbIds);
+        
+        const mapped: Worker[] = (helpers || []).map((h) => ({
+          id: h.id,
+          name: h.full_name,
+          role: h.category,
+          location: "",
+          rating: 0,
+          reviews: 0,
+          experience: `${h.experience_years || 0} yrs`,
+          monthlyRate: h.hourly_rate ? `R${h.hourly_rate}` : "Negotiable",
+          verified: h.is_verified || false,
+          avatar: h.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+          skills: h.skills || [],
+          bio: h.bio || undefined,
+          languages: h.languages || undefined,
+          availability: h.availability || undefined,
+          introVideo: h.intro_video_url || undefined,
+          availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
+          availableFrom: h.available_from || null,
+          phone: h.phone || undefined,
+        }));
+        setUnlockedHelpers(mapped);
+      } else {
+        setUnlockedHelpers([]);
+      }
+    };
+    fetchUnlocks();
   }, [user, unlockRefresh]);
 
   // Fetch credit balance
@@ -320,22 +354,20 @@ const Index = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
             <span className="text-muted-foreground text-sm">
-              {mockWorkers.filter((w) => unlockedIds.includes(w.id)).length} profiles
+              {unlockedHelpers.length} profiles
             </span>
           </div>
           <div className="space-y-3">
-            {mockWorkers
-              .filter((w) => unlockedIds.includes(w.id))
-              .map((worker, index) => (
-                <div
-                  key={worker.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
-                </div>
-              ))}
-            {mockWorkers.filter((w) => unlockedIds.includes(w.id)).length === 0 && (
+            {unlockedHelpers.map((worker, index) => (
+              <div
+                key={worker.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
+              </div>
+            ))}
+            {unlockedHelpers.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No unlocked profiles yet. Browse helpers and unlock profiles to see them here.</p>
               </div>
