@@ -265,7 +265,7 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
         </div>
 
         {/* Input */}
-        <div className="px-5 py-4 border-t border-border flex gap-2">
+        <div className="px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border flex gap-2">
           <Input
             ref={inputRef}
             placeholder="Type a message..."
@@ -273,6 +273,10 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             className="flex-1 rounded-xl"
+            autoComplete="off"
+            autoCorrect="on"
+            inputMode="text"
+            enterKeyHint="send"
           />
           <Button
             size="icon"
