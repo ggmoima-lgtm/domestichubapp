@@ -246,8 +246,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
 
   const handleMarkAsHired = async () => {
     if (!user) { toast.error("Please log in first."); return; }
-    if (!hireEmployerName) { toast.error("Please enter your name/family name."); return; }
-    if (!hireJobType) { toast.error("Please select job type."); return; }
     
     setIsHiring(true);
     try {
@@ -255,18 +253,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
         employer_id: user.id,
         helper_id: worker.id,
         status: "active",
-        employer_name: hireEmployerName,
-        job_type: hireJobType,
-        job_category: hireJobCategory || worker.role,
+        employer_name: "Employer",
+        job_type: "full-time",
+        job_category: worker.role,
       });
       if (placementError) throw placementError;
 
       const { error: updateError } = await supabase
         .from("helpers")
-        .update({ 
-          availability_status: "hired_platform",
-          available_from: hireAvailableFrom || null,
-        })
+        .update({ availability_status: "hired_platform" })
         .eq("id", worker.id);
       if (updateError) throw updateError;
 
@@ -732,52 +727,14 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                       <UserCheck size={18} />
                       {isHiring ? "Processing..." : "Unhire"}
                     </Button>
-                  ) : !isNotAvailable && !showHireForm ? (
+                  ) : !isNotAvailable ? (
                     <Button variant="outline" size="lg"
                       className="w-full rounded-xl border-primary text-primary hover:bg-primary/5"
-                      onClick={() => setShowHireForm(true)}>
+                      onClick={handleMarkAsHired}
+                      disabled={isHiring}>
                       <UserCheck size={18} />
-                      Mark as Hired
+                      {isHiring ? "Processing..." : "Mark as Hired"}
                     </Button>
-                  ) : !isNotAvailable ? (
-                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 space-y-3">
-                      <h4 className="font-bold text-foreground text-sm">Hiring Details</h4>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Your Name / Family Name *</Label>
-                        <Input placeholder="e.g., Smith Family" value={hireEmployerName}
-                          onChange={(e) => setHireEmployerName(e.target.value)} className="rounded-xl h-10 mt-1" />
-                      </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Job Type *</Label>
-                        <Select value={hireJobType} onValueChange={setHireJobType}>
-                          <SelectTrigger className="rounded-xl h-10 mt-1"><SelectValue placeholder="Select type" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="full-time">Full-time</SelectItem>
-                            <SelectItem value="part-time">Part-time</SelectItem>
-                            <SelectItem value="live-in">Live-in</SelectItem>
-                            <SelectItem value="live-out">Live-out</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Job Category</Label>
-                        <Input placeholder={worker.role} value={hireJobCategory}
-                          onChange={(e) => setHireJobCategory(e.target.value)} className="rounded-xl h-10 mt-1" />
-                      </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Expected available from (optional)</Label>
-                        <Input type="date" value={hireAvailableFrom}
-                          onChange={(e) => setHireAvailableFrom(e.target.value)} className="rounded-xl h-10 mt-1" />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setShowHireForm(false)}>
-                          Cancel
-                        </Button>
-                        <Button size="sm" className="rounded-xl flex-1" onClick={handleMarkAsHired} disabled={isHiring}>
-                          {isHiring ? "Processing..." : "Confirm Hire"}
-                        </Button>
-                      </div>
-                    </div>
                   ) : null}
                 </div>
               )}

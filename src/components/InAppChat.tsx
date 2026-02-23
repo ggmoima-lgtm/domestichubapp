@@ -275,7 +275,7 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
               size="sm"
               variant={isHired ? "destructive" : "outline"}
               className="gap-1.5 text-xs"
-              onClick={() => isHired ? handleUnhire() : setShowHireConfirm(true)}
+              onClick={() => isHired ? handleUnhire() : handleMarkAsHired()}
             >
               <UserCheck size={14} />
               {isHired ? "Unhire" : "Mark as Hired"}
@@ -286,21 +286,6 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
           </div>
         </div>
 
-        {/* Hire Confirmation Banner */}
-        {showHireConfirm && (
-          <div className="px-5 py-3 bg-primary/5 border-b border-primary/20">
-            <p className="text-sm font-semibold text-foreground mb-2">Mark {helperName} as Hired?</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Their profile will be hidden from search and set to "Hired" status. This action notifies the helper.
-            </p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setShowHireConfirm(false)}>Cancel</Button>
-              <Button size="sm" onClick={handleMarkAsHired} disabled={isHiring}>
-                {isHiring ? "Processing..." : "Confirm Hire"}
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[200px] max-h-[50vh]">
