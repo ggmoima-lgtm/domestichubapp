@@ -229,7 +229,7 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
       // Update helper status
       const { error: updateError } = await supabase
         .from("helpers")
-        .update({ availability_status: "hired_platform" })
+        .update({ availability_status: "unavailable" })
         .eq("id", helperId);
       if (updateError) throw updateError;
 
