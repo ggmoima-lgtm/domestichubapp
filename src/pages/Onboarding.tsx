@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPin, Home, ArrowRight, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
+import PushNotificationDialog from "@/components/PushNotificationDialog";
 const needTypes = [
   { id: "full-time", label: "Full-time", desc: "Monday to Friday, all day" },
   { id: "part-time", label: "Part-time", desc: "A few hours or days per week" },
@@ -25,6 +26,8 @@ const Onboarding = () => {
   const [needsProfileCreation, setNeedsProfileCreation] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPushDialog, setShowPushDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   // Employer fields
   const [locationData, setLocationData] = useState<LocationData | null>(null);
@@ -124,7 +127,8 @@ const Onboarding = () => {
       if (profileError) throw profileError;
 
       toast({ title: "Profile complete!", description: "Welcome to Domestic Hub." });
-      navigate("/home", { replace: true });
+      setPendingNavigation("/home");
+      setShowPushDialog(true);
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -141,7 +145,8 @@ const Onboarding = () => {
         .update({ onboarding_completed: true })
         .eq("user_id", user!.id);
       if (error) throw error;
-      navigate("/register/helper", { replace: true });
+      setPendingNavigation("/register/helper");
+      setShowPushDialog(true);
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -330,9 +335,18 @@ const Onboarding = () => {
             </div>
           )}
 
-
         </div>
       </div>
+
+      <PushNotificationDialog
+        open={showPushDialog}
+        onOpenChange={(open) => {
+          setShowPushDialog(open);
+          if (!open && pendingNavigation) {
+            navigate(pendingNavigation, { replace: true });
+          }
+        }}
+      />
     </div>
   );
 };
