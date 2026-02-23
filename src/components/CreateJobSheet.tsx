@@ -202,7 +202,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
               <Select value={daysPerWeek} onValueChange={setDaysPerWeek}>
                 <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select days" /></SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((d) => (
+                  {[1, 2, 3, 4, 5, 6, 7].map((d) => (
                     <SelectItem key={d} value={String(d)}>{d} {d === 1 ? "day" : "days"}</SelectItem>
                   ))}
                 </SelectContent>

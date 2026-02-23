@@ -84,6 +84,10 @@ const EmployerProfile = () => {
   const [showHires, setShowHires] = useState(false);
   const [hires, setHires] = useState<any[]>([]);
   const [hireCount, setHireCount] = useState(0);
+  const [showActiveJobs, setShowActiveJobs] = useState(false);
+  const [activeJobs, setActiveJobs] = useState<any[]>([]);
+  const [showUnlockedProfiles, setShowUnlockedProfiles] = useState(false);
+  const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) fetchData();
@@ -135,12 +139,23 @@ const EmployerProfile = () => {
 
     setSavedHelpers([...dbHelpers, ...localHelpers]);
 
-    const { count: jobs } = await supabase
+    const { data: jobsData, count: jobs } = await supabase
       .from("job_posts")
-      .select("*", { count: "exact", head: true })
+      .select("*", { count: "exact" })
       .eq("employer_id", user.id)
-      .eq("status", "active");
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
     setJobCount(jobs || 0);
+    setActiveJobs(jobsData || []);
+
+    // Fetch unlocked profiles with helper details
+    const { data: unlocksData } = await supabase
+      .from("profile_unlocks")
+      .select("*, helpers(id, full_name, avatar_url, category, availability_status)")
+      .eq("employer_id", user.id)
+      .gte("expires_at", new Date().toISOString())
+      .order("unlocked_at", { ascending: false });
+    setUnlockedProfiles(unlocksData || []);
 
     // Fetch applications for employer's jobs
     const { data: jobPosts } = await supabase
@@ -394,14 +409,78 @@ const EmployerProfile = () => {
           </Button>
         </CardHeader>
         <CardContent className="space-y-1 p-2">
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><Briefcase size={16} className="text-primary" /> Active Jobs</span>
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">{jobCount} <ChevronRight size={16} /></span>
+          <button
+            onClick={() => setShowActiveJobs(!showActiveJobs)}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+          >
+            <span className="flex items-center gap-3 text-sm"><Briefcase size={16} className="text-primary" /> My Active Jobs</span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              {jobCount}
+              {showActiveJobs ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
           </button>
-          <button className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+
+          {showActiveJobs && (
+            <div className="px-3 pb-2 space-y-2">
+              {activeJobs.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">No active jobs. Tap "Post Job" to create one.</p>
+              ) : (
+                activeJobs.map((job: any) => (
+                  <div key={job.id} className="p-3 rounded-xl bg-muted/50">
+                    <p className="text-sm font-semibold">{job.title}</p>
+                    <p className="text-xs text-muted-foreground">{job.category} · {job.job_type || "Not specified"}</p>
+                    {job.location && <p className="text-xs text-muted-foreground mt-0.5">📍 {job.location}</p>}
+                    {(job.salary_min || job.salary_max) && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        💰 R{job.salary_min || 0} - R{job.salary_max || "Negotiable"}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowUnlockedProfiles(!showUnlockedProfiles)}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+          >
             <span className="flex items-center gap-3 text-sm"><Unlock size={16} className="text-primary" /> Unlocked Profiles</span>
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">{unlockCount} <ChevronRight size={16} /></span>
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              {unlockCount}
+              {showUnlockedProfiles ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
           </button>
+
+          {showUnlockedProfiles && (
+            <div className="px-3 pb-2 space-y-2">
+              {unlockedProfiles.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">No unlocked profiles yet.</p>
+              ) : (
+                unlockedProfiles.map((unlock: any) => (
+                  <div key={unlock.id} className="flex items-center gap-3 p-2 rounded-xl bg-muted/50">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
+                      {unlock.helpers?.avatar_url ? (
+                        <img src={unlock.helpers.avatar_url} alt={unlock.helpers.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary font-bold">
+                          {unlock.helpers?.full_name?.charAt(0) || "?"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{unlock.helpers?.full_name || "Unknown"}</p>
+                      <p className="text-xs text-muted-foreground">{unlock.helpers?.category || "Helper"}</p>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] shrink-0">
+                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" : "🔴 Unavailable"}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
           <button
             onClick={() => setShowSavedHelpers(!showSavedHelpers)}
             className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
