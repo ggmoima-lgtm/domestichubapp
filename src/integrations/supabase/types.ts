@@ -1022,6 +1022,14 @@ export type Database = {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
+      get_helper_ids_for_user: {
+        Args: { p_user_id: string }
+        Returns: string[]
+      }
+      get_hired_helper_ids: {
+        Args: { p_employer_id: string }
+        Returns: string[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
