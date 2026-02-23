@@ -19,6 +19,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import UnlockDisclaimer from "./pages/UnlockDisclaimer";
 import POPIACompliance from "./pages/POPIACompliance";
 import OffPlatformLiability from "./pages/OffPlatformLiability";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
               <Route path="/popia" element={<POPIACompliance />} />
               <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
+              <Route path="/welcome" element={<LandingPage />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
