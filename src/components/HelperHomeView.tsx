@@ -82,6 +82,26 @@ const HelperHomeView = () => {
     } else {
       setAppliedJobIds(prev => new Set(prev).add(jobId));
       toast.success("Application submitted!");
+
+      // Send push notification to employer
+      const job = jobs.find(j => j.id === jobId);
+      if (job) {
+        const { data: helperData } = await supabase
+          .from("helpers")
+          .select("full_name")
+          .eq("id", helperId)
+          .maybeSingle();
+
+        supabase.functions.invoke("send-notification", {
+          body: {
+            user_id: job.employer_id,
+            type: "hire_updates",
+            title: "New Application!",
+            body: `${helperData?.full_name || "A helper"} applied to your job "${job.title}"`,
+            data: { job_id: jobId },
+          },
+        }).catch(console.error);
+      }
     }
   };
 
