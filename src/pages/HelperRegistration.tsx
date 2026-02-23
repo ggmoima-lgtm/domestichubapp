@@ -190,6 +190,7 @@ const HelperRegistration = () => {
     if (!formData.fullName || !formData.email || !formData.phone || !formData.category) {
       toast.error("Please fill in all required fields"); return;
     }
+    if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
     if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!videoFile) { toast.error("Please upload an intro video"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
@@ -308,7 +309,7 @@ const HelperRegistration = () => {
             </div>
             <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
           </label>
-          <p className="text-xs text-muted-foreground">Upload profile photo</p>
+          <p className="text-xs text-muted-foreground">Upload profile photo <span className="text-destructive">*</span></p>
         </section>
 
         {/* Account Information */}
