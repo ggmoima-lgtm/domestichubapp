@@ -169,6 +169,9 @@ const TEAM = [
   },
 ];
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.domestichub.app";
+const APP_STORE_URL = "https://apps.apple.com/app/domestic-hub/id000000000";
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -202,8 +205,8 @@ const LandingPage = () => {
                 {l.label}
               </button>
             ))}
-            <Button size="sm" onClick={() => navigate("/auth")}>
-              Get Started
+            <Button size="sm" asChild>
+              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">Get the App</a>
             </Button>
           </div>
 
@@ -227,8 +230,8 @@ const LandingPage = () => {
                 {l.label}
               </button>
             ))}
-            <Button className="w-full" onClick={() => navigate("/auth")}>
-              Get Started
+            <Button className="w-full" asChild>
+              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">Get the App</a>
             </Button>
           </div>
         )}
@@ -261,15 +264,15 @@ const LandingPage = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-            <Button size="lg" onClick={() => navigate("/auth")}>
-              Find a Helper <ArrowRight size={18} />
+            <Button size="lg" asChild>
+              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                Download on iOS <ArrowRight size={18} />
+              </a>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate("/auth")}
-            >
-              Post Your Profile
+            <Button size="lg" variant="outline" asChild>
+              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
+                Get it on Android
+              </a>
             </Button>
           </div>
 
@@ -516,12 +519,15 @@ const LandingPage = () => {
               It's free to sign up.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => navigate("/auth")}
-              >
-                Create Free Account <ArrowRight size={18} />
+              <Button size="lg" variant="secondary" asChild>
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                  Download the App <ArrowRight size={18} />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+                <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
+                  Get it on Android
+                </a>
               </Button>
             </div>
           </Card>
