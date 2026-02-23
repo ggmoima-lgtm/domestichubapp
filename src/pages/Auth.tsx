@@ -265,17 +265,6 @@ const Auth = () => {
         )}
       </div>
 
-      <div>
-          <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Location</Label>
-          <LocationAutocomplete
-            value={null}
-            onChange={(loc: LocationData) => {
-              setCity(loc.city || loc.suburb || "");
-              setArea(loc.suburb || loc.city || "");
-            }}
-            placeholder="Search your area..."
-          />
-        </div>
 
       {/* Terms acceptance */}
       <div className="space-y-2">
@@ -299,8 +288,8 @@ const Auth = () => {
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !signupEmail || !phone || !city || !signupPassword) {
-            toast({ title: "Please fill all fields including location", variant: "destructive" });
+          if (!fullName || !signupEmail || !phone || !signupPassword) {
+            toast({ title: "Please fill all fields", variant: "destructive" });
             return;
           }
           if (!signupEmail.includes("@")) {
