@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Home, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
+import { MapPin, Home, ArrowRight, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 const needTypes = [
@@ -92,11 +92,19 @@ const Onboarding = () => {
     }
     setIsSubmitting(true);
     try {
+      // Get full_name from profiles
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+
       const { error: empError } = await supabase.from("employer_profiles").insert({
         user_id: user!.id,
+        full_name: profileData?.full_name || user!.user_metadata?.full_name || null,
+        email: profileData?.email || user!.email || null,
         location: locationData.formatted_address,
         type_of_need: typeOfNeed,
-        email: email || null,
         latitude: locationData.latitude,
         longitude: locationData.longitude,
         suburb: locationData.suburb,
@@ -154,7 +162,7 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <div className="gradient-hero pt-12 pb-8 px-6 text-center">
-          <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+           <img src={logo} alt="Domestic Hub" className="w-24 h-24 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
           <h1 className="text-xl font-bold text-foreground">Welcome!</h1>
           <p className="text-sm text-muted-foreground mt-1">Tell us who you are to get started</p>
         </div>
@@ -200,7 +208,7 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <div className="gradient-hero pt-12 pb-8 px-6 text-center">
-          <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+           <img src={logo} alt="Domestic Hub" className="w-24 h-24 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
           <h1 className="text-xl font-bold text-foreground">Welcome!</h1>
           <p className="text-sm text-muted-foreground mt-1">Let's set up your helper profile</p>
         </div>
@@ -224,12 +232,12 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="gradient-hero pt-12 pb-6 px-6 text-center">
-        <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
+        <img src={logo} alt="Domestic Hub" className="w-24 h-24 rounded-2xl object-contain bg-white shadow-button mx-auto mb-3" />
         <h1 className="text-xl font-bold text-foreground">Almost There!</h1>
         <p className="text-sm text-muted-foreground mt-1">Tell us what you're looking for</p>
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mt-4">
-          {[1, 2, 3].map((s) => (
+          {[1, 2].map((s) => (
             <div
               key={s}
               className={`w-2.5 h-2.5 rounded-full transition-all ${
@@ -312,54 +320,17 @@ const Onboarding = () => {
                     toast({ title: "Please select a type", variant: "destructive" });
                     return;
                   }
-                  setStep(3);
+                  handleEmployerComplete();
                 }}
+                disabled={isSubmitting}
               >
-                Continue <ArrowRight size={16} />
+                {isSubmitting ? "Finishing..." : "Complete Setup"}
+                <ArrowRight size={16} />
               </Button>
             </div>
           )}
 
-          {/* Step 3: Email (optional) */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <div className="text-center mb-2">
-                <div className="w-14 h-14 rounded-full bg-accent/30 flex items-center justify-center mx-auto mb-3">
-                  <Mail size={24} className="text-accent-foreground" />
-                </div>
-                <h2 className="text-lg font-bold text-foreground">Add your email</h2>
-                <p className="text-sm text-muted-foreground">Optional — for receipts & password recovery</p>
-              </div>
-              <div>
-                <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</Label>
-                <Input
-                  type="email"
-                  placeholder="your@email.com (optional)"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="rounded-xl h-12"
-                />
-              </div>
-              <Button
-                className="w-full h-12 rounded-xl"
-                onClick={handleEmployerComplete}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Finishing..." : "Complete Setup"}
-                <CheckCircle2 size={16} />
-              </Button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail("");
-                  handleEmployerComplete();
-                }}
-                className="w-full text-sm text-muted-foreground hover:text-foreground font-medium"
-              >
-                Skip for now
-              </button>
-            </div>
-          )}
+
         </div>
       </div>
     </div>
