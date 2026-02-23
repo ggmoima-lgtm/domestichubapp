@@ -715,30 +715,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 )}
               </div>
 
-
-              {/* Mark as Hired / Unhire */}
-              {user && (
-                <div className="mb-4">
-                  {activePlacement ? (
-                    <Button variant="destructive" size="lg"
-                      className="w-full rounded-xl"
-                      onClick={handleUnhire}
-                      disabled={isHiring}>
-                      <UserCheck size={18} />
-                      {isHiring ? "Processing..." : "Unhire"}
-                    </Button>
-                  ) : !isNotAvailable ? (
-                    <Button variant="outline" size="lg"
-                      className="w-full rounded-xl border-primary text-primary hover:bg-primary/5"
-                      onClick={handleMarkAsHired}
-                      disabled={isHiring}>
-                      <UserCheck size={18} />
-                      {isHiring ? "Processing..." : "Mark as Hired"}
-                    </Button>
-                  ) : null}
-                </div>
-              )}
-
               {/* Message Action - UNLOCKED */}
               {!isNotAvailable && (
                 <Button size="lg" className="w-full" onClick={handleMessageClick}>
