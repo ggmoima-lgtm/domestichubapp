@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-type SignupStep = "role" | "details" | "otp";
+type SignupStep = "role" | "details" | "verify-choice" | "otp";
 type UserRole = "employer" | "helper";
 
 const fadeSlide = {
@@ -46,6 +46,7 @@ const Auth = () => {
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [verifyMethod, setVerifyMethod] = useState<"email" | "phone" | null>(null);
 
   if (loading) {
     return (
@@ -318,12 +319,104 @@ const Auth = () => {
             toast({ title: "Please accept the Terms & Conditions", variant: "destructive" });
             return;
           }
-          handleSendOtp();
+          setSignupStep("verify-choice");
         }}
       >
-        Send Verification Code
+        Continue
         <ArrowRight size={16} className="ml-1" />
       </Button>
+    </motion.div>
+  );
+
+  const handleEmailVerifySignup = async () => {
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: signupEmail.trim(),
+        password: signupPassword,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { full_name: fullName, phone, role: selectedRole },
+        },
+      });
+      if (error) throw error;
+
+      if (data.user) {
+        await supabase.from("profiles").insert({
+          user_id: data.user.id,
+          full_name: fullName,
+          phone,
+          email: signupEmail.trim(),
+          city,
+          area,
+          role: selectedRole!,
+          onboarding_completed: false,
+        });
+        if (termsAccepted) {
+          await supabase.from("terms_acceptances").insert({
+            user_id: data.user.id,
+            terms_version: "1.0",
+          });
+        }
+      }
+
+      toast({ title: "Account created!", description: "Please check your email to verify your account." });
+      setMode("login");
+      setSignupStep("role");
+    } catch (error: any) {
+      toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderVerifyChoice = () => (
+    <motion.div {...fadeSlide} className="space-y-3">
+      <div className="flex items-center gap-2 mb-1">
+        <button type="button" onClick={() => setSignupStep("details")} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
+          <ArrowLeft size={16} className="text-muted-foreground" />
+        </button>
+        <h2 className="text-sm font-bold text-foreground">How would you like to verify?</h2>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          setVerifyMethod("email");
+          handleEmailVerifySignup();
+        }}
+        className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
+      >
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <Mail size={20} className="text-primary" />
+        </div>
+        <div className="flex-1">
+          <p className="font-bold text-foreground text-sm">Email Verification</p>
+          <p className="text-xs text-muted-foreground">We'll send a link to {signupEmail}</p>
+        </div>
+        <ArrowRight size={16} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          setVerifyMethod("phone");
+          handleSendOtp();
+        }}
+        className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
+      >
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <Phone size={20} className="text-primary" />
+        </div>
+        <div className="flex-1">
+          <p className="font-bold text-foreground text-sm">Phone Verification</p>
+          <p className="text-xs text-muted-foreground">We'll send an OTP to {phone}</p>
+        </div>
+        <ArrowRight size={16} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      </button>
+      {isSubmitting && (
+        <div className="flex justify-center pt-2">
+          <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        </div>
+      )}
     </motion.div>
   );
 
@@ -550,6 +643,7 @@ const Auth = () => {
               <div key="signup">
                 {signupStep === "role" && renderRoleSelection()}
                 {signupStep === "details" && renderDetailsStep()}
+                {signupStep === "verify-choice" && renderVerifyChoice()}
                 {signupStep === "otp" && renderOtpStep()}
               </div>
             )}
