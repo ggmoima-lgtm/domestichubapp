@@ -378,15 +378,15 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background flex flex-col">
       {/* Header with logo */}
-      <div className="pt-14 pb-6 px-6 text-center">
+      <div className="pt-10 pb-3 px-6 text-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="flex justify-center mb-4"
+          className="flex justify-center mb-1"
         >
           <div className="relative">
-            <div className="w-36 h-36 overflow-hidden">
+            <div className="w-28 h-28 overflow-hidden">
               <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain mix-blend-multiply" />
             </div>
           </div>
