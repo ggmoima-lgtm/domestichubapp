@@ -468,7 +468,7 @@ const Auth = () => {
           className="flex justify-center mb-1"
         >
           <div className="relative">
-            <div className="w-28 h-28 overflow-hidden">
+            <div className="w-48 h-48 overflow-hidden">
               <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain mix-blend-multiply" />
             </div>
           </div>
