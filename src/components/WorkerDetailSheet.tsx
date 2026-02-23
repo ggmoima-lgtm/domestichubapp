@@ -577,7 +577,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           <div className="mb-5">
             <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
               <DollarSign size={16} className="text-primary" />
-              Salary Expectation
+              Salary Per Month
             </h3>
             <p className="text-sm text-muted-foreground">{worker.monthlyRate}/month</p>
           </div>
