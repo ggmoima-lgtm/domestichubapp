@@ -23,9 +23,7 @@ const categories = [
   { id: "nanny", label: "Nanny" },
   { id: "housekeeper", label: "Housekeeper" },
   { id: "caregiver", label: "Caregiver" },
-  { id: "cook", label: "Cook" },
-  { id: "driver", label: "Driver" },
-  { id: "tutor", label: "Tutor" },
+  { id: "all-around", label: "All-around" },
 ];
 
 const skillOptions = [
@@ -62,7 +60,7 @@ const HelperRegistration = () => {
     fullName: "",
     email: "",
     phone: "",
-    category: "",
+    category: [] as string[],
     experience: "",
     monthlyRate: "",
     bio: "",
@@ -140,7 +138,7 @@ const HelperRegistration = () => {
     localStorage.removeItem(DRAFT_KEY);
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -187,7 +185,7 @@ const HelperRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.category) {
+    if (!formData.fullName || !formData.email || !formData.phone || formData.category.length === 0) {
       toast.error("Please fill in all required fields"); return;
     }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
@@ -228,7 +226,7 @@ const HelperRegistration = () => {
         full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        category: formData.category,
+        category: formData.category.join(", "),
         experience_years: formData.experience ? parseInt(formData.experience) : 0,
         hourly_rate: formData.monthlyRate ? parseFloat(formData.monthlyRate) : null,
         bio: formData.bio || null,
@@ -403,13 +401,40 @@ const HelperRegistration = () => {
           </h2>
           <div className="space-y-3">
             <div>
-              <Label htmlFor="category">Category *</Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select your category" /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Category * <span className="text-xs text-muted-foreground">(select all that apply)</span></Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {categories.map((cat) => {
+                  const isChecked = formData.category.includes(cat.id);
+                  return (
+                    <label
+                      key={cat.id}
+                      className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
+                        isChecked
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-border bg-card text-foreground hover:border-primary/40"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {
+                          const updated = isChecked
+                            ? formData.category.filter((c: string) => c !== cat.id)
+                            : [...formData.category, cat.id];
+                          handleInputChange("category", updated);
+                        }}
+                        className="sr-only"
+                      />
+                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
+                        isChecked ? "border-primary bg-primary" : "border-muted-foreground"
+                      }`}>
+                        {isChecked && <span className="text-primary-foreground text-xs">✓</span>}
+                      </div>
+                      <span className="text-sm font-medium">{cat.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div>
               <Label htmlFor="experience">Years of Experience</Label>
