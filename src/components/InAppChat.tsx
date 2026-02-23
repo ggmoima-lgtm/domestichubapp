@@ -255,10 +255,10 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60]">
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[80vh] flex flex-col">
+      <div className="relative bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[85vh] flex flex-col z-[61]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-3">
@@ -332,13 +332,18 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
         </div>
 
         {/* Input */}
-        <div className="px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border flex gap-2">
+        <div className="px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border flex gap-2 bg-card">
           <Input
             ref={inputRef}
             placeholder="Type a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter" && !e.shiftKey) handleSend();
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             className="flex-1 rounded-xl"
             autoComplete="off"
             autoCorrect="on"
