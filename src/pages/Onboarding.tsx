@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ const needTypes = [
 const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<string | null>(null);
   const [needsProfileCreation, setNeedsProfileCreation] = useState(false);
@@ -52,6 +52,11 @@ const Onboarding = () => {
         });
     }
   }, [user, navigate]);
+
+  // Redirect unauthenticated users to login
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleRoleSelect = async (selectedRole: "employer" | "helper") => {
     if (!user) return;
