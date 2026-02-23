@@ -201,9 +201,6 @@ const Onboarding = () => {
         </div>
         <div className="flex-1 px-5 -mt-4">
           <div className="bg-card rounded-3xl shadow-card p-6 max-w-md mx-auto text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center mx-auto">
-              <span className="text-3xl">🧹</span>
-            </div>
             <h2 className="text-lg font-bold text-foreground">Complete Your Helper Profile</h2>
             <p className="text-sm text-muted-foreground">
               Add your skills, experience, and availability to start getting matched with employers.
