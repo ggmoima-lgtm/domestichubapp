@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Send, UserCheck } from "lucide-react";
+import { X, Send, UserCheck, ShieldAlert } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,16 +154,25 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
     const content = newMessage.trim();
     setNewMessage("");
 
-    const { error } = await supabase.from("messages").insert({
+    const { data: insertedMsg, error } = await supabase.from("messages").insert({
       sender_id: user.id,
       receiver_id: receiverId,
       helper_id: helperId,
       content,
-    });
+    }).select("id").single();
 
     if (error) {
       toast.error("Failed to send message.");
       setNewMessage(content);
+    } else if (insertedMsg) {
+      // Background moderation — fire and forget
+      supabase.functions.invoke("moderate-message", {
+        body: { content, message_id: insertedMsg.id, sender_id: user.id },
+      }).then(({ data }) => {
+        if (data?.flagged) {
+          toast.warning("Your message has been flagged for review.", { duration: 5000 });
+        }
+      }).catch(() => {});
     }
     setIsSending(false);
   };
@@ -289,6 +298,14 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[200px] max-h-[50vh]">
+          {/* Safety Warning Banner */}
+          <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs leading-relaxed">
+            <ShieldAlert size={16} className="shrink-0 mt-0.5" />
+            <span>
+              Domestic Hub monitors conversations for safety. Inappropriate, abusive, discriminatory, or illegal content may result in account suspension.
+            </span>
+          </div>
+
           {messages.length === 0 && (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">No messages yet. Say hello!</p>
