@@ -19,6 +19,14 @@ import {
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
 
+const startShuftiVerification = async (userId: string, helperId: string) => {
+  const { data, error } = await supabase.functions.invoke("shufti-verify", {
+    body: { user_id: userId, helper_id: helperId },
+  });
+  if (error) throw error;
+  return data;
+};
+
 interface HelperData {
   id: string;
   full_name: string;
@@ -63,6 +71,7 @@ const HelperProfile = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("profile");
   const [showChangePhone, setShowChangePhone] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   useEffect(() => {
     if (user) fetchHelperData();
@@ -131,6 +140,25 @@ const HelperProfile = () => {
   const handleLogout = async () => {
     await signOut();
     toast.success("Logged out successfully");
+  };
+
+  const handleStartVerification = async () => {
+    if (!user || !helper) return;
+    setVerifyLoading(true);
+    try {
+      const data = await startShuftiVerification(user.id, helper.id);
+      if (data?.verification_url) {
+        window.open(data.verification_url, "_blank");
+        toast.success("Verification started! Complete it in the new tab.");
+        fetchHelperData();
+      } else {
+        toast.error("Could not start verification. Please try again.");
+      }
+    } catch (err: any) {
+      toast.error("Verification failed: " + (err.message || "Unknown error"));
+    } finally {
+      setVerifyLoading(false);
+    }
   };
 
   if (loading) {
@@ -229,8 +257,8 @@ const HelperProfile = () => {
                 <p className="text-sm font-semibold text-destructive">Verification Failed</p>
                 <p className="text-xs text-muted-foreground">Please try again</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => toast.info("SimplyID integration: redirect to verification portal")}>
-                Retry
+              <Button size="sm" variant="outline" onClick={handleStartVerification} disabled={verifyLoading}>
+                {verifyLoading ? "Starting..." : "Retry"}
               </Button>
             </div>
           ) : (
@@ -239,9 +267,9 @@ const HelperProfile = () => {
                 <p className="text-sm font-semibold text-foreground">Verify Your Identity</p>
                 <p className="text-xs text-muted-foreground">Get the ID Verified badge</p>
               </div>
-              <Button size="sm" onClick={() => toast.info("SimplyID integration: redirect to verification portal")}>
+              <Button size="sm" onClick={handleStartVerification} disabled={verifyLoading}>
                 <ShieldCheck size={14} />
-                Verify
+                {verifyLoading ? "Starting..." : "Verify"}
               </Button>
             </div>
           )}
