@@ -17,6 +17,7 @@ import CreditWalletCard from "./CreditWalletCard";
 import InAppChat from "./InAppChat";
 import { maskContactInfo, getPreviewName } from "@/lib/contactMasking";
 import BadgeDisplay from "./BadgeDisplay";
+import ScreenshotGuard from "./ScreenshotGuard";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
@@ -399,6 +400,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           </button>
         )}
 
+        <ScreenshotGuard watermark="CONFIDENTIAL">
         <div className="px-5 pb-28">
           {/* Status Banner */}
           {status !== "available" && (
@@ -773,6 +775,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </>
           )}
         </div>
+        </ScreenshotGuard>
       </div>
 
       {/* In-App Chat */}
