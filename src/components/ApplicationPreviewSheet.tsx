@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, ShieldCheck, Star, MapPin, Briefcase, Clock, Eye, Unlock, Coins, Lock } from "lucide-react";
+import { X, ShieldCheck, Star, MapPin, Briefcase, Clock, Eye, Unlock, Coins, Lock, Phone } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -188,6 +188,19 @@ const ApplicationPreviewSheet = ({
                 )}
               </div>
             </div>
+
+            {/* Contact Number - UNLOCKED ONLY */}
+            {isUnlocked && helper.phone && (
+              <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Phone size={16} className="text-primary" />
+                  <span className="font-bold text-foreground text-sm">Contact Number</span>
+                </div>
+                <a href={`tel:${helper.phone}`} className="text-sm font-semibold text-primary hover:underline">
+                  {helper.phone}
+                </a>
+              </div>
+            )}
 
             {/* Free Info Grid */}
             <div className="grid grid-cols-2 gap-3 mb-5">
