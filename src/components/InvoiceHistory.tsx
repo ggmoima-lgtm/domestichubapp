@@ -14,6 +14,7 @@ interface Invoice {
   credits_purchased: number;
   payment_method: string | null;
   payment_reference: string | null;
+  transaction_id: string | null;
   status: string;
   created_at: string;
 }

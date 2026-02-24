@@ -192,7 +192,7 @@ const Index = () => {
           setUnlockRefresh((r) => r + 1);
           // Send invoice email
           supabase.functions.invoke("send-invoice-email", {
-            body: { user_id: user.id, credits, amount, payment_ref: paymentRef },
+            body: { user_id: user.id, credits, amount, payment_ref: paymentRef, transaction_id: paymentRef },
           }).then(({ error: emailErr }) => {
             if (emailErr) console.error("Invoice email error:", emailErr);
           });
