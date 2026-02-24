@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Award, Unlock } from "lucide-react";
+import { Star, MapPin, CheckCircle, MessageCircle, Calendar, X, Play, Lock, CheckCheck, UserCheck, MessageSquare, Briefcase, ThumbsUp, CheckSquare, Eye, Globe, DollarSign, Flag, Check, MoreHorizontal, Award, Unlock, Phone } from "lucide-react";
 import StatusFrame from "./StatusFrame";
 import ReportBlockSheet from "./ReportBlockSheet";
 import { Button } from "./ui/button";
@@ -449,6 +449,22 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               </div>
             </div>
           </div>
+
+          {/* Contact Number - UNLOCKED ONLY */}
+          {isUnlocked && worker.phone && (
+            <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Phone size={16} className="text-primary" />
+                <h3 className="font-bold text-foreground text-sm">Contact Number</h3>
+              </div>
+              <a
+                href={`tel:${worker.phone}`}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                {worker.phone}
+              </a>
+            </div>
+          )}
 
           {/* Intro Video - blurred when locked */}
           {worker.introVideo && (
