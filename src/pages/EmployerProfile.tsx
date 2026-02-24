@@ -153,7 +153,6 @@ const EmployerProfile = () => {
       .from("profile_unlocks")
       .select("*, helpers(id, full_name, avatar_url, category, availability_status)")
       .eq("employer_id", user.id)
-      .gte("expires_at", new Date().toISOString())
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
 

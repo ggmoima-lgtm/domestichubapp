@@ -65,7 +65,6 @@ const ApplicationPreviewSheet = ({
       .select("id")
       .eq("employer_id", user.id)
       .eq("helper_id", helper.id)
-      .gte("expires_at", new Date().toISOString())
       .limit(1)
       .then(({ data }) => {
         setIsUnlocked(!!data && data.length > 0);

@@ -143,7 +143,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           .select("id, expires_at")
           .eq("employer_id", user.id)
           .eq("helper_id", worker.id)
-          .gte("expires_at", new Date().toISOString())
           .limit(1)
           .then(({ data }) => {
             setIsUnlocked(!!data && data.length > 0);

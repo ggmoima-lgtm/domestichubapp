@@ -105,8 +105,7 @@ const Index = () => {
       const { data: unlocks } = await supabase
         .from("profile_unlocks")
         .select("helper_id")
-        .eq("employer_id", user.id)
-        .gte("expires_at", new Date().toISOString());
+        .eq("employer_id", user.id);
       
       const dbIds = (unlocks || []).map((d) => d.helper_id);
       setUnlockedIds(dbIds);
