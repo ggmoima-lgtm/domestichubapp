@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Helper Finder - Architecture Flowchart</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  @media print { body { margin: 0; } }
+  body { font-family: system-ui, sans-serif; padding: 24px; background: #fff; }
+  h1 { text-align: center; font-size: 22px; margin-bottom: 4px; }
+  p.sub { text-align: center; color: #666; font-size: 13px; margin-bottom: 24px; }
+  .mermaid { display: flex; justify-content: center; }
+  table { width: 100%; border-collapse: collapse; margin-top: 28px; font-size: 13px; }
+  th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+  th { background: #f5f5f5; }
+  h2 { font-size: 16px; margin-top: 32px; }
+</style>
+</head>
+<body>
+<h1>Domestic Hub - Full Architecture</h1>
+<p class="sub">Generated 2026-02-24</p>
+
+<div class="mermaid">
+graph TD
+    subgraph Frontend["Frontend - React / Vite / TypeScript"]
+        App[App.tsx Router]
+        Auth[Auth Page]
+        Onboarding[Onboarding]
+        Index[Home / Index]
+        Admin[Admin Dashboard]
+        HelperReg[Helper Registration]
+        Legal[Legal Pages]
+        App --> Auth
+        App --> Onboarding
+        App --> Index
+        App --> Admin
+        App --> HelperReg
+        App --> Legal
+        Index --> WorkerCard[Worker Cards]
+        Index --> WorkerDetail[Worker Detail Sheet]
+        Index --> CartSheet[Cart / Unlock Sheet]
+        Index --> InAppChat[In-App Chat]
+        Index --> HelperHome[Helper Home View]
+        Index --> ProfileTab[Profile Tab]
+        Index --> InvoiceHistory[Invoice History]
+        Index --> CreditWallet[Credit Wallet Card]
+    end
+    subgraph Auth_Layer["Authentication"]
+        AuthProvider[AuthProvider Context]
+        ProtectedRoute[ProtectedRoute Guard]
+        OAuth[OAuth - Google / Apple]
+        OAuth --> AuthProvider
+        AuthProvider --> ProtectedRoute
+    end
+    subgraph Database["Database - 23 Tables with RLS"]
+        profiles
+        helpers
+        employer_profiles
+        credit_wallets
+        credit_transactions
+        profile_unlocks
+        invoices
+        messages
+        job_posts
+        job_applications
+        placements
+        reviews
+        saved_helpers
+        badges
+        promo_codes
+        user_roles
+        push_tokens
+    end
+    subgraph Edge_Functions["Backend Functions"]
+        InitPay[initialize-payment]
+        Webhook[paystack-webhook]
+        InvoiceEmail[send-invoice-email]
+        AutoRefund[auto-refund]
+        BadgeEngine[badge-engine]
+        ModMsg[moderate-message]
+        ModVideo[moderate-video]
+        SendNotif[send-notification]
+        ShuftiVerify[shufti-verify]
+        ShuftiHook[shufti-webhook]
+        StatusRemind[status-reminder]
+    end
+    subgraph External["External Services"]
+        Paystack[Paystack Payments]
+        Resend[Resend Email]
+        Shufti[ShuftiPro KYC]
+        GoogleMaps[Google Maps API]
+    end
+    Frontend -->|SDK| Database
+    Frontend -->|useAuth| Auth_Layer
+    Frontend -->|invoke| Edge_Functions
+    InitPay -->|API| Paystack
+    Paystack -->|webhook| Webhook
+    Webhook -->|RPC| Database
+    Webhook -->|call| InvoiceEmail
+    InvoiceEmail -->|API| Resend
+    ShuftiVerify -->|API| Shufti
+    Shufti -->|webhook| ShuftiHook
+    ShuftiHook --> Database
+    Frontend -->|Places API| GoogleMaps
+</div>
+
+<h2>Layer Summary</h2>
+<table>
+<tr><th>Layer</th><th>Tech</th><th>Purpose</th></tr>
+<tr><td>UI</td><td>React, Tailwind, shadcn/ui, Framer Motion</td><td>Mobile-first PWA with bottom nav tabs</td></tr>
+<tr><td>State</td><td>React Query, React Context</td><td>Data fetching, auth state, cart state</td></tr>
+<tr><td>Auth</td><td>Lovable Cloud Auth + OAuth</td><td>Session management, protected routes, onboarding gate</td></tr>
+<tr><td>Database</td><td>23 tables with RLS</td><td>Users, helpers, credits, payments, messages, jobs, reviews, badges</td></tr>
+<tr><td>Backend</td><td>11 edge functions</td><td>Payments, webhooks, email, moderation, KYC, notifications</td></tr>
+<tr><td>Payments</td><td>Paystack (ZAR)</td><td>Credit purchase, webhook, auto-credit + invoice</td></tr>
+<tr><td>KYC</td><td>ShuftiPro</td><td>Helper identity verification</td></tr>
+<tr><td>Email</td><td>Resend</td><td>Invoice delivery with branded HTML</td></tr>
+<tr><td>Maps</td><td>Google Maps Places</td><td>Location autocomplete</td></tr>
+</table>
+
+<h2>Payment Flow</h2>
+<table>
+<tr><th>Step</th><th>Description</th></tr>
+<tr><td>1</td><td>User selects bundle → initialize-payment → Paystack checkout</td></tr>
+<tr><td>2</td><td>Paystack confirms → paystack-webhook → verifies HMAC SHA-512</td></tr>
+<tr><td>3</td><td>Webhook calls add_credits_after_purchase RPC → updates wallets + invoices</td></tr>
+<tr><td>4</td><td>Triggers send-invoice-email → HTML invoice → Resend delivery</td></tr>
+</table>
+
+<script>mermaid.initialize({startOnLoad:true, theme:'default', securityLevel:'loose'});</script>
+</body>
+</html>
