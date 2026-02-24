@@ -25,6 +25,7 @@ interface ApplicantHelper {
   available_from: string | null;
   hourly_rate: number | null;
   phone: string;
+  email: string;
 }
 
 interface ApplicationPreviewSheetProps {
@@ -189,18 +190,7 @@ const ApplicationPreviewSheet = ({
               </div>
             </div>
 
-            {/* Contact Number - UNLOCKED ONLY */}
-            {isUnlocked && helper.phone && (
-              <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Phone size={16} className="text-primary" />
-                  <span className="font-bold text-foreground text-sm">Contact Number</span>
-                </div>
-                <a href={`tel:${helper.phone}`} className="text-sm font-semibold text-primary hover:underline">
-                  {helper.phone}
-                </a>
-              </div>
-            )}
+            {/* Contact info moved to after skills */}
 
             {/* Free Info Grid */}
             <div className="grid grid-cols-2 gap-3 mb-5">
@@ -277,6 +267,32 @@ const ApplicationPreviewSheet = ({
                     </Badge>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Contact Details - UNLOCKED ONLY (after skills) */}
+            {isUnlocked && (helper.phone || helper.email) && (
+              <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-3">
+                <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                  <Phone size={16} className="text-primary" />
+                  Contact Details
+                </h3>
+                {helper.phone && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                    <a href={`tel:${helper.phone}`} className="text-sm font-semibold text-primary hover:underline">
+                      {helper.phone}
+                    </a>
+                  </div>
+                )}
+                {helper.email && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                    <a href={`mailto:${helper.email}`} className="text-sm font-semibold text-primary hover:underline">
+                      {helper.email}
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 

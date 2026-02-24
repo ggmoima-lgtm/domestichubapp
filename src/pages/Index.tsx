@@ -92,6 +92,7 @@ const Index = () => {
         availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
         availableFrom: h.available_from || null,
         phone: h.phone || undefined,
+        email: h.email || undefined,
       }));
       setDbHelpers(mapped);
     };
@@ -135,6 +136,7 @@ const Index = () => {
           availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
           availableFrom: h.available_from || null,
           phone: h.phone || undefined,
+          email: h.email || undefined,
         }));
         setUnlockedHelpers(mapped);
       } else {
