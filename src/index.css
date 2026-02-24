@@ -182,3 +182,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.5);
 }
+
+/* Screenshot / print protection for sensitive content */
+@media print {
+  .screenshot-guard {
+    display: none !important;
+  }
+  .screenshot-guard::after {
+    content: "Personal details hidden for privacy.";
+    display: block;
+    padding: 2rem;
+    text-align: center;
+    font-weight: bold;
+  }
+}

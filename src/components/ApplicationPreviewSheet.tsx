@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getPreviewName } from "@/lib/contactMasking";
 import UnlockConfirmSheet from "./UnlockConfirmSheet";
 import CreditWalletCard from "./CreditWalletCard";
+import ScreenshotGuard from "./ScreenshotGuard";
 
 interface ApplicantHelper {
   id: string;
@@ -133,6 +134,7 @@ const ApplicationPreviewSheet = ({
             <X size={18} />
           </button>
 
+          <ScreenshotGuard watermark="CONFIDENTIAL">
           <div className="px-5 pb-28">
             {/* Applied For Banner */}
             <div className="bg-primary/5 border border-primary/10 rounded-2xl p-3 mb-5">
@@ -300,6 +302,7 @@ const ApplicationPreviewSheet = ({
               )}
             </Button>
           </div>
+          </ScreenshotGuard>
         </div>
       </div>
 
