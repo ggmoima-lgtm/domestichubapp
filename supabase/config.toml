@@ -6,7 +6,10 @@ verify_jwt = false
 [functions.auto-refund]
 verify_jwt = false
 
-[functions.simply-id-webhook]
+[functions.shufti-verify]
+verify_jwt = false
+
+[functions.shufti-webhook]
 verify_jwt = false
 
 [functions.moderate-message]
