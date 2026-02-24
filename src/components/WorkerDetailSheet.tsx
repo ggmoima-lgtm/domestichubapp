@@ -68,6 +68,7 @@ interface WorkerDetailSheetProps {
     availabilityStatus?: HelperStatus;
     availableFrom?: string | null;
     phone?: string;
+    email?: string;
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -450,21 +451,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </div>
           </div>
 
-          {/* Contact Number - UNLOCKED ONLY */}
-          {isUnlocked && worker.phone && (
-            <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Phone size={16} className="text-primary" />
-                <h3 className="font-bold text-foreground text-sm">Contact Number</h3>
-              </div>
-              <a
-                href={`tel:${worker.phone}`}
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                {worker.phone}
-              </a>
-            </div>
-          )}
+          {/* Contact info moved to after About section */}
 
           {/* Intro Video - blurred when locked */}
           {worker.introVideo && (
@@ -559,6 +546,32 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             <h3 className="font-bold text-foreground mb-2">About</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{displayBio}</p>
           </div>
+
+          {/* Contact Details - UNLOCKED ONLY (after About) */}
+          {isUnlocked && (worker.phone || worker.email) && (
+            <div className="mb-5 bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-3">
+              <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                <Phone size={16} className="text-primary" />
+                Contact Details
+              </h3>
+              {worker.phone && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Phone</p>
+                  <a href={`tel:${worker.phone}`} className="text-sm font-semibold text-primary hover:underline">
+                    {worker.phone}
+                  </a>
+                </div>
+              )}
+              {worker.email && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                  <a href={`mailto:${worker.email}`} className="text-sm font-semibold text-primary hover:underline">
+                    {worker.email}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Skills - FREE */}
           <div className="mb-5">
