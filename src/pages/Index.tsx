@@ -190,6 +190,12 @@ const Index = () => {
           toast.success(`${credits} credits added to your wallet!`);
           setCreditBalance((b) => b + credits);
           setUnlockRefresh((r) => r + 1);
+          // Send invoice email
+          supabase.functions.invoke("send-invoice-email", {
+            body: { user_id: user.id, credits, amount, payment_ref: paymentRef },
+          }).then(({ error: emailErr }) => {
+            if (emailErr) console.error("Invoice email error:", emailErr);
+          });
         }
       } catch (err) {
         console.error("Credit add exception:", err);

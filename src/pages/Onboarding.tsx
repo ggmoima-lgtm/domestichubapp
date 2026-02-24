@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Home, ArrowRight, CheckCircle2 } from "lucide-react";
+import { MapPin, Home, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 import PushNotificationDialog from "@/components/PushNotificationDialog";
@@ -32,7 +32,7 @@ const Onboarding = () => {
   // Employer fields
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [typeOfNeed, setTypeOfNeed] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(user?.email || "");
 
   useEffect(() => {
     if (user) {
@@ -93,6 +93,10 @@ const Onboarding = () => {
       toast({ title: "Please select your type of need", variant: "destructive" });
       return;
     }
+    if (!email || !email.includes("@")) {
+      toast({ title: "Please enter a valid email address", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Get full_name from profiles
@@ -105,7 +109,7 @@ const Onboarding = () => {
       const { error: empError } = await supabase.from("employer_profiles").insert({
         user_id: user!.id,
         full_name: profileData?.full_name || user!.user_metadata?.full_name || null,
-        email: profileData?.email || user!.email || null,
+        email: email,
         location: locationData.formatted_address,
         type_of_need: typeOfNeed,
         latitude: locationData.latitude,
@@ -317,6 +321,19 @@ const Onboarding = () => {
                     )}
                   </button>
                 ))}
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                  <Mail size={14} /> Email Address <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                />
+                <p className="text-[10px] text-muted-foreground">Required for invoices and account communication</p>
               </div>
               <Button
                 className="w-full h-12 rounded-xl"

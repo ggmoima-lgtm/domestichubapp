@@ -202,10 +202,15 @@ const EmployerProfile = () => {
 
   const handleSave = async () => {
     if (!employer) return;
+    if (!editData.email || !editData.email.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
     const { error } = await supabase
       .from("employer_profiles")
       .update({
         full_name: editData.full_name,
+        email: editData.email,
         location: editData.location,
         type_of_need: editData.type_of_need,
         category: editData.category,
@@ -348,6 +353,16 @@ const EmployerProfile = () => {
                     );
                   })}
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Mail size={14} /> Email <span className="text-destructive text-xs">*</span></Label>
+                <Input
+                  type="email"
+                  value={editData.email || ""}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  placeholder="your@email.com"
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><FileText size={14} /> Custom Notes</Label>
