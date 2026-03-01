@@ -21,6 +21,7 @@ import POPIACompliance from "./pages/POPIACompliance";
 import OffPlatformLiability from "./pages/OffPlatformLiability";
 import LandingPage from "./pages/LandingPage";
 import ArchitectureFlowchart from "./pages/ArchitectureFlowchart";
+import ComponentSummary from "./pages/ComponentSummary";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
               <Route path="/welcome" element={<LandingPage />} />
               <Route path="/architecture" element={<ArchitectureFlowchart />} />
+              <Route path="/components" element={<ComponentSummary />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
