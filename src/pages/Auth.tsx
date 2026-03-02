@@ -469,7 +469,7 @@ const Auth = () => {
         >
           <div className="relative">
             <div className="w-48 h-48 overflow-hidden">
-              <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain mix-blend-multiply" />
+              <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain" />
             </div>
           </div>
         </motion.div>
