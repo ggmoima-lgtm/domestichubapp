@@ -47,7 +47,7 @@ const Index = () => {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockedHelpers, setUnlockedHelpers] = useState<Worker[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>("employer");
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
