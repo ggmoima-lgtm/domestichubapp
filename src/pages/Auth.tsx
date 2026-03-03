@@ -467,10 +467,8 @@ const Auth = () => {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="flex justify-center mb-1"
         >
-          <div className="relative">
-            <div className="w-48 h-48 overflow-hidden">
-              <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain" />
-            </div>
+          <div className="w-48 h-48 overflow-hidden rounded-3xl bg-background">
+            <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
         </motion.div>
         <motion.div
