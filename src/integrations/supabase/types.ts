@@ -78,6 +78,13 @@ export type Database = {
             referencedRelation: "helpers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "badge_awards_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       badges: {
@@ -444,6 +451,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "job_applications_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "job_applications_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
@@ -554,6 +568,13 @@ export type Database = {
             referencedRelation: "helpers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "messages_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notification_preferences: {
@@ -652,6 +673,13 @@ export type Database = {
             referencedRelation: "helpers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "placements_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profile_unlocks: {
@@ -691,6 +719,13 @@ export type Database = {
             columns: ["helper_id"]
             isOneToOne: false
             referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_unlocks_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -869,6 +904,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_placement_id_fkey"
             columns: ["placement_id"]
             isOneToOne: true
@@ -902,6 +944,13 @@ export type Database = {
             columns: ["helper_id"]
             isOneToOne: false
             referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_helpers_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1005,11 +1054,98 @@ export type Database = {
             referencedRelation: "helpers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "video_flags_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: false
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      helpers_public: {
+        Row: {
+          age: number | null
+          availability: string | null
+          availability_status: string | null
+          available_from: string | null
+          avatar_url: string | null
+          bio: string | null
+          category: string | null
+          created_at: string | null
+          experience_years: number | null
+          full_name: string | null
+          gender: string | null
+          has_work_permit: boolean | null
+          hourly_rate: number | null
+          id: string | null
+          intro_video_url: string | null
+          is_verified: boolean | null
+          languages: string[] | null
+          living_arrangement: string | null
+          nationality: string | null
+          skills: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          video_flagged: boolean | null
+          video_moderation_status: string | null
+        }
+        Insert: {
+          age?: number | null
+          availability?: string | null
+          availability_status?: string | null
+          available_from?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          category?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          gender?: string | null
+          has_work_permit?: boolean | null
+          hourly_rate?: number | null
+          id?: string | null
+          intro_video_url?: string | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          living_arrangement?: string | null
+          nationality?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_flagged?: boolean | null
+          video_moderation_status?: string | null
+        }
+        Update: {
+          age?: number | null
+          availability?: string | null
+          availability_status?: string | null
+          available_from?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          category?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          gender?: string | null
+          has_work_permit?: boolean | null
+          hourly_rate?: number | null
+          id?: string | null
+          intro_video_url?: string | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          living_arrangement?: string | null
+          nationality?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_flagged?: boolean | null
+          video_moderation_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_credits_after_purchase: {
