@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, Coins, Users } from "lucide-react";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import LowCreditBanner from "@/components/LowCreditBanner";
@@ -22,6 +22,7 @@ const categoryIcons = {
   nanny: Baby,
   housekeeper: Home,
   caregiver: Heart,
+  "all-around": Users,
 };
 
 const categories = [
@@ -29,6 +30,7 @@ const categories = [
   { id: "nanny", label: "Nannies" },
   { id: "housekeeper", label: "Housekeepers" },
   { id: "caregiver", label: "Caregivers" },
+  { id: "all-around", label: "All-Around" },
 ];
 
 const Index = () => {
