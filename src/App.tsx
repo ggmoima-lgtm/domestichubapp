@@ -37,7 +37,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
-              <Route path="/home" element={<Index />} />
+              <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsConditions />} />
