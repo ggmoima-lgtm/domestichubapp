@@ -1219,6 +1219,8 @@ export type Database = {
         Args: { p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
+      lookup_email_by_phone: { Args: { p_phone: string }; Returns: string }
+      redeem_promo_code: { Args: { p_code: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
