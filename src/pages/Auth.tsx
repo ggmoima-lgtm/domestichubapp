@@ -472,17 +472,14 @@ const Auth = () => {
                       // If it's a phone number, look up the email from profiles
                       if (!identifier.includes("@")) {
                         const phone = identifier.replace(/\D/g, "");
-                        const { data } = await supabase
-                          .from("profiles")
-                          .select("email")
-                          .or(`phone.eq.${phone},phone.eq.+27${phone},phone.eq.0${phone}`)
-                          .limit(1)
-                          .maybeSingle();
-                        if (!data?.email) {
+                        const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", {
+                          p_phone: phone,
+                        });
+                        if (lookupError || !foundEmail) {
                           toast({ title: "Phone number not found", description: "No account found with this phone number.", variant: "destructive" });
                           return;
                         }
-                        email = data.email;
+                        email = foundEmail as string;
                       }
                       const { error } = await supabase.auth.resetPasswordForEmail(email, {
                         redirectTo: `${window.location.origin}/reset-password`,
