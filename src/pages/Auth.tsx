@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-type SignupStep = "role" | "details" | "verify-choice" | "otp";
+type SignupStep = "role" | "details" | "verify-choice";
 type UserRole = "employer" | "helper";
 
 const fadeSlide = {
