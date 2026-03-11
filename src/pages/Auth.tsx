@@ -570,7 +570,6 @@ const Auth = () => {
                 {signupStep === "role" && renderRoleSelection()}
                 {signupStep === "details" && renderDetailsStep()}
                 {signupStep === "verify-choice" && renderVerifyChoice()}
-                {signupStep === "otp" && renderOtpStep()}
               </div>
             )}
           </AnimatePresence>
