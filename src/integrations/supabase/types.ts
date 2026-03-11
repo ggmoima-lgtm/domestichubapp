@@ -619,6 +619,45 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_codes: {
+        Row: {
+          attempts: number
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          max_attempts: number
+          phone: string
+          purpose: string
+          user_id: string | null
+          verified: boolean
+        }
+        Insert: {
+          attempts?: number
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          max_attempts?: number
+          phone: string
+          purpose?: string
+          user_id?: string | null
+          verified?: boolean
+        }
+        Update: {
+          attempts?: number
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          max_attempts?: number
+          phone?: string
+          purpose?: string
+          user_id?: string | null
+          verified?: boolean
+        }
+        Relationships: []
+      }
       placements: {
         Row: {
           created_at: string
