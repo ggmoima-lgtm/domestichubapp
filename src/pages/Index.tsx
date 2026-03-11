@@ -161,52 +161,24 @@ const Index = () => {
       });
   }, [user, unlockRefresh]);
 
-  // Handle payment callback (credit purchase)
+  // Handle payment callback (credit purchase) — credits are added server-side by the webhook
   useEffect(() => {
     if (paymentProcessedRef.current) return;
     if (!user) return;
 
     const payment = searchParams.get("payment");
     const creditsParam = searchParams.get("credits");
-    const amountParam = searchParams.get("amount");
 
-    if (payment !== "credits" || !creditsParam || !amountParam) return;
+    if (payment !== "credits" || !creditsParam) return;
 
     paymentProcessedRef.current = true;
-    // Clear URL params immediately to prevent re-processing on re-renders
-    const credits = parseInt(creditsParam);
-    const amount = parseFloat(amountParam);
-    const paymentRef = searchParams.get("reference") || searchParams.get("trxref") || "paystack_" + Date.now();
     setSearchParams({}, { replace: true });
 
-    const addCredits = async () => {
-      try {
-        const { data, error } = await supabase.rpc("add_credits_after_purchase", {
-          p_user_id: user.id,
-          p_credits: credits,
-          p_amount: amount,
-          p_payment_ref: paymentRef,
-        });
-        if (error) {
-          console.error("Credit add error:", error);
-          toast.error("Failed to add credits. Please contact support.");
-        } else {
-          toast.success(`${credits} credits added to your wallet!`);
-          setCreditBalance((b) => b + credits);
-          setUnlockRefresh((r) => r + 1);
-          // Send invoice email
-          supabase.functions.invoke("send-invoice-email", {
-            body: { user_id: user.id, credits, amount, payment_ref: paymentRef, transaction_id: paymentRef },
-          }).then(({ error: emailErr }) => {
-            if (emailErr) console.error("Invoice email error:", emailErr);
-          });
-        }
-      } catch (err) {
-        console.error("Credit add exception:", err);
-        toast.error("Failed to add credits. Please contact support.");
-      }
-    };
-    addCredits();
+    toast.success("Payment received! Your credits will appear shortly.");
+    // Refresh balance after a short delay to allow webhook processing
+    setTimeout(() => {
+      setUnlockRefresh((r) => r + 1);
+    }, 3000);
   }, [user, searchParams]);
 
   const filteredWorkers = dbHelpers.filter((worker) => {
