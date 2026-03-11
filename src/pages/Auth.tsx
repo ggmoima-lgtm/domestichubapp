@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-type SignupStep = "role" | "details" | "verify-choice" | "otp";
+type SignupStep = "role" | "details" | "verify-choice";
 type UserRole = "employer" | "helper";
 
 const fadeSlide = {
@@ -65,9 +65,12 @@ const Auth = () => {
     setIsSubmitting(true);
     try {
       const identifier = loginIdentifier.trim();
-      const email = identifier.includes("@")
-        ? identifier
-        : `${identifier.replace(/\D/g, "")}@phone.domestichub.app`;
+      if (!identifier) {
+        toast({ title: "Please enter your email or phone", variant: "destructive" });
+        return;
+      }
+      // Only accept email-based login
+      const email = identifier.includes("@") ? identifier : identifier;
       const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
       if (error) throw error;
       navigate("/");
@@ -78,68 +81,7 @@ const Auth = () => {
     }
   };
 
-  const handleSendOtp = () => {
-    if (!phone) {
-      toast({ title: "Please enter your phone number", variant: "destructive" });
-      return;
-    }
-    setOtpSent(true);
-    setSignupStep("otp");
-    toast({ title: "OTP Sent!", description: "Use code 123456 to verify (simulated)." });
-  };
-
-  const handleVerifyOtpAndSignup = async () => {
-    if (otpCode !== "123456") {
-      toast({ title: "Invalid OTP", description: "Please enter 123456 (simulated).", variant: "destructive" });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const email = signupEmail.trim();
-      const password = signupPassword;
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: fullName, phone, role: selectedRole },
-        },
-      });
-      if (error) throw error;
-
-      if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: data.user.id,
-          full_name: fullName,
-          phone,
-          email: signupEmail.trim(),
-          city,
-          area,
-          role: selectedRole!,
-          onboarding_completed: false,
-        });
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-        }
-
-        // Record terms acceptance
-        if (termsAccepted) {
-          await supabase.from("terms_acceptances").insert({
-            user_id: data.user.id,
-            terms_version: "1.0",
-          });
-        }
-      }
-
-      toast({ title: "Account created!", description: "Please check your email to verify your account." });
-      navigate(selectedRole === "helper" ? "/register/helper" : "/");
-    } catch (error: any) {
-      toast({ title: "Signup failed", description: error.message, variant: "destructive" });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Phone OTP verification removed — signup uses email verification only
 
   const handleOAuth = async (provider: "google" | "apple") => {
     const { error } = await lovable.auth.signInWithOAuth(provider, {
@@ -365,94 +307,33 @@ const Auth = () => {
         <button type="button" onClick={() => setSignupStep("details")} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>
-        <h2 className="text-sm font-bold text-foreground">How would you like to verify?</h2>
+        <h2 className="text-sm font-bold text-foreground">Verify Your Account</h2>
       </div>
-      <button
-        type="button"
-        onClick={() => {
-          setVerifyMethod("email");
-          handleEmailVerifySignup();
-        }}
-        className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
-      >
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <Mail size={20} className="text-primary" />
-        </div>
-        <div className="flex-1">
-          <p className="font-bold text-foreground text-sm">Email Verification</p>
-          <p className="text-xs text-muted-foreground">We'll send a link to {signupEmail}</p>
-        </div>
-        <ArrowRight size={16} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          setVerifyMethod("phone");
-          handleSendOtp();
-        }}
-        className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
-      >
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <Phone size={20} className="text-primary" />
-        </div>
-        <div className="flex-1">
-          <p className="font-bold text-foreground text-sm">Phone Verification</p>
-          <p className="text-xs text-muted-foreground">We'll send an OTP to {phone}</p>
-        </div>
-        <ArrowRight size={16} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-      </button>
-      {isSubmitting && (
-        <div className="flex justify-center pt-2">
-          <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-        </div>
-      )}
-    </motion.div>
-  );
-
-  const renderOtpStep = () => (
-    <motion.div {...fadeSlide} className="space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <button type="button" onClick={() => setSignupStep("details")} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
-          <ArrowLeft size={16} className="text-muted-foreground" />
-        </button>
-        <h2 className="text-sm font-bold text-foreground">Verify Phone</h2>
-      </div>
-
-      <div className="text-center py-3">
+      <div className="text-center py-2">
         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-          <Phone size={24} className="text-primary" />
+          <Mail size={24} className="text-primary" />
         </div>
         <p className="text-xs text-muted-foreground">
-          Enter the 6-digit code sent to<br />
-          <span className="font-semibold text-foreground">{phone}</span>
+          We'll send a verification link to<br />
+          <span className="font-semibold text-foreground">{signupEmail}</span>
         </p>
       </div>
-
-      <Input
-        type="text"
-        inputMode="numeric"
-        maxLength={6}
-        placeholder="000000"
-        value={otpCode}
-        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-        className="rounded-xl h-14 text-center text-2xl tracking-[0.5em] font-bold border-border/80"
-      />
-
       <Button
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
-        onClick={handleVerifyOtpAndSignup}
-        disabled={isSubmitting || otpCode.length !== 6}
+        onClick={handleEmailVerifySignup}
+        disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating Account..." : "Verify & Create Account"}
+        {isSubmitting ? "Creating Account..." : (
+          <>Create Account & Verify Email <ArrowRight size={16} className="ml-1" /></>
+        )}
       </Button>
-
       <button
         type="button"
-        onClick={handleSendOtp}
+        onClick={() => setSignupStep("details")}
         className="w-full text-xs text-primary font-semibold hover:underline"
       >
-        Resend Code
+        Go back and edit details
       </button>
     </motion.div>
   );
@@ -631,7 +512,6 @@ const Auth = () => {
                 {signupStep === "role" && renderRoleSelection()}
                 {signupStep === "details" && renderDetailsStep()}
                 {signupStep === "verify-choice" && renderVerifyChoice()}
-                {signupStep === "otp" && renderOtpStep()}
               </div>
             )}
           </AnimatePresence>
