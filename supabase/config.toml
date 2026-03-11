@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.initialize-payment]
 verify_jwt = false
+
+[functions.send-sms-otp]
+verify_jwt = false
+
+[functions.verify-sms-otp]
+verify_jwt = false
