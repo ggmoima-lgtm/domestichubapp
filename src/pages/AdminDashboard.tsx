@@ -154,8 +154,9 @@ const AdminDashboard = () => {
     { id: "promos", label: "Promos", icon: Gift },
   ];
 
+  const sanitizedSearch = searchQuery.slice(0, 100).trim();
   const filteredHelpers = helpers.filter((h) =>
-    !searchQuery || h.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || h.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    !sanitizedSearch || h.full_name?.toLowerCase().includes(sanitizedSearch.toLowerCase()) || h.email?.toLowerCase().includes(sanitizedSearch.toLowerCase())
   );
 
   return (

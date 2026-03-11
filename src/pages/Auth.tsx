@@ -65,9 +65,12 @@ const Auth = () => {
     setIsSubmitting(true);
     try {
       const identifier = loginIdentifier.trim();
-      const email = identifier.includes("@")
-        ? identifier
-        : `${identifier.replace(/\D/g, "")}@phone.domestichub.app`;
+      if (!identifier) {
+        toast({ title: "Please enter your email or phone", variant: "destructive" });
+        return;
+      }
+      // Only accept email-based login
+      const email = identifier.includes("@") ? identifier : identifier;
       const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
       if (error) throw error;
       navigate("/");
