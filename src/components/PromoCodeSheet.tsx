@@ -22,87 +22,24 @@ const PromoCodeSheet = ({ isOpen, onClose }: PromoCodeSheetProps) => {
     setLoading(true);
 
     try {
-      // Find the promo code
-      const { data: promo, error: promoError } = await supabase
-        .from("promo_codes")
-        .select("*")
-        .eq("code", code.trim().toUpperCase())
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (promoError || !promo) {
-        toast.error("Invalid or expired promo code");
-        setLoading(false);
-        return;
-      }
-
-      // Check expiry
-      if (promo.expires_at && new Date(promo.expires_at) < new Date()) {
-        toast.error("This promo code has expired");
-        setLoading(false);
-        return;
-      }
-
-      // Check max uses
-      if (promo.max_uses && promo.current_uses >= promo.max_uses) {
-        toast.error("This promo code has reached its usage limit");
-        setLoading(false);
-        return;
-      }
-
-      // Check if already redeemed by this user
-      const { data: existing } = await supabase
-        .from("promo_redemptions")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("promo_code_id", promo.id)
-        .maybeSingle();
-
-      if (existing) {
-        toast.error("You've already redeemed this code");
-        setLoading(false);
-        return;
-      }
-
-      // Add bonus credits
-      if (promo.bonus_credits > 0) {
-        // Upsert wallet
-        const { data: wallet } = await supabase
-          .from("credit_wallets")
-          .select("balance")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        const currentBalance = wallet?.balance || 0;
-        const newBalance = currentBalance + promo.bonus_credits;
-
-        await supabase.from("credit_wallets").upsert({
-          user_id: user.id,
-          balance: newBalance,
-        }, { onConflict: "user_id" });
-
-        await supabase.from("credit_transactions").insert({
-          user_id: user.id,
-          amount: promo.bonus_credits,
-          type: "promo",
-          description: `Promo code: ${promo.code}`,
-          balance_after: newBalance,
-        });
-      }
-
-      // Record redemption
-      await supabase.from("promo_redemptions").insert({
-        user_id: user.id,
-        promo_code_id: promo.id,
+      const { data, error } = await supabase.rpc("redeem_promo_code", {
+        p_code: code.trim(),
       });
 
-      // Increment usage
-      await supabase.from("promo_codes").update({
-        current_uses: (promo.current_uses || 0) + 1,
-      }).eq("id", promo.id);
+      if (error) {
+        toast.error("Failed to redeem code");
+        return;
+      }
+
+      const result = data as { success: boolean; error?: string; bonus_credits?: number };
+
+      if (!result.success) {
+        toast.error(result.error || "Failed to redeem code");
+        return;
+      }
 
       setRedeemed(true);
-      toast.success(`${promo.bonus_credits} bonus credits added!`);
+      toast.success(`${result.bonus_credits || 0} bonus credits added!`);
     } catch (err) {
       toast.error("Failed to redeem code");
     } finally {
