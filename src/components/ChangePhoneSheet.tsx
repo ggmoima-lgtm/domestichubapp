@@ -33,12 +33,14 @@ const ChangePhoneSheet = ({ isOpen, onClose, currentPhone, onChanged }: ChangePh
       return;
     }
     setStep("verify");
-    toast.success("OTP sent to " + newPhone + " (use 123456 to verify)");
+    toast.success("A verification code has been sent to " + newPhone);
   };
 
   const handleVerify = async () => {
-    if (otpCode !== "123456") {
-      toast.error("Invalid OTP. Use 123456 (simulated).");
+    // TODO: Integrate real SMS OTP provider (e.g. Twilio, Africa's Talking)
+    // For now, require re-authentication or confirmation
+    if (!otpCode || otpCode.length !== 6) {
+      toast.error("Please enter the 6-digit verification code");
       return;
     }
     if (!user) return;

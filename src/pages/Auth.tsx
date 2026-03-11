@@ -78,68 +78,7 @@ const Auth = () => {
     }
   };
 
-  const handleSendOtp = () => {
-    if (!phone) {
-      toast({ title: "Please enter your phone number", variant: "destructive" });
-      return;
-    }
-    setOtpSent(true);
-    setSignupStep("otp");
-    toast({ title: "OTP Sent!", description: "Use code 123456 to verify (simulated)." });
-  };
-
-  const handleVerifyOtpAndSignup = async () => {
-    if (otpCode !== "123456") {
-      toast({ title: "Invalid OTP", description: "Please enter 123456 (simulated).", variant: "destructive" });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const email = signupEmail.trim();
-      const password = signupPassword;
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: fullName, phone, role: selectedRole },
-        },
-      });
-      if (error) throw error;
-
-      if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: data.user.id,
-          full_name: fullName,
-          phone,
-          email: signupEmail.trim(),
-          city,
-          area,
-          role: selectedRole!,
-          onboarding_completed: false,
-        });
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-        }
-
-        // Record terms acceptance
-        if (termsAccepted) {
-          await supabase.from("terms_acceptances").insert({
-            user_id: data.user.id,
-            terms_version: "1.0",
-          });
-        }
-      }
-
-      toast({ title: "Account created!", description: "Please check your email to verify your account." });
-      navigate(selectedRole === "helper" ? "/register/helper" : "/");
-    } catch (error: any) {
-      toast({ title: "Signup failed", description: error.message, variant: "destructive" });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Phone OTP verification removed — signup uses email verification only
 
   const handleOAuth = async (provider: "google" | "apple") => {
     const { error } = await lovable.auth.signInWithOAuth(provider, {
