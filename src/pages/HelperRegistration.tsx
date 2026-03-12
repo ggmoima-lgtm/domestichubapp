@@ -239,8 +239,6 @@ const HelperRegistration = () => {
         age: formData.age ? parseInt(formData.age) : null,
         gender: formData.gender || null,
         nationality: formData.nationality || null,
-        id_document_url: null,
-        references_info: [],
         living_arrangement: formData.livingArrangement || null,
       } as any);
 

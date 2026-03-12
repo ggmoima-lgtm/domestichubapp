@@ -71,8 +71,12 @@ const AdminDashboard = () => {
   };
 
   const fetchHelpers = async () => {
-    const { data } = await supabase.from("helpers").select("id, full_name, email, phone, category, availability_status, is_verified, created_at, id_document_url, video_moderation_status, age, gender, nationality").order("created_at", { ascending: false }).limit(50);
-    setHelpers(data || []);
+    const { data } = await supabase.from("helpers").select("id, full_name, email, phone, category, availability_status, is_verified, created_at, video_moderation_status, age, gender, nationality").order("created_at", { ascending: false }).limit(50);
+    // Fetch sensitive data separately (admin only)
+    const { data: sensitiveData } = await supabase.from("helper_sensitive_data").select("helper_id, id_document_url");
+    const sensitiveMap = new Map((sensitiveData || []).map(s => [s.helper_id, s]));
+    const merged = (data || []).map(h => ({ ...h, id_document_url: sensitiveMap.get(h.id)?.id_document_url || null }));
+    setHelpers(merged);
   };
 
   const fetchReports = async () => {
