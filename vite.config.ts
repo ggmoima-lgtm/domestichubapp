@@ -22,9 +22,9 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/~oauth/],
       },
       manifest: {
-        name: "Helper Finder - Find Trusted Help",
-        short_name: "Helper Finder",
-        description: "Find verified nannies, housekeepers, and caregivers in your area",
+        name: "Domestic Hub - Connecting Homes With Trusted Hands",
+        short_name: "Domestic Hub",
+        description: "Connect with verified nannies, housekeepers, and caregivers in your area",
         theme_color: "#5cb8a5",
         background_color: "#faf8f5",
         display: "standalone",
