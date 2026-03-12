@@ -47,12 +47,16 @@ Deno.serve(async (req) => {
         });
     }
 
-    // Find helper by reference
-    const { data: helper } = await supabase
-      .from("helpers")
-      .select("id, user_id")
+    // Find helper by reference via sensitive data table
+    const { data: sensitiveRecord } = await supabase
+      .from("helper_sensitive_data")
+      .select("helper_id")
       .eq("verification_reference_id", reference)
       .single();
+
+    const { data: helper } = sensitiveRecord
+      ? await supabase.from("helpers").select("id, user_id").eq("id", sensitiveRecord.helper_id).single()
+      : { data: null };
 
     if (!helper) {
       console.error("No helper found for reference:", reference);

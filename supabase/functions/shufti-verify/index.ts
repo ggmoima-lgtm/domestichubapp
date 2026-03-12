@@ -89,11 +89,12 @@ Deno.serve(async (req) => {
     // Store reference for webhook matching
     await supabase
       .from("helpers")
-      .update({
-        verification_status: "pending",
-        verification_reference_id: reference,
-      })
+      .update({ verification_status: "pending" })
       .eq("id", helper_id);
+
+    await supabase
+      .from("helper_sensitive_data")
+      .upsert({ helper_id, verification_reference_id: reference }, { onConflict: "helper_id" });
 
     return new Response(
       JSON.stringify({
