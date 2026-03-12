@@ -261,6 +261,48 @@ export type Database = {
         }
         Relationships: []
       }
+      helper_sensitive_data: {
+        Row: {
+          created_at: string
+          helper_id: string
+          id: string
+          id_document_url: string | null
+          references_info: Json | null
+          verification_reference_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          helper_id: string
+          id?: string
+          id_document_url?: string | null
+          references_info?: Json | null
+          verification_reference_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          helper_id?: string
+          id?: string
+          id_document_url?: string | null
+          references_info?: Json | null
+          verification_reference_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "helper_sensitive_data_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: true
+            referencedRelation: "helpers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "helper_sensitive_data_helper_id_fkey"
+            columns: ["helper_id"]
+            isOneToOne: true
+            referencedRelation: "helpers_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       helpers: {
         Row: {
           age: number | null
@@ -278,19 +320,16 @@ export type Database = {
           has_work_permit: boolean | null
           hourly_rate: number | null
           id: string
-          id_document_url: string | null
           intro_video_url: string | null
           is_verified: boolean | null
           languages: string[] | null
           living_arrangement: string | null
           nationality: string | null
           phone: string
-          references_info: Json | null
           skills: string[] | null
           updated_at: string
           user_id: string | null
           verification_date: string | null
-          verification_reference_id: string | null
           verification_status: string
           video_flag_count: number
           video_flagged: boolean
@@ -313,19 +352,16 @@ export type Database = {
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
-          id_document_url?: string | null
           intro_video_url?: string | null
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
           nationality?: string | null
           phone: string
-          references_info?: Json | null
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
           verification_date?: string | null
-          verification_reference_id?: string | null
           verification_status?: string
           video_flag_count?: number
           video_flagged?: boolean
@@ -348,19 +384,16 @@ export type Database = {
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
-          id_document_url?: string | null
           intro_video_url?: string | null
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
           nationality?: string | null
           phone?: string
-          references_info?: Json | null
           skills?: string[] | null
           updated_at?: string
           user_id?: string | null
           verification_date?: string | null
-          verification_reference_id?: string | null
           verification_status?: string
           video_flag_count?: number
           video_flagged?: boolean
