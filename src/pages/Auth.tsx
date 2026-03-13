@@ -54,6 +54,15 @@ const Auth = () => {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
+  // Forgot password (phone OTP flow)
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotPhone, setForgotPhone] = useState("");
+  const [forgotOtpSent, setForgotOtpSent] = useState(false);
+  const [forgotOtpCode, setForgotOtpCode] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
