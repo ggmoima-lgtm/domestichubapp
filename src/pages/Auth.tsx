@@ -151,8 +151,10 @@ const Auth = () => {
   const handleSignupComplete = async () => {
     setIsSubmitting(true);
     try {
+      // For helpers without email, generate a placeholder for auth
+      const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}@helper.domestichub.app`;
       const { data, error } = await supabase.auth.signUp({
-        email: signupEmail.trim(),
+        email: authEmail,
         password: signupPassword,
         options: {
           emailRedirectTo: window.location.origin,
