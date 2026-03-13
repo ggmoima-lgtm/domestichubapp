@@ -456,7 +456,7 @@ const HelperProfile = () => {
       </Card>
 
       {/* Notifications */}
-      <NotificationPreferences />
+      <NotificationPreferences userRole="helper" />
 
       {/* Account Controls */}
       <Card>
