@@ -597,7 +597,7 @@ const HelperRegistration = () => {
 
         {/* Submit Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || !phoneVerified}>
+          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
             {isSubmitting ? "Creating Account..." : "Complete Registration"}
           </Button>
         </div>
