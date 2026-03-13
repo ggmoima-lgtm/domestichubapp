@@ -7,9 +7,8 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
 } from "./ui/alert-dialog";
+import { Button } from "./ui/button";
 import { toast } from "sonner";
 
 interface PushNotificationDialogProps {
