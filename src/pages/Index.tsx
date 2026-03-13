@@ -12,6 +12,7 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
+import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
