@@ -285,6 +285,14 @@ const Index = () => {
     setTimeout(() => setSelectedWorker(null), 300);
   };
 
+  const handleTabChange = (tab: string) => {
+    if (tab === "profile" && userRole === "helper" && hasHelperProfile === false) {
+      navigate("/register/helper");
+      return;
+    }
+    setActiveTab(tab);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
