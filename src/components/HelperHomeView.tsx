@@ -35,6 +35,7 @@ const categoryIcons: Record<string, string> = {
 };
 
 const HelperHomeView = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
