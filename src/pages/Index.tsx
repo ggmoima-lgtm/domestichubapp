@@ -430,7 +430,7 @@ const Index = () => {
       )}
 
       {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
 
 
 
