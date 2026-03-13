@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, User, ArrowRight, ArrowLeft, Shield, Lock, Mail } from "lucide-react";
 import { PasswordInput } from "@/components/PasswordInput";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,6 +35,8 @@ const Auth = () => {
   // Login
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginCountryCode, setLoginCountryCode] = useState("+27");
+  const [signupCountryCode, setSignupCountryCode] = useState("+27");
 
   // Signup
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -272,14 +275,14 @@ const Auth = () => {
         <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">
           Phone Number <span className="text-destructive">*</span>
         </Label>
-        <div className="relative">
-          <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex">
+          <CountryCodeSelect value={signupCountryCode} onChange={setSignupCountryCode} />
           <Input
             type="tel"
-            placeholder="+27 XX XXX XXXX"
+            placeholder="XX XXX XXXX"
             value={phone}
             onChange={(e) => { setPhone(e.target.value); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }}
-            className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            className="rounded-l-none rounded-r-xl h-12 border-border/80 focus-visible:ring-primary/30"
             required
           />
         </div>
@@ -513,8 +516,8 @@ const Auth = () => {
                   <form onSubmit={handleLogin} className="space-y-3">
                     <div>
                       <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Phone or Email</Label>
-                      <div className="relative flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border/80 bg-muted text-muted-foreground text-sm">+27</span>
+                      <div className="flex">
+                        <CountryCodeSelect value={loginCountryCode} onChange={setLoginCountryCode} />
                         <Input type="text" placeholder="Phone or email" value={loginIdentifier} onChange={(e) => setLoginIdentifier(e.target.value)} className="rounded-l-none rounded-r-xl h-10 text-sm border-border/80 focus-visible:ring-primary/30" required />
                       </div>
                     </div>
