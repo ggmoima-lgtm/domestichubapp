@@ -49,22 +49,46 @@ const Index = () => {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockedHelpers, setUnlockedHelpers] = useState<Worker[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
-  const [userRole, setUserRole] = useState<string | null>("employer");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [hasHelperProfile, setHasHelperProfile] = useState<boolean | null>(null);
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
 
-  // Fetch user role
+  // Fetch user role + helper profile status
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setUserRole(data?.role || "employer");
-      });
+    if (!user) {
+      setUserRole(null);
+      setHasHelperProfile(null);
+      return;
+    }
+
+    const fetchRoleAndProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const metadataRole = user.user_metadata?.role;
+      const fallbackRole = metadataRole === "helper" || metadataRole === "employer" ? metadataRole : "employer";
+      const resolvedRole = data?.role || fallbackRole;
+
+      setUserRole(resolvedRole);
+
+      if (resolvedRole === "helper") {
+        const { data: helperProfile } = await supabase
+          .from("helpers")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        setHasHelperProfile(Boolean(helperProfile));
+      } else {
+        setHasHelperProfile(null);
+      }
+    };
+
+    fetchRoleAndProfile();
   }, [user]);
 
   // Fetch helpers from database
