@@ -382,7 +382,7 @@ const HelperRegistration = () => {
               <Input id="age" type="number" placeholder="e.g., 28" value={formData.age} onChange={(e) => handleInputChange("age", e.target.value)} className="mt-1" min="18" max="70" />
             </div>
             <div>
-              <Label>Gender</Label>
+              <Label>Gender *</Label>
               <Select value={formData.gender} onValueChange={(v) => handleInputChange("gender", v)}>
                 <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
