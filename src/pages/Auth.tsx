@@ -165,7 +165,16 @@ const Auth = () => {
           data: { full_name: fullName, surname, phone, role: selectedRole },
         },
       });
-      if (error) throw error;
+      if (error) {
+        // Handle "User already registered" specifically
+        if (error.message?.toLowerCase().includes("already registered") || error.message?.toLowerCase().includes("already been registered")) {
+          toast({ title: "Account already exists", description: "This email or phone is already registered. Please log in instead.", variant: "destructive" });
+          setMode("login");
+          setSignupStep("role");
+          return;
+        }
+        throw error;
+      }
 
       if (data.user) {
         await supabase.from("profiles").insert({
@@ -356,6 +365,8 @@ const Auth = () => {
           setIsSubmitting(true);
           try {
             const phoneDigits = phone.replace(/\D/g, "");
+            
+            // Check phone in profiles
             const { data: existingEmail } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
             if (existingEmail) {
               toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
@@ -363,6 +374,7 @@ const Auth = () => {
               return;
             }
 
+            // Check email in profiles
             if (signupEmail) {
               const authEmail = signupEmail.trim();
               const { data: emailCheck } = await supabase.from("profiles").select("id").eq("email", authEmail).maybeSingle();
@@ -371,6 +383,20 @@ const Auth = () => {
                 setIsSubmitting(false);
                 return;
               }
+            }
+
+            // Also check if the auth email (or generated placeholder) is already in auth
+            const authEmail = signupEmail.trim() || `${phoneDigits}@helper.domestichub.app`;
+            const { error: signInCheck } = await supabase.auth.signInWithPassword({
+              email: authEmail,
+              password: "___check_only___",
+            });
+            // If we get "Invalid login credentials" it means user exists but wrong password
+            // If we get nothing or other error, user may not exist
+            if (signInCheck && signInCheck.message === "Invalid login credentials") {
+              toast({ title: "Account already exists", description: "An account with this email or phone already exists. Please log in instead.", variant: "destructive" });
+              setIsSubmitting(false);
+              return;
             }
 
             setSignupStep("verify-phone");
