@@ -1,0 +1,1 @@
+ALTER TABLE public.helpers DROP CONSTRAINT IF EXISTS helpers_user_id_fkey;
