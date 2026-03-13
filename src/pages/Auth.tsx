@@ -560,19 +560,22 @@ const Auth = () => {
                     <div className="flex justify-end">
                       <button
                         type="button"
-                        onClick={async () => {
+                        onClick={() => {
                           const identifier = loginIdentifier.trim();
-                          if (!identifier) { toast({ title: "Enter your phone number or email first", variant: "destructive" }); return; }
-                          let email = identifier;
                           if (!identifier.includes("@")) {
-                            const p = identifier.replace(/\D/g, "");
-                            const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", { p_phone: p });
-                            if (lookupError || !foundEmail) { toast({ title: "Phone number not found", variant: "destructive" }); return; }
-                            email = foundEmail as string;
+                            // Phone-based reset
+                            const phoneVal = identifier.replace(/\D/g, "");
+                            if (phoneVal) setForgotPhone(phoneVal);
+                            setForgotMode(true);
+                          } else {
+                            // Email-based reset (for employers)
+                            (async () => {
+                              if (!identifier) { toast({ title: "Enter your email first", variant: "destructive" }); return; }
+                              const { error } = await supabase.auth.resetPasswordForEmail(identifier, { redirectTo: `${window.location.origin}/reset-password` });
+                              if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+                              else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
+                            })();
                           }
-                          const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
-                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-                          else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
                         }}
                         className="text-xs text-primary font-semibold hover:underline"
                       >
