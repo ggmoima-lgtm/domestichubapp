@@ -35,6 +35,8 @@ const Auth = () => {
   // Login
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginCountryCode, setLoginCountryCode] = useState("+27");
+  const [signupCountryCode, setSignupCountryCode] = useState("+27");
 
   // Signup
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
