@@ -186,7 +186,7 @@ const Auth = () => {
       }
 
       toast({ title: "Account created!", description: "You are now logged in." });
-      navigate("/");
+      navigate("/onboarding", { replace: true });
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
