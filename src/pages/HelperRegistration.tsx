@@ -88,19 +88,23 @@ const HelperRegistration = () => {
   // Phone is already verified during signup — no re-verification needed
   const phoneVerified = true;
 
-  // Auto-fill email and phone from authenticated user
+  // Auto-fill from authenticated user
   useEffect(() => {
     if (user) {
-      if (user.email) {
+      // Check if email is a placeholder
+      const emailIsPlaceholder = user.email?.endsWith("@helper.domestichub.app") ?? false;
+      setIsPlaceholderEmail(emailIsPlaceholder);
+      if (!emailIsPlaceholder && user.email) {
         setFormData(prev => ({ ...prev, email: user.email! }));
       }
-      // Fetch phone from profiles table
-      supabase.from("profiles").select("phone, full_name").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+      // Fetch phone and name from profiles table
+      supabase.from("profiles").select("phone, full_name, surname").eq("user_id", user.id).maybeSingle().then(({ data }) => {
         if (data) {
           setFormData(prev => ({
             ...prev,
             phone: data.phone || prev.phone,
             fullName: data.full_name || prev.fullName,
+            surname: (data as any).surname || prev.surname,
           }));
         }
       });
