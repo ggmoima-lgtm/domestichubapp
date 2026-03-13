@@ -85,12 +85,8 @@ const HelperRegistration = () => {
   const [references] = useState<{ name: string; phone: string; relationship: string }[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // Phone OTP verification state
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  // Phone is already verified during signup — no re-verification needed
+  const phoneVerified = true;
 
   // Auto-fill email and phone from authenticated user
   useEffect(() => {
