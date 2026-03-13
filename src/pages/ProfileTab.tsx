@@ -10,17 +10,26 @@ const ProfileTab = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      supabase
+    if (!user) {
+      setRole(null);
+      setLoading(false);
+      return;
+    }
+
+    const fetchRole = async () => {
+      const { data } = await supabase
         .from("profiles")
         .select("role")
         .eq("user_id", user.id)
-        .maybeSingle()
-        .then(({ data }) => {
-          setRole(data?.role || "employer");
-          setLoading(false);
-        });
-    }
+        .maybeSingle();
+
+      const metadataRole = user.user_metadata?.role;
+      const fallbackRole = metadataRole === "helper" || metadataRole === "employer" ? metadataRole : "employer";
+      setRole(data?.role || fallbackRole);
+      setLoading(false);
+    };
+
+    fetchRole();
   }, [user]);
 
   if (loading) {
