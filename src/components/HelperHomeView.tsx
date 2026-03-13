@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { MapPin, Briefcase, Clock, Users, Search, DollarSign, Home } from "lucide-react";
+import { MapPin, Briefcase, Clock, Users, Search, DollarSign, Home, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const categoryIcons: Record<string, string> = {
 };
 
 const HelperHomeView = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +128,20 @@ const HelperHomeView = () => {
 
   return (
     <div>
+      {/* Incomplete profile banner */}
+      {!helperId && (
+        <div className="mb-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 flex items-center gap-3">
+          <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
+            <p className="text-xs text-muted-foreground">You need a complete profile to apply for jobs</p>
+          </div>
+          <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0" onClick={() => navigate("/register/helper")}>
+            Complete
+          </Button>
+        </div>
+      )}
+
       <div className="mb-5">
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -214,9 +230,12 @@ const HelperHomeView = () => {
                 size="sm"
                 variant="outline"
                 className="w-full mt-3 rounded-xl"
-                onClick={() => toast.error("Please complete your helper profile first.")}
+                onClick={() => {
+                  toast.error("Complete your profile first to apply for jobs.");
+                  navigate("/register/helper");
+                }}
               >
-                Apply Now
+                Complete Profile to Apply
               </Button>
             )}
           </div>

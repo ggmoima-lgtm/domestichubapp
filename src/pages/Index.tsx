@@ -287,10 +287,6 @@ const Index = () => {
   };
 
   const handleTabChange = (tab: string) => {
-    if (tab === "profile" && userRole === "helper" && hasHelperProfile === false) {
-      navigate("/register/helper");
-      return;
-    }
     setActiveTab(tab);
   };
 
