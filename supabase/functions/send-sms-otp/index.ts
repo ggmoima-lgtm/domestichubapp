@@ -12,33 +12,37 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Authenticate user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabaseAuth = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const userId = claimsData.claims.sub;
-
-    // Parse request
     const { phone, purpose = "phone_change" } = await req.json();
+
+    // For signup_verify, no auth required. For other purposes, require auth.
+    let userId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+
+    if (purpose === "signup_verify") {
+      // No auth needed for pre-signup verification
+      userId = null;
+    } else {
+      if (!authHeader?.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const supabaseAuth = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = claimsData.claims.sub;
+    }
 
     if (!phone || typeof phone !== "string" || phone.length < 10) {
       return new Response(JSON.stringify({ error: "Invalid phone number" }), {
@@ -47,7 +51,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Sanitize phone - only allow digits, +, spaces
     const sanitizedPhone = phone.replace(/[^\d+\s]/g, "").trim();
     if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
       return new Response(JSON.stringify({ error: "Invalid phone number format" }), {
@@ -56,7 +59,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use service role for DB operations
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -77,10 +79,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Generate 6-digit OTP
     const code = Array.from({ length: 6 }, () => Math.floor(Math.random() * 10)).join("");
 
-    // Store OTP
     const { error: insertError } = await supabase.from("otp_codes").insert({
       phone: sanitizedPhone,
       code,
@@ -108,13 +108,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Authenticate with SMSPortal to get token
     const authCredentials = btoa(`${clientId}:${clientSecret}`);
     const tokenResponse = await fetch("https://rest.smsportal.com/v1/Authentication", {
       method: "GET",
-      headers: {
-        Authorization: `Basic ${authCredentials}`,
-      },
+      headers: { Authorization: `Basic ${authCredentials}` },
     });
 
     if (!tokenResponse.ok) {
@@ -128,7 +125,6 @@ Deno.serve(async (req) => {
     const tokenData = await tokenResponse.json();
     const smsToken = tokenData.token;
 
-    // Send SMS
     const smsResponse = await fetch("https://rest.smsportal.com/v1/BulkMessages", {
       method: "POST",
       headers: {
@@ -136,9 +132,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${smsToken}`,
       },
       body: JSON.stringify({
-        sendOptions: {
-          testMode: false,
-        },
+        sendOptions: { testMode: false },
         messages: [
           {
             destination: sanitizedPhone,

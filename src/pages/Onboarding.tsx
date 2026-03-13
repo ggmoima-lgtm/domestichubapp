@@ -41,15 +41,21 @@ const Onboarding = () => {
         .select("role, onboarding_completed")
         .eq("user_id", user.id)
         .single()
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           if (data) {
             setRole(data.role);
             if (data.onboarding_completed) {
               navigate("/home", { replace: true });
             }
           } else {
-            // OAuth user with no profile yet — need role selection
-            setNeedsProfileCreation(true);
+            // OAuth user with no profile yet — check localStorage for pre-selected role
+            const pendingRole = localStorage.getItem("pending_oauth_role");
+            if (pendingRole === "employer" || pendingRole === "helper") {
+              localStorage.removeItem("pending_oauth_role");
+              await handleRoleSelect(pendingRole);
+            } else {
+              setNeedsProfileCreation(true);
+            }
           }
           setProfileLoading(false);
         });
