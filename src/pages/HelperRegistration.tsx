@@ -197,12 +197,16 @@ const HelperRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.email || !formData.phone || formData.category.length === 0) {
+    if (!formData.fullName || !formData.surname || !formData.phone || formData.category.length === 0) {
       toast.error("Please fill in all required fields"); return;
     }
-    if (!phoneVerified) {
-      toast.error("Please verify your phone number first"); return;
-    }
+    if (!formData.age) { toast.error("Please enter your age"); return; }
+    if (!formData.gender) { toast.error("Please select your gender"); return; }
+    if (!formData.nationality) { toast.error("Please select your nationality"); return; }
+    if (!formData.availability) { toast.error("Please select your availability"); return; }
+    if (!formData.bio) { toast.error("Please write something about yourself"); return; }
+    if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
+    if (selectedLanguages.length === 0) { toast.error("Please select at least one language"); return; }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
     if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!videoFile) { toast.error("Please upload an intro video"); return; }
