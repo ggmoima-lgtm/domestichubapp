@@ -401,7 +401,7 @@ const HelperRegistration = () => {
             </Select>
           </div>
           <div>
-            <Label>Location</Label>
+            <Label>Location *</Label>
             <div className="mt-1">
               <LocationAutocomplete
                 value={null}
