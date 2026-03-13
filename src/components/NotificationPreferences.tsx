@@ -37,6 +37,13 @@ const labels: Record<keyof Prefs, string> = {
   admin_actions: "Admin Actions",
 };
 
+// Keys to hide for helpers (credits are employer-only)
+const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks"];
+
+interface NotificationPreferencesProps {
+  userRole?: string;
+}
+
 const NotificationPreferences = () => {
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
