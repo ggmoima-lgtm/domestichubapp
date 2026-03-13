@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +83,13 @@ const HelperRegistration = () => {
   const [references] = useState<{ name: string; phone: string; relationship: string }[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+  // Phone OTP verification state
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
   // Auto-fill email and phone from authenticated user
   useEffect(() => {
     if (user) {
@@ -124,6 +131,13 @@ const HelperRegistration = () => {
     }, 30000);
     return () => clearInterval(timer);
   }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+
+  // Reset verification if phone changes
+  useEffect(() => {
+    setPhoneVerified(false);
+    setOtpSent(false);
+    setOtpCode("");
+  }, [formData.phone]);
 
   const saveDraft = useCallback(() => {
     try {
@@ -172,6 +186,53 @@ const HelperRegistration = () => {
     }
   };
 
+  const handleSendOtp = async () => {
+    if (!formData.phone || formData.phone.length < 10) {
+      toast.error("Please enter a valid phone number first");
+      return;
+    }
+    if (!user) return;
+
+    setIsSendingOtp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-sms-otp", {
+        body: { phone: formData.phone, purpose: "helper_registration" },
+      });
+      if (error) throw new Error(error.message || "Failed to send OTP");
+      if (data?.error) throw new Error(data.error);
+
+      setOtpSent(true);
+      toast.success("Verification code sent to " + formData.phone);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send verification code");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length !== 6) {
+      toast.error("Please enter the 6-digit code");
+      return;
+    }
+    if (!user) return;
+
+    setIsVerifyingOtp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
+        body: { phone: formData.phone, code: otpCode, purpose: "helper_registration" },
+      });
+      if (error) throw new Error(error.message || "Verification failed");
+      if (data?.error) throw new Error(data.error);
+
+      setPhoneVerified(true);
+      toast.success("Phone number verified!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to verify code");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
 
   const uploadFile = async (userId: string, file: File, bucket: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
@@ -187,6 +248,9 @@ const HelperRegistration = () => {
     
     if (!formData.fullName || !formData.email || !formData.phone || formData.category.length === 0) {
       toast.error("Please fill in all required fields"); return;
+    }
+    if (!phoneVerified) {
+      toast.error("Please verify your phone number first"); return;
     }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
     if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
@@ -326,13 +390,80 @@ const HelperRegistration = () => {
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">From your signup account</p>
             </div>
+
+            {/* Phone Number with OTP Verification */}
             <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone">Phone Number * {phoneVerified && <span className="text-green-600 font-normal text-xs ml-1">✓ Verified</span>}</Label>
               <div className="relative mt-1">
                 <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input id="phone" type="tel" placeholder="+27 81 234 5678" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} className="pl-9" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+27 81 234 5678"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className="pl-9"
+                  disabled={phoneVerified}
+                />
               </div>
             </div>
+
+            {/* OTP Verification Flow */}
+            {!phoneVerified && formData.phone.length >= 10 && (
+              <div className="space-y-3 bg-muted/40 rounded-xl p-4">
+                <div className="flex items-start gap-2">
+                  <ShieldCheck size={14} className="text-primary shrink-0 mt-0.5" />
+                  <p className="text-xs text-muted-foreground">
+                    We'll send a verification code via SMS to confirm your phone number.
+                  </p>
+                </div>
+
+                {!otpSent ? (
+                  <Button type="button" variant="outline" className="w-full h-10 rounded-xl text-sm" onClick={handleSendOtp} disabled={isSendingOtp}>
+                    {isSendingOtp ? (
+                      <><Loader2 size={14} className="animate-spin mr-2" /> Sending...</>
+                    ) : (
+                      "Send Verification Code"
+                    )}
+                  </Button>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground text-center">
+                      Enter the 6-digit code sent to <span className="font-semibold text-foreground">{formData.phone}</span>
+                    </p>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="000000"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                      className="rounded-xl h-12 text-center text-xl tracking-[0.4em] font-bold"
+                    />
+                    <Button
+                      type="button"
+                      className="w-full h-10 rounded-xl text-sm"
+                      onClick={handleVerifyOtp}
+                      disabled={isVerifyingOtp || otpCode.length !== 6}
+                    >
+                      {isVerifyingOtp ? (
+                        <><Loader2 size={14} className="animate-spin mr-2" /> Verifying...</>
+                      ) : (
+                        "Verify Phone"
+                      )}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={isSendingOtp}
+                      className="text-xs text-primary font-semibold hover:underline disabled:opacity-50 w-full text-center"
+                    >
+                      {isSendingOtp ? "Sending..." : "Resend code"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -389,7 +520,6 @@ const HelperRegistration = () => {
             </div>
             <Switch id="workPermit" checked={hasWorkPermit} onCheckedChange={setHasWorkPermit} />
           </div>
-          
         </section>
 
         {/* Professional Details */}
@@ -563,7 +693,7 @@ const HelperRegistration = () => {
 
         {/* Submit Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || !phoneVerified}>
             {isSubmitting ? "Creating Account..." : "Complete Registration"}
           </Button>
         </div>

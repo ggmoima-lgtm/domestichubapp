@@ -96,36 +96,61 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Send SMS via eSMS Africa
-    const esmsApiKey = Deno.env.get("ESMS_API_KEY");
-    const esmsAccountId = Deno.env.get("ESMS_ACCOUNT_ID");
+    // Send SMS via SMSPortal
+    const clientId = Deno.env.get("SMSPORTAL_CLIENT_ID");
+    const clientSecret = Deno.env.get("SMSPORTAL_CLIENT_SECRET");
 
-    if (!esmsApiKey || !esmsAccountId) {
-      console.error("eSMS Africa credentials not configured");
+    if (!clientId || !clientSecret) {
+      console.error("SMSPortal credentials not configured");
       return new Response(JSON.stringify({ error: "SMS service not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const smsResponse = await fetch("https://api.esmsafrica.io/api/sms/send", {
+    // Authenticate with SMSPortal to get token
+    const authCredentials = btoa(`${clientId}:${clientSecret}`);
+    const tokenResponse = await fetch("https://rest.smsportal.com/v1/Authentication", {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${authCredentials}`,
+      },
+    });
+
+    if (!tokenResponse.ok) {
+      console.error("SMSPortal auth failed:", await tokenResponse.text());
+      return new Response(JSON.stringify({ error: "SMS service authentication failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const tokenData = await tokenResponse.json();
+    const smsToken = tokenData.token;
+
+    // Send SMS
+    const smsResponse = await fetch("https://rest.smsportal.com/v1/BulkMessages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": esmsApiKey,
-        "X-Account-ID": esmsAccountId,
+        Authorization: `Bearer ${smsToken}`,
       },
       body: JSON.stringify({
-        phoneNumber: sanitizedPhone,
-        text: `Your verification code is: ${code}. It expires in 10 minutes. Do not share this code.`,
-        senderId: "eSMSAfrica",
+        sendOptions: {
+          testMode: false,
+        },
+        messages: [
+          {
+            destination: sanitizedPhone,
+            content: `Your Domestic Hub verification code is: ${code}. It expires in 10 minutes. Do not share this code.`,
+          },
+        ],
       }),
     });
 
-    const smsResult = await smsResponse.json();
-
-    if (smsResult.status !== "ACK") {
-      console.error("eSMS Africa error:", smsResult);
+    if (!smsResponse.ok) {
+      const smsError = await smsResponse.text();
+      console.error("SMSPortal send error:", smsError);
       return new Response(JSON.stringify({ error: "Failed to send SMS" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

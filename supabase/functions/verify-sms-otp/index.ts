@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
       .eq("id", otpRecord.id);
 
     // If purpose is phone_change, update the user's phone in profiles and helpers
-    if (purpose === "phone_change") {
+    if (purpose === "phone_change" || purpose === "phone_verify") {
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ phone: sanitizedPhone })
