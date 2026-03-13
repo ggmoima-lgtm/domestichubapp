@@ -44,7 +44,7 @@ interface NotificationPreferencesProps {
   userRole?: string;
 }
 
-const NotificationPreferences = () => {
+const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => {
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
   const [pushEnabled, setPushEnabled] = useState(false);
