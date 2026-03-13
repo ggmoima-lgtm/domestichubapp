@@ -244,11 +244,16 @@ const Auth = () => {
       </div>
 
       <div>
-        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</Label>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">
+          Email Address {selectedRole === "employer" && <span className="text-destructive">*</span>}
+        </Label>
         <div className="relative">
           <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input type="email" placeholder="you@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+          <Input type="email" placeholder={selectedRole === "helper" ? "you@example.com (optional)" : "you@example.com"} value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required={selectedRole === "employer"} />
         </div>
+        {selectedRole === "employer" && (
+          <p className="text-[10px] text-muted-foreground mt-1">Required for invoices and notifications</p>
+        )}
       </div>
 
       <div>
