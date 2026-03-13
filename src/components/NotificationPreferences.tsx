@@ -133,7 +133,9 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
         </div>
 
         {/* Per-category toggles */}
-        {(Object.keys(labels) as (keyof Prefs)[]).map((key) => (
+        {(Object.keys(labels) as (keyof Prefs)[])
+          .filter((key) => !(userRole === "helper" && helperHiddenKeys.includes(key)))
+          .map((key) => (
           <div key={key} className="flex items-center justify-between px-1 py-1.5">
             <span className="text-sm text-foreground">{labels[key]}</span>
             <Switch checked={prefs[key]} onCheckedChange={() => togglePref(key)} />
