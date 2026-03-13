@@ -135,8 +135,7 @@ const Onboarding = () => {
       if (profileError) throw profileError;
 
       toast({ title: "Profile complete!", description: "Welcome to Domestic Hub." });
-      setPendingNavigation("/home");
-      setShowPushDialog(true);
+      navigate("/home", { replace: true });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
