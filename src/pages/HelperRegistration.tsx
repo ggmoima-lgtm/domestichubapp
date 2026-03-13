@@ -58,6 +58,7 @@ const HelperRegistration = () => {
   
   const [formData, setFormData] = useState({
     fullName: "",
+    surname: "",
     email: "",
     phone: "",
     category: [] as string[],
@@ -72,6 +73,7 @@ const HelperRegistration = () => {
     city: "",
     area: "",
   });
+  const [isPlaceholderEmail, setIsPlaceholderEmail] = useState(false);
   
   const [hasWorkPermit, setHasWorkPermit] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
