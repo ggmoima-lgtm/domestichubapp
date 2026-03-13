@@ -538,7 +538,7 @@ const HelperRegistration = () => {
 
         {/* Bio */}
         <section className="space-y-3">
-          <Label htmlFor="bio">About You</Label>
+          <Label htmlFor="bio">About You *</Label>
           <Textarea id="bio" placeholder="Tell families about yourself, your experience, and what makes you a great helper..." value={formData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} rows={4} />
         </section>
 
