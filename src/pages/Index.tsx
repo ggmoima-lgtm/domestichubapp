@@ -12,6 +12,7 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
+import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -396,7 +397,13 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "hub" && (
+      {activeTab === "hub" && userRole === "helper" && (
+        <main className="px-4 py-4 pb-24">
+          <HelperApplicationsHub />
+        </main>
+      )}
+
+      {activeTab === "hub" && userRole !== "helper" && (
         <main className="px-4 py-4 pb-24">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
