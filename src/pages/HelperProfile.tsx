@@ -397,8 +397,29 @@ const HelperProfile = () => {
                 <Label>Has Work Permit</Label>
                 <Switch checked={editData.has_work_permit || false} onCheckedChange={(v) => setEditData({ ...editData, has_work_permit: v })} />
               </div>
-            </>
-          ) : (
+              {/* Video Upload */}
+              <div className="space-y-2">
+                <Label>Intro Video</Label>
+                {helper.intro_video_url && (
+                  <video
+                    src={helper.intro_video_url}
+                    controls
+                    className="w-full rounded-xl max-h-48 bg-black"
+                  />
+                )}
+                <label className="flex items-center justify-center gap-2 w-full h-12 rounded-xl border-2 border-dashed border-primary/30 text-primary text-sm font-medium cursor-pointer hover:bg-primary/5 transition-colors">
+                  <Video size={16} />
+                  {videoUploading ? "Uploading..." : helper.intro_video_url ? "Replace Video" : "Upload Video"}
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/*"
+                    className="hidden"
+                    onChange={handleVideoChange}
+                    disabled={videoUploading}
+                  />
+                </label>
+                <p className="text-[10px] text-muted-foreground">Max 50MB. Video will be reviewed for compliance.</p>
+              </div>
             <>
               {helper.bio && (
                 <div>
