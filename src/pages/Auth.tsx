@@ -398,124 +398,126 @@ const Auth = () => {
 
   // ──────────── MAIN RENDER ────────────
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background flex flex-col">
-      <div className="pt-10 pb-3 px-6 text-center">
+    <div className="h-[100dvh] bg-gradient-to-b from-primary/5 via-background to-background flex flex-col overflow-hidden">
+      <div className="pt-4 pb-1 px-6 text-center shrink-0">
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.4, ease: "easeOut" }} className="flex justify-center mb-1">
-          <div className="w-48 h-48 overflow-hidden rounded-3xl bg-white shadow-soft">
+          <div className="w-20 h-20 overflow-hidden rounded-2xl bg-white shadow-soft">
             <img src={logo} alt="Domestic Hub" className="w-full h-full object-contain" />
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Domestic Hub</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Connecting homes with trusted hands</p>
+          <h1 className="text-lg font-bold text-foreground tracking-tight">Domestic Hub</h1>
+          <p className="text-xs text-muted-foreground">Connecting homes with trusted hands</p>
         </motion.div>
       </div>
 
-      <div className="flex-1 px-5">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="bg-card rounded-3xl shadow-card border border-border/40 p-6 max-w-sm mx-auto">
+      <div className="flex-1 px-5 min-h-0 overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="bg-card rounded-2xl shadow-card border border-border/40 p-4 max-w-sm mx-auto h-full flex flex-col">
           {/* Tab toggle */}
-          <div className="flex bg-muted/60 rounded-2xl p-1 mb-6">
+          <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
             <button
               onClick={() => { setMode("login"); setSignupStep("role"); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Log In
             </button>
             <button
               onClick={() => setMode("signup")}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Sign Up
             </button>
           </div>
 
-          <AnimatePresence mode="wait">
-            {mode === "login" && (
-              <motion.div key="login" {...fadeSlide}>
-                {/* OAuth for login (no role needed) */}
-                <div className="space-y-2.5 mb-5">
-                  <Button variant="outline" className="w-full rounded-xl h-12 border-border/80 hover:border-primary/40 hover:bg-primary/5 transition-all font-medium" onClick={() => {
-                    lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-                  }}>
-                    <svg className="w-5 h-5 mr-2.5" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                    </svg>
-                    Continue with Google
-                  </Button>
-                  <Button variant="outline" className="w-full rounded-xl h-12 border-border/80 hover:border-primary/40 hover:bg-primary/5 transition-all font-medium" onClick={() => {
-                    lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
-                  }}>
-                    <svg className="w-5 h-5 mr-2.5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                    </svg>
-                    Continue with Apple
-                  </Button>
-                </div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex-1 h-px bg-border/60" />
-                  <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">or</span>
-                  <div className="flex-1 h-px bg-border/60" />
-                </div>
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Phone or Email</Label>
-                    <div className="relative">
-                      <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <Input type="text" placeholder="Phone or email address" value={loginIdentifier} onChange={(e) => setLoginIdentifier(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              {mode === "login" && (
+                <motion.div key="login" {...fadeSlide}>
+                  {/* OAuth for login */}
+                  <div className="space-y-2 mb-4">
+                    <Button variant="outline" className="w-full rounded-xl h-11 border-border/80 hover:border-primary/40 hover:bg-primary/5 transition-all font-medium text-sm" onClick={() => {
+                      lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+                    }}>
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                      </svg>
+                      Continue with Google
+                    </Button>
+                    <Button variant="outline" className="w-full rounded-xl h-11 border-border/80 hover:border-primary/40 hover:bg-primary/5 transition-all font-medium text-sm" onClick={() => {
+                      lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
+                    }}>
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                      </svg>
+                      Continue with Apple
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-border/60" />
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">or</span>
+                    <div className="flex-1 h-px bg-border/60" />
+                  </div>
+                  <form onSubmit={handleLogin} className="space-y-3">
+                    <div>
+                      <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Phone or Email</Label>
+                      <div className="relative">
+                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <Input type="text" placeholder="Phone or email address" value={loginIdentifier} onChange={(e) => setLoginIdentifier(e.target.value)} className="pl-9 rounded-xl h-10 text-sm border-border/80 focus-visible:ring-primary/30" required />
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Password</Label>
-                    <div className="relative">
-                      <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <PasswordInput placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+                    <div>
+                      <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Password</Label>
+                      <div className="relative">
+                        <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <PasswordInput placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="pl-9 rounded-xl h-10 text-sm border-border/80 focus-visible:ring-primary/30" required />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const identifier = loginIdentifier.trim();
-                        if (!identifier) { toast({ title: "Enter your phone number or email first", variant: "destructive" }); return; }
-                        let email = identifier;
-                        if (!identifier.includes("@")) {
-                          const p = identifier.replace(/\D/g, "");
-                          const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", { p_phone: p });
-                          if (lookupError || !foundEmail) { toast({ title: "Phone number not found", variant: "destructive" }); return; }
-                          email = foundEmail as string;
-                        }
-                        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
-                        if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-                        else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
-                      }}
-                      className="text-xs text-primary font-semibold hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <Button type="submit" className="w-full h-12 rounded-xl font-semibold shadow-sm" disabled={isSubmitting}>
-                    {isSubmitting ? "Logging in..." : <>Log In <ArrowRight size={16} className="ml-1" /></>}
-                  </Button>
-                </form>
-              </motion.div>
-            )}
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const identifier = loginIdentifier.trim();
+                          if (!identifier) { toast({ title: "Enter your phone number or email first", variant: "destructive" }); return; }
+                          let email = identifier;
+                          if (!identifier.includes("@")) {
+                            const p = identifier.replace(/\D/g, "");
+                            const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", { p_phone: p });
+                            if (lookupError || !foundEmail) { toast({ title: "Phone number not found", variant: "destructive" }); return; }
+                            email = foundEmail as string;
+                          }
+                          const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+                          else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
+                        }}
+                        className="text-xs text-primary font-semibold hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-sm" disabled={isSubmitting}>
+                      {isSubmitting ? "Logging in..." : <>Log In <ArrowRight size={16} className="ml-1" /></>}
+                    </Button>
+                  </form>
+                </motion.div>
+              )}
 
-            {mode === "signup" && (
-              <div key="signup">
-                {signupStep === "role" && renderRoleSelection()}
-                {signupStep === "details" && renderDetailsStep()}
-                {signupStep === "verify-phone" && renderPhoneVerification()}
-              </div>
-            )}
-          </AnimatePresence>
+              {mode === "signup" && (
+                <div key="signup">
+                  {signupStep === "role" && renderRoleSelection()}
+                  {signupStep === "details" && renderDetailsStep()}
+                  {signupStep === "verify-phone" && renderPhoneVerification()}
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       </div>
 
-      <div className="px-5 py-6 text-center">
-        <p className="text-[11px] text-muted-foreground">
+      <div className="px-5 py-2 text-center shrink-0">
+        <p className="text-[10px] text-muted-foreground">
           By continuing, you agree to our{" "}
           <span className="text-primary font-medium cursor-pointer hover:underline">Terms of Service</span>
         </p>
