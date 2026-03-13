@@ -38,6 +38,7 @@ const Auth = () => {
   // Signup
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [fullName, setFullName] = useState("");
+  const [surname, setSurname] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
