@@ -311,11 +311,15 @@ const Auth = () => {
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !signupEmail || !phone || !signupPassword) {
-            toast({ title: "Please fill all fields", variant: "destructive" });
+          if (!fullName || !phone || !signupPassword) {
+            toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
           }
-          if (!signupEmail.includes("@")) {
+          if (selectedRole === "employer" && (!signupEmail || !signupEmail.includes("@"))) {
+            toast({ title: "Please enter a valid email address", variant: "destructive" });
+            return;
+          }
+          if (signupEmail && !signupEmail.includes("@")) {
             toast({ title: "Please enter a valid email", variant: "destructive" });
             return;
           }
