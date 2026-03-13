@@ -243,8 +243,8 @@ const HelperRegistration = () => {
       // Create helper profile
       const { error: profileError } = await supabase.from('helpers').insert({
         user_id: userId,
-        full_name: formData.fullName,
-        email: formData.email,
+        full_name: `${formData.fullName} ${formData.surname}`.trim(),
+        email: formData.email || `${formData.phone.replace(/\D/g, "")}@helper.domestichub.app`,
         phone: formData.phone,
         category: formData.category.join(", "),
         experience_years: formData.experience ? parseInt(formData.experience) : 0,
