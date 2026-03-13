@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, User, ArrowRight, ArrowLeft, Shield, Lock, Mail } from "lucide-react";
 import { PasswordInput } from "@/components/PasswordInput";
+import CountryCodeSelect from "@/components/CountryCodeSelect";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
