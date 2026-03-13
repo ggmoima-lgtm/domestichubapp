@@ -392,7 +392,7 @@ const HelperRegistration = () => {
             </div>
           </div>
           <div>
-            <Label>Nationality</Label>
+            <Label>Nationality *</Label>
             <Select value={formData.nationality} onValueChange={(v) => handleInputChange("nationality", v)}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Select nationality" /></SelectTrigger>
               <SelectContent>
