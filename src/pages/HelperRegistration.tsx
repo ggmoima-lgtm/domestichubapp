@@ -469,7 +469,7 @@ const HelperRegistration = () => {
               </div>
             </div>
             <div>
-              <Label htmlFor="experience">Years of Experience</Label>
+              <Label htmlFor="experience">Years of Experience *</Label>
               <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
             </div>
             <div>
