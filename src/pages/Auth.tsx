@@ -516,8 +516,8 @@ const Auth = () => {
                   <form onSubmit={handleLogin} className="space-y-3">
                     <div>
                       <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Phone or Email</Label>
-                      <div className="relative flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border/80 bg-muted text-muted-foreground text-sm">+27</span>
+                      <div className="flex">
+                        <CountryCodeSelect value={loginCountryCode} onChange={setLoginCountryCode} />
                         <Input type="text" placeholder="Phone or email" value={loginIdentifier} onChange={(e) => setLoginIdentifier(e.target.value)} className="rounded-l-none rounded-r-xl h-10 text-sm border-border/80 focus-visible:ring-primary/30" required />
                       </div>
                     </div>
