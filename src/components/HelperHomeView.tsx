@@ -230,9 +230,12 @@ const HelperHomeView = () => {
                 size="sm"
                 variant="outline"
                 className="w-full mt-3 rounded-xl"
-                onClick={() => toast.error("Please complete your helper profile first.")}
+                onClick={() => {
+                  toast.error("Complete your profile first to apply for jobs.");
+                  navigate("/register/helper");
+                }}
               >
-                Apply Now
+                Complete Profile to Apply
               </Button>
             )}
           </div>
