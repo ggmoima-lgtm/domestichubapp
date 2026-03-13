@@ -215,17 +215,51 @@ const HelperProfile = () => {
 
   if (!helper) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <Briefcase size={28} className="text-primary" />
+      <div className="pb-28 space-y-4">
+        {/* Incomplete Profile Alert */}
+        <div className="bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700 rounded-2xl p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+              <Shield size={24} className="text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-base font-bold text-foreground">Profile Incomplete</h2>
+                <Badge variant="destructive" className="text-[10px] px-2 py-0.5 gap-1">
+                  <X size={10} /> Incomplete
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Complete your helper profile to start applying for jobs and getting matched with employers.
+              </p>
+            </div>
+          </div>
+          <Button onClick={() => navigate("/register/helper")} className="w-full rounded-xl h-12 font-semibold gap-2">
+            Complete Profile Now <ChevronRight size={16} />
+          </Button>
         </div>
-        <h2 className="text-lg font-bold text-foreground">No Helper Profile Yet</h2>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          Create your helper profile to start finding work opportunities.
-        </p>
-        <Button onClick={() => navigate("/register/helper")} className="rounded-xl h-12 px-6 font-semibold">
-          Register as a Helper
-        </Button>
+
+        {/* What you're missing */}
+        <Card>
+          <CardContent className="p-5 space-y-3">
+            <h3 className="font-bold text-sm text-foreground">What you need to complete:</h3>
+            <div className="space-y-2">
+              {[
+                { icon: <Briefcase size={14} />, label: "Skills & experience" },
+                { icon: <Camera size={14} />, label: "Profile photo" },
+                { icon: <Video size={14} />, label: "Intro video" },
+                { icon: <Globe size={14} />, label: "Languages & availability" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
