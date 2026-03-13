@@ -275,14 +275,14 @@ const Auth = () => {
         <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">
           Phone Number <span className="text-destructive">*</span>
         </Label>
-        <div className="relative">
-          <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex">
+          <CountryCodeSelect value={signupCountryCode} onChange={setSignupCountryCode} />
           <Input
             type="tel"
-            placeholder="+27 XX XXX XXXX"
+            placeholder="XX XXX XXXX"
             value={phone}
             onChange={(e) => { setPhone(e.target.value); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }}
-            className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30"
+            className="rounded-l-none rounded-r-xl h-12 border-border/80 focus-visible:ring-primary/30"
             required
           />
         </div>
