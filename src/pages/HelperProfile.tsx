@@ -72,6 +72,7 @@ const HelperProfile = () => {
   const [activeSection, setActiveSection] = useState("profile");
   const [showChangePhone, setShowChangePhone] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
     if (user) fetchHelperData();
@@ -131,6 +132,49 @@ const HelperProfile = () => {
     await supabase.from("helpers").update({ availability_status: newStatus }).eq("id", helper.id);
     setHelper({ ...helper, availability_status: newStatus });
     toast.success(`Status: ${newStatus === "available" ? "Available" : "Not Available"}`);
+  };
+
+  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !helper || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Video must be under 50MB");
+      return;
+    }
+
+    setVideoUploading(true);
+    try {
+      const filePath = `${user.id}/${Date.now()}.mp4`;
+      const { error: uploadError } = await supabase.storage
+        .from("helper-videos")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("helper-videos")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("helpers")
+        .update({ intro_video_url: urlData.publicUrl, video_moderation_status: "pending" })
+        .eq("id", helper.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Video updated! It will be reviewed shortly.");
+      fetchHelperData();
+
+      // Trigger video moderation
+      supabase.functions.invoke("moderate-video", {
+        body: { helper_id: helper.id, video_url: urlData.publicUrl },
+      }).catch(console.error);
+    } catch (err: any) {
+      toast.error("Failed to upload video: " + (err.message || "Unknown error"));
+    } finally {
+      setVideoUploading(false);
+    }
   };
 
   const avgRating = reviews.length > 0
@@ -352,6 +396,29 @@ const HelperProfile = () => {
               <div className="flex items-center justify-between">
                 <Label>Has Work Permit</Label>
                 <Switch checked={editData.has_work_permit || false} onCheckedChange={(v) => setEditData({ ...editData, has_work_permit: v })} />
+              </div>
+              {/* Video Upload */}
+              <div className="space-y-2">
+                <Label>Intro Video</Label>
+                {helper.intro_video_url && (
+                  <video
+                    src={helper.intro_video_url}
+                    controls
+                    className="w-full rounded-xl max-h-48 bg-black"
+                  />
+                )}
+                <label className="flex items-center justify-center gap-2 w-full h-12 rounded-xl border-2 border-dashed border-primary/30 text-primary text-sm font-medium cursor-pointer hover:bg-primary/5 transition-colors">
+                  <Video size={16} />
+                  {videoUploading ? "Uploading..." : helper.intro_video_url ? "Replace Video" : "Upload Video"}
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/*"
+                    className="hidden"
+                    onChange={handleVideoChange}
+                    disabled={videoUploading}
+                  />
+                </label>
+                <p className="text-[10px] text-muted-foreground">Max 50MB. Video will be reviewed for compliance.</p>
               </div>
             </>
           ) : (
