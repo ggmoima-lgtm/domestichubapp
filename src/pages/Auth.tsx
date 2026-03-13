@@ -324,7 +324,7 @@ const Auth = () => {
         className="w-full h-12 rounded-xl font-semibold"
         disabled={isSubmitting}
         onClick={async () => {
-          if (!fullName || !phone || !signupPassword) {
+          if (!fullName || !surname || !phone || !signupPassword) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
           }
