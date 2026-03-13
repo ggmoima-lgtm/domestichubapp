@@ -134,6 +134,49 @@ const HelperProfile = () => {
     toast.success(`Status: ${newStatus === "available" ? "Available" : "Not Available"}`);
   };
 
+  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !helper || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Video must be under 50MB");
+      return;
+    }
+
+    setVideoUploading(true);
+    try {
+      const filePath = `${user.id}/${Date.now()}.mp4`;
+      const { error: uploadError } = await supabase.storage
+        .from("helper-videos")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("helper-videos")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("helpers")
+        .update({ intro_video_url: urlData.publicUrl, video_moderation_status: "pending" })
+        .eq("id", helper.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Video updated! It will be reviewed shortly.");
+      fetchHelperData();
+
+      // Trigger video moderation
+      supabase.functions.invoke("moderate-video", {
+        body: { helper_id: helper.id, video_url: urlData.publicUrl },
+      }).catch(console.error);
+    } catch (err: any) {
+      toast.error("Failed to upload video: " + (err.message || "Unknown error"));
+    } finally {
+      setVideoUploading(false);
+    }
+  };
+
   const avgRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "0.0";
