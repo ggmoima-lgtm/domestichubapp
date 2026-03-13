@@ -420,6 +420,8 @@ const HelperProfile = () => {
                 </label>
                 <p className="text-[10px] text-muted-foreground">Max 50MB. Video will be reviewed for compliance.</p>
               </div>
+            </>
+          ) : (
             <>
               {helper.bio && (
                 <div>
