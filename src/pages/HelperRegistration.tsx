@@ -497,7 +497,7 @@ const HelperRegistration = () => {
         {/* Languages */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Globe size={18} className="text-primary" /> Languages
+            <Globe size={18} className="text-primary" /> Languages *
           </h2>
           <div className="flex flex-wrap gap-2">
             {languageOptions.map((language) => (
