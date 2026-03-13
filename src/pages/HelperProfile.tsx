@@ -612,10 +612,6 @@ const HelperProfile = () => {
             <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Terms & Conditions</span>
             <ChevronRight size={16} className="text-muted-foreground" />
           </button>
-          <button onClick={() => navigate("/refund-policy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
-            <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Refund Policy</span>
-            <ChevronRight size={16} className="text-muted-foreground" />
-          </button>
           <button onClick={() => navigate("/popia")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
             <span className="flex items-center gap-3 text-sm"><Shield size={16} className="text-muted-foreground" /> POPIA Compliance</span>
             <ChevronRight size={16} className="text-muted-foreground" />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, BellOff } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";

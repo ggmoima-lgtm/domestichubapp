@@ -357,15 +357,6 @@ const Onboarding = () => {
         </div>
       </div>
 
-      <PushNotificationDialog
-        open={showPushDialog}
-        onOpenChange={(open) => {
-          setShowPushDialog(open);
-          if (!open && pendingNavigation) {
-            navigate(pendingNavigation, { replace: true });
-          }
-        }}
-      />
     </div>
   );
 };
