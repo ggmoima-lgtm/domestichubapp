@@ -7,9 +7,8 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
 } from "./ui/alert-dialog";
+import { Button } from "./ui/button";
 import { toast } from "sonner";
 
 interface PushNotificationDialogProps {
@@ -55,16 +54,20 @@ const PushNotificationDialog = ({ open, onOpenChange }: PushNotificationDialogPr
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-          <AlertDialogAction
+          <Button
             onClick={handleEnable}
             disabled={requesting}
             className="w-full rounded-xl h-12"
           >
             {requesting ? "Enabling..." : "Enable Notifications"}
-          </AlertDialogAction>
-          <AlertDialogCancel className="w-full rounded-xl h-12 mt-0">
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full rounded-xl h-12 mt-0"
+          >
             Not Now
-          </AlertDialogCancel>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
