@@ -212,9 +212,6 @@ const Auth = () => {
         onClick={() => { setSelectedRole("employer"); setSignupStep("details"); }}
         className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
       >
-        <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-          <span className="text-2xl">💼</span>
-        </div>
         <div className="flex-1">
           <p className="font-bold text-foreground">Employer</p>
           <p className="text-xs text-muted-foreground">Looking for help</p>
@@ -226,9 +223,6 @@ const Auth = () => {
         onClick={() => { setSelectedRole("helper"); setSignupStep("details"); }}
         className="w-full group relative p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-soft transition-all text-left flex items-center gap-4"
       >
-        <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center">
-          <span className="text-2xl">✨</span>
-        </div>
         <div className="flex-1">
           <p className="font-bold text-foreground">Helper</p>
           <p className="text-xs text-muted-foreground">Looking for work</p>
