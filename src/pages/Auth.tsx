@@ -159,7 +159,7 @@ const Auth = () => {
         password: signupPassword,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: fullName, phone, role: selectedRole },
+          data: { full_name: fullName, surname, phone, role: selectedRole },
         },
       });
       if (error) throw error;
@@ -168,11 +168,12 @@ const Auth = () => {
         await supabase.from("profiles").insert({
           user_id: data.user.id,
           full_name: fullName,
+          surname,
           phone,
           email: signupEmail.trim() || null,
           role: selectedRole!,
           onboarding_completed: false,
-        });
+        } as any);
         if (termsAccepted) {
           await supabase.from("terms_acceptances").insert({
             user_id: data.user.id,
