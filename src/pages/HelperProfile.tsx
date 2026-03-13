@@ -259,6 +259,41 @@ const HelperProfile = () => {
               ))}
             </div>
           </CardContent>
+      </Card>
+
+        {/* Account Controls for incomplete profile */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Account</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1 p-2">
+            <button onClick={() => navigate("/privacy")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+              <span className="flex items-center gap-3 text-sm"><Lock size={16} className="text-muted-foreground" /> Privacy Policy</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button onClick={() => navigate("/terms")} className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors">
+              <span className="flex items-center gap-3 text-sm"><FileText size={16} className="text-muted-foreground" /> Terms & Conditions</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <Separator className="my-2" />
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors text-sm text-destructive"
+            >
+              <LogOut size={16} /> Log Out
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+                await signOut();
+                toast.success("Account deletion requested. We're sorry to see you go.");
+                navigate("/auth");
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
+            >
+              <Trash2 size={16} /> Delete Account
+            </button>
+          </CardContent>
         </Card>
       </div>
     );
