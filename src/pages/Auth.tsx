@@ -312,7 +312,8 @@ const Auth = () => {
       <Button
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
-        onClick={() => {
+        disabled={isSubmitting}
+        onClick={async () => {
           if (!fullName || !phone || !signupPassword) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
@@ -337,7 +338,35 @@ const Auth = () => {
             toast({ title: "Please accept the Terms & Conditions", variant: "destructive" });
             return;
           }
-          setSignupStep("verify-phone");
+
+          // Check if phone or email already exists
+          setIsSubmitting(true);
+          try {
+            const phoneDigits = phone.replace(/\D/g, "");
+            const { data: existingEmail } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
+            if (existingEmail) {
+              toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
+              setIsSubmitting(false);
+              return;
+            }
+
+            if (signupEmail) {
+              const authEmail = signupEmail.trim();
+              const { data: emailCheck } = await supabase.from("profiles").select("id").eq("email", authEmail).maybeSingle();
+              if (emailCheck) {
+                toast({ title: "Account already exists", description: "This email address is already registered. Please log in instead.", variant: "destructive" });
+                setIsSubmitting(false);
+                return;
+              }
+            }
+
+            setSignupStep("verify-phone");
+          } catch (err) {
+            // Allow proceeding if check fails
+            setSignupStep("verify-phone");
+          } finally {
+            setIsSubmitting(false);
+          }
         }}
       >
         Continue <ArrowRight size={16} className="ml-1" />
