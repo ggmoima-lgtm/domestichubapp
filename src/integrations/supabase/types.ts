@@ -813,6 +813,7 @@ export type Database = {
           onboarding_completed: boolean
           phone: string
           role: string
+          surname: string | null
           updated_at: string
           user_id: string
         }
@@ -826,6 +827,7 @@ export type Database = {
           onboarding_completed?: boolean
           phone: string
           role: string
+          surname?: string | null
           updated_at?: string
           user_id: string
         }
@@ -839,6 +841,7 @@ export type Database = {
           onboarding_completed?: boolean
           phone?: string
           role?: string
+          surname?: string | null
           updated_at?: string
           user_id?: string
         }
