@@ -335,91 +335,39 @@ const HelperRegistration = () => {
           </h2>
           <div className="space-y-3">
             <div>
-              <Label htmlFor="fullName">Full Name *</Label>
-              <Input id="fullName" placeholder="Enter your full name" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} className="mt-1" />
+              <Label htmlFor="fullName">First Name *</Label>
+              <Input id="fullName" placeholder="Enter your first name" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} className="mt-1" />
             </div>
             <div>
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative mt-1">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" value={formData.email} disabled className="pl-9 bg-muted/50" />
+              <Label htmlFor="surname">Surname *</Label>
+              <Input id="surname" placeholder="Enter your surname" value={formData.surname} onChange={(e) => handleInputChange("surname", e.target.value)} className="mt-1" />
+            </div>
+            {!isPlaceholderEmail && (
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative mt-1">
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="email" type="email" value={formData.email} disabled className="pl-9 bg-muted/50" />
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1">From your signup account</p>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">From your signup account</p>
-            </div>
+            )}
 
-            {/* Phone Number with OTP Verification */}
+            {/* Phone Number — already verified at signup */}
             <div>
-              <Label htmlFor="phone">Phone Number * {phoneVerified && <span className="text-green-600 font-normal text-xs ml-1">✓ Verified</span>}</Label>
+              <Label htmlFor="phone">Phone Number * <span className="text-green-600 font-normal text-xs ml-1">✓ Verified</span></Label>
               <div className="relative mt-1">
                 <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+27 81 234 5678"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="pl-9"
-                  disabled={phoneVerified}
+                  className="pl-9 bg-muted/50"
+                  disabled
                 />
               </div>
+              <p className="text-[11px] text-muted-foreground mt-1">Verified during signup</p>
             </div>
-
-            {/* OTP Verification Flow */}
-            {!phoneVerified && formData.phone.length >= 10 && (
-              <div className="space-y-3 bg-muted/40 rounded-xl p-4">
-                <div className="flex items-start gap-2">
-                  <ShieldCheck size={14} className="text-primary shrink-0 mt-0.5" />
-                  <p className="text-xs text-muted-foreground">
-                    We'll send a verification code via SMS to confirm your phone number.
-                  </p>
-                </div>
-
-                {!otpSent ? (
-                  <Button type="button" variant="outline" className="w-full h-10 rounded-xl text-sm" onClick={handleSendOtp} disabled={isSendingOtp}>
-                    {isSendingOtp ? (
-                      <><Loader2 size={14} className="animate-spin mr-2" /> Sending...</>
-                    ) : (
-                      "Send Verification Code"
-                    )}
-                  </Button>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground text-center">
-                      Enter the 6-digit code sent to <span className="font-semibold text-foreground">{formData.phone}</span>
-                    </p>
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      placeholder="000000"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      className="rounded-xl h-12 text-center text-xl tracking-[0.4em] font-bold"
-                    />
-                    <Button
-                      type="button"
-                      className="w-full h-10 rounded-xl text-sm"
-                      onClick={handleVerifyOtp}
-                      disabled={isVerifyingOtp || otpCode.length !== 6}
-                    >
-                      {isVerifyingOtp ? (
-                        <><Loader2 size={14} className="animate-spin mr-2" /> Verifying...</>
-                      ) : (
-                        "Verify Phone"
-                      )}
-                    </Button>
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={isSendingOtp}
-                      className="text-xs text-primary font-semibold hover:underline disabled:opacity-50 w-full text-center"
-                    >
-                      {isSendingOtp ? "Sending..." : "Resend code"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </section>
 
