@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPin, Home, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
-import PushNotificationDialog from "@/components/PushNotificationDialog";
+
 const needTypes = [
   { id: "full-time", label: "Full-time", desc: "Monday to Friday, all day" },
   { id: "part-time", label: "Part-time", desc: "A few hours or days per week" },
