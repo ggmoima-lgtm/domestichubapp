@@ -47,8 +47,6 @@ interface NotificationPreferencesProps {
 const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => {
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
-  const [pushEnabled, setPushEnabled] = useState(false);
-
   useEffect(() => {
     if (user) {
       supabase
@@ -69,11 +67,6 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
             });
           }
         });
-
-      // Check push permission
-      if ("Notification" in window) {
-        setPushEnabled(Notification.permission === "granted");
-      }
     }
   }, [user]);
 
