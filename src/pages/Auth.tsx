@@ -168,7 +168,7 @@ const Auth = () => {
           user_id: data.user.id,
           full_name: fullName,
           phone,
-          email: signupEmail.trim(),
+          email: signupEmail.trim() || null,
           role: selectedRole!,
           onboarding_completed: false,
         });
