@@ -85,20 +85,6 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
     }
   };
 
-  const enablePush = async () => {
-    if (!("Notification" in window)) {
-      toast.error("Push notifications not supported on this device");
-      return;
-    }
-    const permission = await Notification.requestPermission();
-    setPushEnabled(permission === "granted");
-    if (permission === "granted") {
-      toast.success("Push notifications enabled!");
-    } else {
-      toast.error("Push notification permission denied");
-    }
-  };
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -107,24 +93,6 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Push toggle */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-          <div className="flex items-center gap-2">
-            {pushEnabled ? <Bell size={16} className="text-primary" /> : <BellOff size={16} className="text-muted-foreground" />}
-            <div>
-              <p className="text-sm font-semibold text-foreground">Push Notifications</p>
-              <p className="text-[10px] text-muted-foreground">
-                {pushEnabled ? "Enabled" : "Tap to enable"}
-              </p>
-            </div>
-          </div>
-          {!pushEnabled ? (
-            <Button size="sm" variant="outline" onClick={enablePush}>Enable</Button>
-          ) : (
-            <span className="text-xs text-primary font-semibold">Active</span>
-          )}
-        </div>
-
         {/* Per-category toggles */}
         {(Object.keys(labels) as (keyof Prefs)[])
           .filter((key) => !(userRole === "helper" && helperHiddenKeys.includes(key)))
