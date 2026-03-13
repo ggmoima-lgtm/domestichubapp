@@ -13,6 +13,9 @@ import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 type SignupStep = "role" | "details" | "verify-phone";
 type UserRole = "employer" | "helper";
