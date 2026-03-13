@@ -152,8 +152,7 @@ const Onboarding = () => {
         .update({ onboarding_completed: true })
         .eq("user_id", user!.id);
       if (error) throw error;
-      setPendingNavigation("/register/helper");
-      setShowPushDialog(true);
+      navigate("/register/helper", { replace: true });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
