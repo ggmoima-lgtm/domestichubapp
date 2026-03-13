@@ -240,10 +240,18 @@ const Auth = () => {
       </div>
 
       <div>
-        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Full Name</Label>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">First Name <span className="text-destructive">*</span></Label>
         <div className="relative">
           <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+          <Input placeholder="Your first name" value={fullName} onChange={(e) => setFullName(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Surname <span className="text-destructive">*</span></Label>
+        <div className="relative">
+          <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Your surname" value={surname} onChange={(e) => setSurname(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
         </div>
       </div>
 
