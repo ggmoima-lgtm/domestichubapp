@@ -134,12 +134,7 @@ const HelperRegistration = () => {
     return () => clearInterval(timer);
   }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
 
-  // Reset verification if phone changes
-  useEffect(() => {
-    setPhoneVerified(false);
-    setOtpSent(false);
-    setOtpCode("");
-  }, [formData.phone]);
+  // No longer needed — phone verified at signup
 
   const saveDraft = useCallback(() => {
     try {
