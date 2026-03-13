@@ -183,53 +183,7 @@ const HelperRegistration = () => {
     }
   };
 
-  const handleSendOtp = async () => {
-    if (!formData.phone || formData.phone.length < 10) {
-      toast.error("Please enter a valid phone number first");
-      return;
-    }
-    if (!user) return;
-
-    setIsSendingOtp(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("send-sms-otp", {
-        body: { phone: formData.phone, purpose: "helper_registration" },
-      });
-      if (error) throw new Error(error.message || "Failed to send OTP");
-      if (data?.error) throw new Error(data.error);
-
-      setOtpSent(true);
-      toast.success("Verification code sent to " + formData.phone);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send verification code");
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!otpCode || otpCode.length !== 6) {
-      toast.error("Please enter the 6-digit code");
-      return;
-    }
-    if (!user) return;
-
-    setIsVerifyingOtp(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
-        body: { phone: formData.phone, code: otpCode, purpose: "helper_registration" },
-      });
-      if (error) throw new Error(error.message || "Verification failed");
-      if (data?.error) throw new Error(data.error);
-
-      setPhoneVerified(true);
-      toast.success("Phone number verified!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to verify code");
-    } finally {
-      setIsVerifyingOtp(false);
-    }
-  };
+  // Phone OTP removed — already verified at signup
 
   const uploadFile = async (userId: string, file: File, bucket: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
