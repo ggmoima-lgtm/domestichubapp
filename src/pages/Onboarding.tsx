@@ -26,8 +26,6 @@ const Onboarding = () => {
   const [needsProfileCreation, setNeedsProfileCreation] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPushDialog, setShowPushDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   // Employer fields
   const [locationData, setLocationData] = useState<LocationData | null>(null);
