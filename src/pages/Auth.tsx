@@ -151,8 +151,10 @@ const Auth = () => {
   const handleSignupComplete = async () => {
     setIsSubmitting(true);
     try {
+      // For helpers without email, generate a placeholder for auth
+      const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}@helper.domestichub.app`;
       const { data, error } = await supabase.auth.signUp({
-        email: signupEmail.trim(),
+        email: authEmail,
         password: signupPassword,
         options: {
           emailRedirectTo: window.location.origin,
@@ -166,7 +168,7 @@ const Auth = () => {
           user_id: data.user.id,
           full_name: fullName,
           phone,
-          email: signupEmail.trim(),
+          email: signupEmail.trim() || null,
           role: selectedRole!,
           onboarding_completed: false,
         });
@@ -244,11 +246,16 @@ const Auth = () => {
       </div>
 
       <div>
-        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</Label>
+        <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">
+          Email Address {selectedRole === "employer" && <span className="text-destructive">*</span>}
+        </Label>
         <div className="relative">
           <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input type="email" placeholder="you@example.com" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required />
+          <Input type="email" placeholder={selectedRole === "helper" ? "you@example.com (optional)" : "you@example.com"} value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="pl-10 rounded-xl h-12 border-border/80 focus-visible:ring-primary/30" required={selectedRole === "employer"} />
         </div>
+        {selectedRole === "employer" && (
+          <p className="text-[10px] text-muted-foreground mt-1">Required for invoices and notifications</p>
+        )}
       </div>
 
       <div>
@@ -306,11 +313,15 @@ const Auth = () => {
         type="button"
         className="w-full h-12 rounded-xl font-semibold"
         onClick={() => {
-          if (!fullName || !signupEmail || !phone || !signupPassword) {
-            toast({ title: "Please fill all fields", variant: "destructive" });
+          if (!fullName || !phone || !signupPassword) {
+            toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
           }
-          if (!signupEmail.includes("@")) {
+          if (selectedRole === "employer" && (!signupEmail || !signupEmail.includes("@"))) {
+            toast({ title: "Please enter a valid email address", variant: "destructive" });
+            return;
+          }
+          if (signupEmail && !signupEmail.includes("@")) {
             toast({ title: "Please enter a valid email", variant: "destructive" });
             return;
           }
