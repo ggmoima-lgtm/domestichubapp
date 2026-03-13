@@ -38,7 +38,7 @@ const labels: Record<keyof Prefs, string> = {
 };
 
 // Keys to hide for helpers (credits are employer-only)
-const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks"];
+const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks", "admin_actions"];
 
 interface NotificationPreferencesProps {
   userRole?: string;
