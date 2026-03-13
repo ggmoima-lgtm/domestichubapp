@@ -13,6 +13,9 @@ import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 type SignupStep = "role" | "details" | "verify-phone";
 type UserRole = "employer" | "helper";
@@ -53,6 +56,15 @@ const Auth = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+
+  // Forgot password (phone OTP flow)
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotPhone, setForgotPhone] = useState("");
+  const [forgotOtpSent, setForgotOtpSent] = useState(false);
+  const [forgotOtpCode, setForgotOtpCode] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   if (loading) {
     return (
@@ -551,19 +563,22 @@ const Auth = () => {
                     <div className="flex justify-end">
                       <button
                         type="button"
-                        onClick={async () => {
+                        onClick={() => {
                           const identifier = loginIdentifier.trim();
-                          if (!identifier) { toast({ title: "Enter your phone number or email first", variant: "destructive" }); return; }
-                          let email = identifier;
                           if (!identifier.includes("@")) {
-                            const p = identifier.replace(/\D/g, "");
-                            const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", { p_phone: p });
-                            if (lookupError || !foundEmail) { toast({ title: "Phone number not found", variant: "destructive" }); return; }
-                            email = foundEmail as string;
+                            // Phone-based reset
+                            const phoneVal = identifier.replace(/\D/g, "");
+                            if (phoneVal) setForgotPhone(phoneVal);
+                            setForgotMode(true);
+                          } else {
+                            // Email-based reset (for employers)
+                            (async () => {
+                              if (!identifier) { toast({ title: "Enter your email first", variant: "destructive" }); return; }
+                              const { error } = await supabase.auth.resetPasswordForEmail(identifier, { redirectTo: `${window.location.origin}/reset-password` });
+                              if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+                              else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
+                            })();
                           }
-                          const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
-                          if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-                          else { toast({ title: "Reset link sent!", description: "Check your email for a password reset link." }); }
                         }}
                         className="text-xs text-primary font-semibold hover:underline"
                       >
@@ -595,6 +610,154 @@ const Auth = () => {
           <span className="text-primary font-medium cursor-pointer hover:underline">Terms of Service</span>
         </p>
       </div>
+
+      {/* Phone-based Forgot Password Dialog */}
+      <AlertDialog open={forgotMode} onOpenChange={(open) => {
+        if (!open) {
+          setForgotMode(false);
+          setForgotOtpSent(false);
+          setForgotOtpCode("");
+          setForgotNewPassword("");
+          setForgotConfirmPassword("");
+          setForgotPhone("");
+        }
+      }}>
+        <AlertDialogContent className="max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center">Reset Password</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {!forgotOtpSent
+                ? "We'll send a verification code to your phone number."
+                : "Enter the code and your new password."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-4 mt-2">
+            {!forgotOtpSent ? (
+              <>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Phone Number</Label>
+                  <div className="relative">
+                    <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="e.g. 0812345678"
+                      value={forgotPhone}
+                      onChange={(e) => setForgotPhone(e.target.value)}
+                      className="pl-9 rounded-xl h-10 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setForgotMode(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    className="flex-1 rounded-xl"
+                    disabled={forgotLoading || !forgotPhone}
+                    onClick={async () => {
+                      setForgotLoading(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke("send-sms-otp", {
+                          body: { phone: forgotPhone, purpose: "password_reset" },
+                        });
+                        if (error) throw error;
+                        if (data?.error) throw new Error(data.error);
+                        setForgotOtpSent(true);
+                        toast({ title: "Code sent!", description: "Check your phone for a 6-digit code." });
+                      } catch (err: any) {
+                        toast({ title: "Failed to send code", description: err.message, variant: "destructive" });
+                      } finally {
+                        setForgotLoading(false);
+                      }
+                    }}
+                  >
+                    {forgotLoading ? "Sending..." : "Send Code"}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Verification Code</Label>
+                  <div className="flex justify-center">
+                    <InputOTP maxLength={6} value={forgotOtpCode} onChange={setForgotOtpCode}>
+                      <InputOTPGroup>
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                          <InputOTPSlot key={i} index={i} />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">New Password</Label>
+                  <div className="relative">
+                    <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <PasswordInput
+                      placeholder="Min 6 characters"
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                      className="pl-9 rounded-xl h-10 text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <PasswordInput
+                      placeholder="Confirm password"
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                      className="pl-9 rounded-xl h-10 text-sm"
+                    />
+                  </div>
+                  {forgotConfirmPassword && forgotNewPassword !== forgotConfirmPassword && (
+                    <p className="text-[11px] text-destructive mt-1">Passwords do not match</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => {
+                    setForgotOtpSent(false);
+                    setForgotOtpCode("");
+                    setForgotNewPassword("");
+                    setForgotConfirmPassword("");
+                  }}>
+                    Back
+                  </Button>
+                  <Button
+                    className="flex-1 rounded-xl"
+                    disabled={forgotLoading || forgotOtpCode.length !== 6 || !forgotNewPassword || forgotNewPassword !== forgotConfirmPassword}
+                    onClick={async () => {
+                      setForgotLoading(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke("reset-password-otp", {
+                          body: { phone: forgotPhone, code: forgotOtpCode, new_password: forgotNewPassword },
+                        });
+                        if (error) throw error;
+                        if (data?.error) throw new Error(data.error);
+                        toast({ title: "Password updated!", description: "You can now log in with your new password." });
+                        setForgotMode(false);
+                        setForgotOtpSent(false);
+                        setForgotOtpCode("");
+                        setForgotNewPassword("");
+                        setForgotConfirmPassword("");
+                        setForgotPhone("");
+                      } catch (err: any) {
+                        toast({ title: "Reset failed", description: err.message, variant: "destructive" });
+                      } finally {
+                        setForgotLoading(false);
+                      }
+                    }}
+                  >
+                    {forgotLoading ? "Updating..." : "Reset Password"}
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
