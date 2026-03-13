@@ -378,7 +378,7 @@ const HelperRegistration = () => {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age">Age *</Label>
               <Input id="age" type="number" placeholder="e.g., 28" value={formData.age} onChange={(e) => handleInputChange("age", e.target.value)} className="mt-1" min="18" max="70" />
             </div>
             <div>
