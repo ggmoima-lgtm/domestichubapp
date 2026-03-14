@@ -123,16 +123,15 @@ const ApplicationPreviewSheet = ({
         <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
 
         <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[80vh] overflow-y-auto">
-          <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-10">
+          <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-20">
             <div className="w-10 h-1 bg-muted rounded-full" />
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+            >
+              <X size={18} />
+            </button>
           </div>
-
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-          >
-            <X size={18} />
-          </button>
 
           <ScreenshotGuard watermark="CONFIDENTIAL">
           <div className="px-5 pb-28">
