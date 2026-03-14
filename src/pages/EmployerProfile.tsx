@@ -86,6 +86,8 @@ const EmployerProfile = () => {
   const [hireCount, setHireCount] = useState(0);
   const [showActiveJobs, setShowActiveJobs] = useState(false);
   const [activeJobs, setActiveJobs] = useState<any[]>([]);
+  const [editingJob, setEditingJob] = useState<any>(null);
+  const [showEditJob, setShowEditJob] = useState(false);
   const [showUnlockedProfiles, setShowUnlockedProfiles] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
 
