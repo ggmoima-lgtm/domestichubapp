@@ -23,6 +23,7 @@ import {
   Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
+import EditJobSheet from "@/components/EditJobSheet";
 import CreditWalletCard from "@/components/CreditWalletCard";
 import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
@@ -86,6 +87,8 @@ const EmployerProfile = () => {
   const [hireCount, setHireCount] = useState(0);
   const [showActiveJobs, setShowActiveJobs] = useState(false);
   const [activeJobs, setActiveJobs] = useState<any[]>([]);
+  const [editingJob, setEditingJob] = useState<any>(null);
+  const [showEditJob, setShowEditJob] = useState(false);
   const [showUnlockedProfiles, setShowUnlockedProfiles] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
 
@@ -441,14 +444,43 @@ const EmployerProfile = () => {
               ) : (
                 activeJobs.map((job: any) => (
                   <div key={job.id} className="p-3 rounded-xl bg-muted/50">
-                    <p className="text-sm font-semibold">{job.title}</p>
-                    <p className="text-xs text-muted-foreground">{job.category} · {job.job_type || "Not specified"}</p>
-                    {job.location && <p className="text-xs text-muted-foreground mt-0.5">📍 {job.location}</p>}
-                    {(job.salary_min || job.salary_max) && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        💰 R{job.salary_min || 0} - R{job.salary_max || "Negotiable"}
-                      </p>
-                    )}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">{job.title}</p>
+                        <p className="text-xs text-muted-foreground">{job.category} · {job.job_type || "Not specified"}</p>
+                        {job.location && <p className="text-xs text-muted-foreground mt-0.5">📍 {job.location}</p>}
+                        {(job.salary_min || job.salary_max) && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            💰 R{job.salary_min || 0} - R{job.salary_max || "Negotiable"}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          onClick={() => {
+                            setEditingJob(job);
+                            setShowEditJob(true);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Delete this job post?")) return;
+                            const { error } = await supabase.from("job_posts").delete().eq("id", job.id);
+                            if (error) toast.error("Failed to delete job.");
+                            else {
+                              toast.success("Job deleted.");
+                              fetchData();
+                            }
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))
               )}
@@ -723,6 +755,14 @@ const EmployerProfile = () => {
           </button>
         </CardContent>
       </Card>
+
+      {/* Edit Job Sheet */}
+      <EditJobSheet
+        isOpen={showEditJob}
+        onClose={() => { setShowEditJob(false); setEditingJob(null); }}
+        onUpdated={fetchData}
+        job={editingJob}
+      />
 
       {/* Create Job Sheet */}
       <CreateJobSheet

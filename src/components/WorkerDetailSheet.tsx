@@ -791,9 +791,9 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 </Button>
               </div>
 
-              {/* Disabled message button */}
+              {/* Message button - triggers unlock flow */}
               {!isNotAvailable && (
-                <Button size="lg" className="w-full opacity-50 cursor-not-allowed" disabled>
+                <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   <Lock size={16} />
                   <MessageCircle size={18} />
                   Message — Unlock to chat
