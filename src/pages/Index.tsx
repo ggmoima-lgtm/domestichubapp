@@ -331,7 +331,7 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "home" && userRole !== "helper" && (
+      {activeTab === "home" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4">
           <LowCreditBanner balance={creditBalance} onBuyCredits={() => setActiveTab("profile")} />
           <div className="mb-5">
