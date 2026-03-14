@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins, Users } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, Coins, Users, X } from "lucide-react";
+import CreditWalletCard from "@/components/CreditWalletCard";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import LowCreditBanner from "@/components/LowCreditBanner";
@@ -55,6 +56,7 @@ const Index = () => {
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
+  const [showCreditStore, setShowCreditStore] = useState(false);
 
   // Fetch user role + helper profile status
   useEffect(() => {
@@ -305,7 +307,7 @@ const Index = () => {
             </div>
             {userRole !== "helper" && (
               <button
-                onClick={() => { setActiveTab("profile"); }}
+                onClick={() => setShowCreditStore(true)}
                 className="flex items-center gap-1.5 bg-primary/10 px-4 py-2.5 rounded-full hover:bg-primary/20 active:scale-95 transition-all cursor-pointer relative z-10"
               >
                 <Coins size={14} className="text-primary" />
@@ -333,7 +335,7 @@ const Index = () => {
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4">
-          <LowCreditBanner balance={creditBalance} onBuyCredits={() => setActiveTab("profile")} />
+          <LowCreditBanner balance={creditBalance} onBuyCredits={() => setShowCreditStore(true)} />
           <div className="mb-5">
             <SearchBar
               value={searchQuery}
@@ -462,6 +464,31 @@ const Index = () => {
           handleCloseDetail();
         }}
       />
+
+      {/* Credit Store Sheet */}
+      {showCreditStore && (
+        <div className="fixed inset-0 z-[70]">
+          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setShowCreditStore(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[85vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-10">
+              <div className="w-10 h-1 bg-muted rounded-full" />
+              <button
+                onClick={() => setShowCreditStore(false)}
+                className="absolute top-3 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-5 pb-8">
+              <CreditWalletCard onPurchaseComplete={() => {
+                setShowCreditStore(false);
+                setCreditBalance(prev => prev);
+                setUnlockRefresh(r => r + 1);
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
