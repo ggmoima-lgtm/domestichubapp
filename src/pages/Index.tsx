@@ -464,6 +464,31 @@ const Index = () => {
           handleCloseDetail();
         }}
       />
+
+      {/* Credit Store Sheet */}
+      {showCreditStore && (
+        <div className="fixed inset-0 z-[70]">
+          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setShowCreditStore(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[85vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-10">
+              <div className="w-10 h-1 bg-muted rounded-full" />
+              <button
+                onClick={() => setShowCreditStore(false)}
+                className="absolute top-3 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-5 pb-8">
+              <CreditWalletCard onPurchaseComplete={() => {
+                setShowCreditStore(false);
+                setCreditBalance(prev => prev);
+                setUnlockRefresh(r => r + 1);
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
