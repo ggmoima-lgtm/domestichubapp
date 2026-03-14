@@ -317,6 +317,13 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Show loading state while role is being determined */}
+      {userRole === null && user && (
+        <main className="px-4 py-4 flex items-center justify-center min-h-[200px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </main>
+      )}
+
       {/* Tab Content */}
       {activeTab === "home" && userRole === "helper" && (
         <main className="px-4 py-4">
@@ -324,7 +331,7 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "home" && userRole !== "helper" && (
+      {activeTab === "home" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4">
           <LowCreditBanner balance={creditBalance} onBuyCredits={() => setActiveTab("profile")} />
           <div className="mb-5">
@@ -399,7 +406,7 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "hub" && userRole !== "helper" && (
+      {activeTab === "hub" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4 pb-24">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
