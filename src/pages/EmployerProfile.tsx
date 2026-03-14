@@ -23,6 +23,7 @@ import {
   Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
+import EditJobSheet from "@/components/EditJobSheet";
 import CreditWalletCard from "@/components/CreditWalletCard";
 import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
