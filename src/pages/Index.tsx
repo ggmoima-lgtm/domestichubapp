@@ -406,7 +406,7 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "hub" && userRole !== "helper" && (
+      {activeTab === "hub" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4 pb-24">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
