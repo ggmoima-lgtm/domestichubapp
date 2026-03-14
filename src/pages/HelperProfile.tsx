@@ -128,10 +128,47 @@ const HelperProfile = () => {
 
   const toggleAvailability = async () => {
     if (!helper) return;
+    const wasHired = helper.availability_status === "unavailable";
     const newStatus = helper.availability_status === "available" ? "unavailable" : "available";
     await supabase.from("helpers").update({ availability_status: newStatus }).eq("id", helper.id);
     setHelper({ ...helper, availability_status: newStatus });
     toast.success(`Status: ${newStatus === "available" ? "Available" : "Not Available"}`);
+
+    // If helper was hired (unavailable) and is now marking available, notify employer
+    if (wasHired && newStatus === "available" && helper.id) {
+      const { data: activePlacement } = await supabase
+        .from("placements")
+        .select("employer_id, id")
+        .eq("helper_id", helper.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (activePlacement) {
+        // End the placement
+        await supabase
+          .from("placements")
+          .update({ status: "completed", ended_at: new Date().toISOString() })
+          .eq("id", activePlacement.id);
+
+        // Send in-app message to employer
+        await supabase.from("messages").insert({
+          sender_id: user!.id,
+          receiver_id: activePlacement.employer_id,
+          helper_id: helper.id,
+          content: `⚠️ ${helper.full_name} has changed their status back to Available and is no longer marked as hired.`,
+        });
+
+        // Send push notification
+        supabase.functions.invoke("send-notification", {
+          body: {
+            user_id: activePlacement.employer_id,
+            type: "hire_update",
+            title: "Helper Status Changed",
+            body: `${helper.full_name} has marked themselves as Available again.`,
+          },
+        }).catch(() => {});
+      }
+    }
   };
 
   const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
