@@ -32,8 +32,22 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
   const [isSending, setIsSending] = useState(false);
   const [showHireConfirm, setShowHireConfirm] = useState(false);
   const [isHiring, setIsHiring] = useState(false);
+  const [isCurrentUserHelper, setIsCurrentUserHelper] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Check if current user is the helper
+  useEffect(() => {
+    if (!user || !helperId) return;
+    supabase
+      .from("helpers")
+      .select("user_id")
+      .eq("id", helperId)
+      .single()
+      .then(({ data }) => {
+        if (data?.user_id === user.id) setIsCurrentUserHelper(true);
+      });
+  }, [user, helperId]);
 
   // Load messages
   useEffect(() => {
@@ -280,15 +294,24 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant={isHired ? "destructive" : "outline"}
-              className="gap-1.5 text-xs"
-              onClick={() => isHired ? handleUnhire() : handleMarkAsHired()}
-            >
-              <UserCheck size={14} />
-              {isHired ? "Unhire" : "Mark as Hired"}
-            </Button>
+            {isCurrentUserHelper ? (
+              isHired ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  <UserCheck size={14} />
+                  Hired
+                </span>
+              ) : null
+            ) : (
+              <Button
+                size="sm"
+                variant={isHired ? "destructive" : "outline"}
+                className="gap-1.5 text-xs"
+                onClick={() => isHired ? handleUnhire() : handleMarkAsHired()}
+              >
+                <UserCheck size={14} />
+                {isHired ? "Unhire" : "Mark as Hired"}
+              </Button>
+            )}
             <button onClick={onClose} className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
               <X size={18} />
             </button>
