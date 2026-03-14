@@ -756,6 +756,14 @@ const EmployerProfile = () => {
         </CardContent>
       </Card>
 
+      {/* Edit Job Sheet */}
+      <EditJobSheet
+        isOpen={showEditJob}
+        onClose={() => { setShowEditJob(false); setEditingJob(null); }}
+        onUpdated={fetchData}
+        job={editingJob}
+      />
+
       {/* Create Job Sheet */}
       <CreateJobSheet
         isOpen={showCreateJob}
