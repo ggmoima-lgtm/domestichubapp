@@ -471,7 +471,7 @@ const EmployerProfile = () => {
                             if (error) toast.error("Failed to delete job.");
                             else {
                               toast.success("Job deleted.");
-                              fetchActiveJobs();
+                              fetchData();
                             }
                           }}
                           className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
