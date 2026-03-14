@@ -126,16 +126,40 @@ const HelperProfile = () => {
     }
   };
 
+  const [showAvailConfirm, setShowAvailConfirm] = useState(false);
+
   const toggleAvailability = async () => {
     if (!helper) return;
     const wasHired = helper.availability_status === "unavailable";
     const newStatus = helper.availability_status === "available" ? "unavailable" : "available";
+
+    // If hired and switching to available, show confirmation first
+    if (wasHired && newStatus === "available") {
+      // Check if there's an active placement
+      const { data: activePlacement } = await supabase
+        .from("placements")
+        .select("id")
+        .eq("helper_id", helper.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (activePlacement) {
+        setShowAvailConfirm(true);
+        return;
+      }
+    }
+
+    await executeToggleAvailability(newStatus);
+  };
+
+  const executeToggleAvailability = async (newStatus: string) => {
+    if (!helper) return;
     await supabase.from("helpers").update({ availability_status: newStatus }).eq("id", helper.id);
     setHelper({ ...helper, availability_status: newStatus });
     toast.success(`Status: ${newStatus === "available" ? "Available" : "Not Available"}`);
 
-    // If helper was hired (unavailable) and is now marking available, notify employer
-    if (wasHired && newStatus === "available" && helper.id) {
+    // If switching to available and was hired, notify employer
+    if (newStatus === "available" && helper.id) {
       const { data: activePlacement } = await supabase
         .from("placements")
         .select("employer_id, id")
@@ -144,13 +168,11 @@ const HelperProfile = () => {
         .maybeSingle();
 
       if (activePlacement) {
-        // End the placement
         await supabase
           .from("placements")
           .update({ status: "completed", ended_at: new Date().toISOString() })
           .eq("id", activePlacement.id);
 
-        // Send in-app message to employer
         await supabase.from("messages").insert({
           sender_id: user!.id,
           receiver_id: activePlacement.employer_id,
@@ -158,7 +180,6 @@ const HelperProfile = () => {
           content: `⚠️ ${helper.full_name} has changed their status back to Available and is no longer marked as hired.`,
         });
 
-        // Send push notification
         supabase.functions.invoke("send-notification", {
           body: {
             user_id: activePlacement.employer_id,
@@ -169,6 +190,7 @@ const HelperProfile = () => {
         }).catch(() => {});
       }
     }
+    setShowAvailConfirm(false);
   };
 
   const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -689,6 +711,35 @@ const HelperProfile = () => {
         currentPhone={helper?.phone || ""}
         onChanged={() => fetchHelperData()}
       />
+
+      {/* Availability Change Confirmation */}
+      {showAvailConfirm && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setShowAvailConfirm(false)} />
+          <div className="relative bg-card rounded-2xl shadow-float p-6 mx-6 max-w-sm w-full z-[71]">
+            <h3 className="font-bold text-foreground text-base mb-2">Change Status to Available?</h3>
+            <p className="text-sm text-muted-foreground mb-5">
+              You are currently marked as hired. Changing to Available will end your current placement and notify your employer.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowAvailConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => executeToggleAvailability("available")}
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
