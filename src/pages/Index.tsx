@@ -306,7 +306,7 @@ const Index = () => {
             </div>
             {userRole !== "helper" && (
               <button
-                onClick={() => { setActiveTab("profile"); }}
+                onClick={() => setShowCreditStore(true)}
                 className="flex items-center gap-1.5 bg-primary/10 px-4 py-2.5 rounded-full hover:bg-primary/20 active:scale-95 transition-all cursor-pointer relative z-10"
               >
                 <Coins size={14} className="text-primary" />
