@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins, Users } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, Coins, Users, X } from "lucide-react";
+import CreditWalletCard from "@/components/CreditWalletCard";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import LowCreditBanner from "@/components/LowCreditBanner";
