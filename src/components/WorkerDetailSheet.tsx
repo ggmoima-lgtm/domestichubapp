@@ -391,11 +391,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
           <div className="w-10 h-1 bg-muted rounded-full" />
         </div>
 
-        <button onClick={onClose} className="absolute top-4 right-12 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+        <button onClick={onClose} className="absolute top-4 right-12 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors z-20">
           <X size={18} />
         </button>
         {user && (
-          <button onClick={() => setShowReportSheet(true)} className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+          <button onClick={() => setShowReportSheet(true)} className="absolute top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors z-20">
             <MoreHorizontal size={18} />
           </button>
         )}
