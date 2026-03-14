@@ -335,7 +335,7 @@ const Index = () => {
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4">
-          <LowCreditBanner balance={creditBalance} onBuyCredits={() => setActiveTab("profile")} />
+          <LowCreditBanner balance={creditBalance} onBuyCredits={() => setShowCreditStore(true)} />
           <div className="mb-5">
             <SearchBar
               value={searchQuery}
