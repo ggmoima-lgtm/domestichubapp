@@ -386,19 +386,17 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Buttons outside scrollable area so they stay fixed */}
-      <button onClick={onClose} className="absolute bottom-[calc(85vh-2rem)] right-12 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors z-[60]">
-        <X size={18} />
-      </button>
-      {user && (
-        <button onClick={() => setShowReportSheet(true)} className="absolute bottom-[calc(85vh-2rem)] right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors z-[60]">
-          <MoreHorizontal size={18} />
-        </button>
-      )}
-
       <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[85vh] overflow-y-auto">
-        <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-10">
+        <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-20">
           <div className="w-10 h-1 bg-muted rounded-full" />
+          <button onClick={onClose} className="absolute top-3 right-12 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+            <X size={18} />
+          </button>
+          {user && (
+            <button onClick={() => setShowReportSheet(true)} className="absolute top-3 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors">
+              <MoreHorizontal size={18} />
+            </button>
+          )}
         </div>
 
         <ScreenshotGuard watermark="CONFIDENTIAL">
