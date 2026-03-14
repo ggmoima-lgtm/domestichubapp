@@ -711,6 +711,35 @@ const HelperProfile = () => {
         currentPhone={helper?.phone || ""}
         onChanged={() => fetchHelperData()}
       />
+
+      {/* Availability Change Confirmation */}
+      {showAvailConfirm && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+          <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={() => setShowAvailConfirm(false)} />
+          <div className="relative bg-card rounded-2xl shadow-float p-6 mx-6 max-w-sm w-full z-[71]">
+            <h3 className="font-bold text-foreground text-base mb-2">Change Status to Available?</h3>
+            <p className="text-sm text-muted-foreground mb-5">
+              You are currently marked as hired. Changing to Available will end your current placement and notify your employer.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowAvailConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => executeToggleAvailability("available")}
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
