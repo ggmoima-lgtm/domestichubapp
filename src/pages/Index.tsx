@@ -56,6 +56,7 @@ const Index = () => {
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
+  const [showCreditStore, setShowCreditStore] = useState(false);
 
   // Fetch user role + helper profile status
   useEffect(() => {
