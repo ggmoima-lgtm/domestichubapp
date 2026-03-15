@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization");
 
-    if (purpose === "signup_verify") {
+    if (purpose === "signup_verify" || purpose === "password_reset") {
       userId = null;
     } else {
       if (!authHeader?.startsWith("Bearer ")) {

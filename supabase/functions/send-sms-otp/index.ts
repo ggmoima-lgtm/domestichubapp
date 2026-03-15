@@ -18,8 +18,8 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization");
 
-    if (purpose === "signup_verify") {
-      // No auth needed for pre-signup verification
+    if (purpose === "signup_verify" || purpose === "password_reset") {
+      // No auth needed for pre-signup verification or password reset
       userId = null;
     } else {
       if (!authHeader?.startsWith("Bearer ")) {
