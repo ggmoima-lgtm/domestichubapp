@@ -32,6 +32,7 @@ const categoryIcons: Record<string, string> = {
   housekeeper: "🏠",
   caregiver: "❤️",
   "all-around": "✨",
+  gardener: "🌿",
 };
 
 const HelperHomeView = () => {

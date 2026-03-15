@@ -28,6 +28,7 @@ const categoryIcons: Record<string, string> = {
   housekeeper: "🏠",
   caregiver: "❤️",
   "all-around": "✨",
+  gardener: "🌿",
 };
 
 const statusConfig: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
