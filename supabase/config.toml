@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.verify-sms-otp]
 verify_jwt = false
+
+[functions.reset-password-otp]
+verify_jwt = false
