@@ -25,6 +25,7 @@ const categoryIcons = {
   housekeeper: Home,
   caregiver: Heart,
   "all-around": Users,
+  gardener: Leaf,
 };
 
 const categories = [
@@ -33,6 +34,7 @@ const categories = [
   { id: "housekeeper", label: "Housekeepers" },
   { id: "caregiver", label: "Caregivers" },
   { id: "all-around", label: "All-Around" },
+  { id: "gardener", label: "Gardeners" },
 ];
 
 const Index = () => {

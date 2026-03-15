@@ -24,6 +24,7 @@ const categories = [
   { id: "housekeeper", label: "Housekeeper" },
   { id: "caregiver", label: "Caregiver" },
   { id: "all-around", label: "All-around" },
+  { id: "gardener", label: "Gardener" },
 ];
 
 const skillOptions = [
