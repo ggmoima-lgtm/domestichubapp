@@ -264,7 +264,7 @@ const HelperRegistration = () => {
         has_work_permit: hasWorkPermit,
         intro_video_url: videoUrl,
         avatar_url: avatarUrl,
-        age: formData.age ? parseInt(formData.age) : null,
+        age: calculatedAge,
         gender: formData.gender || null,
         nationality: formData.nationality || null,
         living_arrangement: formData.livingArrangement || null,
