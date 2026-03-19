@@ -11,6 +11,10 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Star, Phone, ShieldCheck, Award, Edit3, Save, X, Camera,
   Video, MapPin, Briefcase, Clock, Globe, MessageCircle,
   Heart, ChevronRight, LogOut, Trash2, Bell, Lock, Mail,
