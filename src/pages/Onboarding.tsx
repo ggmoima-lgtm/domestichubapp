@@ -387,6 +387,7 @@ const Onboarding = () => {
                   <p className="text-xs text-destructive font-medium">Must be 18 or older</p>
                 )}
                 <p className="text-[10px] text-muted-foreground">You must be at least 18 years old</p>
+              </div>
               <Button
                 className="w-full h-12 rounded-xl"
                 onClick={() => {
