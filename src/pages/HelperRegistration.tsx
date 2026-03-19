@@ -386,8 +386,37 @@ const HelperRegistration = () => {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="age">Age *</Label>
-              <Input id="age" type="number" placeholder="e.g., 28" value={formData.age} onChange={(e) => handleInputChange("age", e.target.value)} className="mt-1" min="18" max="70" />
+              <Label>Date of Birth *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full mt-1 justify-start text-left font-normal",
+                      !dateOfBirth && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateOfBirth ? format(dateOfBirth, "dd MMM yyyy") : <span>Select</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateOfBirth}
+                    onSelect={setDateOfBirth}
+                    disabled={(date) => date > new Date() || date < new Date("1940-01-01")}
+                    initialFocus
+                    captionLayout="dropdown-buttons"
+                    fromYear={1940}
+                    toYear={new Date().getFullYear() - 18}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              {dateOfBirth && differenceInYears(new Date(), dateOfBirth) < 18 && (
+                <p className="text-xs text-destructive mt-1">Must be 18 or older</p>
+              )}
             </div>
             <div>
               <Label>Gender *</Label>
