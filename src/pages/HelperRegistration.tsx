@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { format, differenceInYears } from "date-fns";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +61,7 @@ const HelperRegistration = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [formData, setFormData] = useState({
     fullName: "",
     surname: "",
@@ -201,7 +206,9 @@ const HelperRegistration = () => {
     if (!formData.fullName || !formData.surname || !formData.phone || formData.category.length === 0) {
       toast.error("Please fill in all required fields"); return;
     }
-    if (!formData.age) { toast.error("Please enter your age"); return; }
+    if (!dateOfBirth) { toast.error("Please select your date of birth"); return; }
+    const calculatedAge = differenceInYears(new Date(), dateOfBirth);
+    if (calculatedAge < 18) { toast.error("You must be at least 18 years old to register"); return; }
     if (!formData.gender) { toast.error("Please select your gender"); return; }
     if (!formData.nationality) { toast.error("Please select your nationality"); return; }
     if (!formData.availability) { toast.error("Please select your availability"); return; }
@@ -257,7 +264,7 @@ const HelperRegistration = () => {
         has_work_permit: hasWorkPermit,
         intro_video_url: videoUrl,
         avatar_url: avatarUrl,
-        age: formData.age ? parseInt(formData.age) : null,
+        age: calculatedAge,
         gender: formData.gender || null,
         nationality: formData.nationality || null,
         living_arrangement: formData.livingArrangement || null,
@@ -379,8 +386,37 @@ const HelperRegistration = () => {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="age">Age *</Label>
-              <Input id="age" type="number" placeholder="e.g., 28" value={formData.age} onChange={(e) => handleInputChange("age", e.target.value)} className="mt-1" min="18" max="70" />
+              <Label>Date of Birth *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full mt-1 justify-start text-left font-normal",
+                      !dateOfBirth && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateOfBirth ? format(dateOfBirth, "dd MMM yyyy") : <span>Select</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateOfBirth}
+                    onSelect={setDateOfBirth}
+                    disabled={(date) => date > new Date() || date < new Date("1940-01-01")}
+                    initialFocus
+                    captionLayout="dropdown-buttons"
+                    fromYear={1940}
+                    toYear={new Date().getFullYear() - 18}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              {dateOfBirth && differenceInYears(new Date(), dateOfBirth) < 18 && (
+                <p className="text-xs text-destructive mt-1">Must be 18 or older</p>
+              )}
             </div>
             <div>
               <Label>Gender *</Label>
