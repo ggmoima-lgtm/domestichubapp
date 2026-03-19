@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Home, ArrowRight, CheckCircle2, Mail } from "lucide-react";
+import { MapPin, Home, ArrowRight, CheckCircle2, Mail, CalendarIcon } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
+import { format, differenceInYears } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const needTypes = [
   { id: "full-time", label: "Full-time", desc: "Monday to Friday, all day" },
@@ -31,6 +35,7 @@ const Onboarding = () => {
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [typeOfNeed, setTypeOfNeed] = useState("");
   const [email, setEmail] = useState(user?.email || "");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     if (user) {
@@ -101,6 +106,15 @@ const Onboarding = () => {
       toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
+    if (!dateOfBirth) {
+      toast({ title: "Please select your date of birth", variant: "destructive" });
+      return;
+    }
+    const calculatedAge = differenceInYears(new Date(), dateOfBirth);
+    if (calculatedAge < 18) {
+      toast({ title: "You must be at least 18 years old to register", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Get full_name from profiles
@@ -124,7 +138,8 @@ const Onboarding = () => {
         country: locationData.country,
         formatted_address: locationData.formatted_address,
         place_id: locationData.place_id,
-      });
+        date_of_birth: dateOfBirth ? format(dateOfBirth, "yyyy-MM-dd") : null,
+      } as any);
       if (empError) throw empError;
 
       // Mark onboarding complete
@@ -336,6 +351,42 @@ const Onboarding = () => {
                   required
                 />
                 <p className="text-[10px] text-muted-foreground">Required for invoices and account communication</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                  <CalendarIcon size={14} /> Date of Birth <span className="text-destructive">*</span>
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateOfBirth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Select your date of birth</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateOfBirth}
+                      onSelect={setDateOfBirth}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1940-01-01")
+                      }
+                      defaultMonth={new Date(new Date().getFullYear() - 25, 0)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {dateOfBirth && differenceInYears(new Date(), dateOfBirth) < 18 && (
+                  <p className="text-xs text-destructive font-medium">Must be 18 or older</p>
+                )}
+                <p className="text-[10px] text-muted-foreground">You must be at least 18 years old</p>
               </div>
               <Button
                 className="w-full h-12 rounded-xl"

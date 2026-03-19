@@ -203,6 +203,7 @@ export type Database = {
           country: string | null
           created_at: string
           custom_notes: string | null
+          date_of_birth: string | null
           email: string | null
           formatted_address: string | null
           full_name: string | null
@@ -224,6 +225,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           custom_notes?: string | null
+          date_of_birth?: string | null
           email?: string | null
           formatted_address?: string | null
           full_name?: string | null
@@ -245,6 +247,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           custom_notes?: string | null
+          date_of_birth?: string | null
           email?: string | null
           formatted_address?: string | null
           full_name?: string | null
