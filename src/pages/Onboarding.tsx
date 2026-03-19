@@ -35,6 +35,7 @@ const Onboarding = () => {
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [typeOfNeed, setTypeOfNeed] = useState("");
   const [email, setEmail] = useState(user?.email || "");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     if (user) {
