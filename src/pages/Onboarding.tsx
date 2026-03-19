@@ -352,6 +352,41 @@ const Onboarding = () => {
                 />
                 <p className="text-[10px] text-muted-foreground">Required for invoices and account communication</p>
               </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                  <CalendarIcon size={14} /> Date of Birth <span className="text-destructive">*</span>
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateOfBirth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Select your date of birth</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateOfBirth}
+                      onSelect={setDateOfBirth}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1940-01-01")
+                      }
+                      defaultMonth={new Date(new Date().getFullYear() - 25, 0)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {dateOfBirth && differenceInYears(new Date(), dateOfBirth) < 18 && (
+                  <p className="text-xs text-destructive font-medium">Must be 18 or older</p>
+                )}
+                <p className="text-[10px] text-muted-foreground">You must be at least 18 years old</p>
               <Button
                 className="w-full h-12 rounded-xl"
                 onClick={() => {
