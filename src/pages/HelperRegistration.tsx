@@ -61,6 +61,7 @@ const HelperRegistration = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [formData, setFormData] = useState({
     fullName: "",
     surname: "",
