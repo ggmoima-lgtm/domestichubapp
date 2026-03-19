@@ -250,7 +250,17 @@ const HelperProfile = () => {
     toast.success("Logged out successfully");
   };
 
-  const handleStartVerification = async () => {
+  const handleVerifyClick = () => {
+    if (!user || !helper) return;
+    if (helper.verification_status === "pending") {
+      toast.info("Your verification is already in progress. Please wait for the result.");
+      return;
+    }
+    setShowVerifyDialog(true);
+  };
+
+  const handleConfirmVerification = async () => {
+    setShowVerifyDialog(false);
     if (!user || !helper) return;
     setVerifyLoading(true);
     try {
