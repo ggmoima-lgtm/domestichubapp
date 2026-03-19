@@ -206,7 +206,9 @@ const HelperRegistration = () => {
     if (!formData.fullName || !formData.surname || !formData.phone || formData.category.length === 0) {
       toast.error("Please fill in all required fields"); return;
     }
-    if (!formData.age) { toast.error("Please enter your age"); return; }
+    if (!dateOfBirth) { toast.error("Please select your date of birth"); return; }
+    const calculatedAge = differenceInYears(new Date(), dateOfBirth);
+    if (calculatedAge < 18) { toast.error("You must be at least 18 years old to register"); return; }
     if (!formData.gender) { toast.error("Please select your gender"); return; }
     if (!formData.nationality) { toast.error("Please select your nationality"); return; }
     if (!formData.availability) { toast.error("Please select your availability"); return; }
