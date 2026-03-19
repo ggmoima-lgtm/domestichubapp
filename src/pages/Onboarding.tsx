@@ -106,6 +106,15 @@ const Onboarding = () => {
       toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
+    if (!dateOfBirth) {
+      toast({ title: "Please select your date of birth", variant: "destructive" });
+      return;
+    }
+    const calculatedAge = differenceInYears(new Date(), dateOfBirth);
+    if (calculatedAge < 18) {
+      toast({ title: "You must be at least 18 years old to register", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Get full_name from profiles
