@@ -442,11 +442,16 @@ const HelperProfile = () => {
             <div className="flex items-center justify-between p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
               <div>
                 <p className="text-sm font-semibold text-destructive">Verification Failed</p>
-                <p className="text-xs text-muted-foreground">Please try again</p>
+                <p className="text-xs text-muted-foreground">Your verification was unsuccessful</p>
               </div>
-              <Button size="sm" variant="outline" onClick={handleStartVerification} disabled={verifyLoading}>
-                {verifyLoading ? "Starting..." : "Retry"}
-              </Button>
+            </div>
+          ) : helper.verification_status === "pending" ? (
+            <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+              <Clock size={18} className="text-yellow-600 dark:text-yellow-400" />
+              <div>
+                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Verification In Progress</p>
+                <p className="text-xs text-yellow-700 dark:text-yellow-400">Your identity is being verified. This may take a few minutes.</p>
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-xl">
@@ -454,7 +459,7 @@ const HelperProfile = () => {
                 <p className="text-sm font-semibold text-foreground">Verify Your Identity</p>
                 <p className="text-xs text-muted-foreground">Get the ID Verified badge</p>
               </div>
-              <Button size="sm" onClick={handleStartVerification} disabled={verifyLoading}>
+              <Button size="sm" onClick={handleVerifyClick} disabled={verifyLoading}>
                 <ShieldCheck size={14} />
                 {verifyLoading ? "Starting..." : "Verify"}
               </Button>
