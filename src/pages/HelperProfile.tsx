@@ -76,6 +76,7 @@ const HelperProfile = () => {
   const [activeSection, setActiveSection] = useState("profile");
   const [showChangePhone, setShowChangePhone] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
 
   useEffect(() => {
