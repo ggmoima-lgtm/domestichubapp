@@ -1,0 +1,1 @@
+ALTER TABLE public.employer_profiles ADD COLUMN date_of_birth date;
