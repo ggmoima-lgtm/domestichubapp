@@ -760,6 +760,24 @@ const HelperProfile = () => {
           </div>
         </div>
       )}
+
+      <AlertDialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Identity Verification</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be redirected to our secure verification partner to confirm your identity. 
+              Please have your ID document ready. This process can only be done once per profile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmVerification}>
+              Continue to Verification
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
