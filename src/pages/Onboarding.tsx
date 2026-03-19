@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Home, ArrowRight, CheckCircle2, Mail } from "lucide-react";
+import { MapPin, Home, ArrowRight, CheckCircle2, Mail, CalendarIcon } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
+import { format, differenceInYears } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const needTypes = [
   { id: "full-time", label: "Full-time", desc: "Monday to Friday, all day" },
