@@ -138,7 +138,8 @@ const Onboarding = () => {
         country: locationData.country,
         formatted_address: locationData.formatted_address,
         place_id: locationData.place_id,
-      });
+        date_of_birth: dateOfBirth ? format(dateOfBirth, "yyyy-MM-dd") : null,
+      } as any);
       if (empError) throw empError;
 
       // Mark onboarding complete
