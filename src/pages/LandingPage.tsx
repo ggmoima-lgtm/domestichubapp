@@ -1,10 +1,24 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
+import { useAuth } from "@/hooks/useAuth";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (session) {
+    return <Navigate to="/splash" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body">

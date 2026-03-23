@@ -111,12 +111,6 @@ const Auth = () => {
   };
 
   const handleOAuth = async (provider: "google" | "apple") => {
-    if (!selectedRole) {
-      toast({ title: "Please select your role first", description: "Are you an employer or helper?", variant: "destructive" });
-      return;
-    }
-    // Store role in localStorage so onboarding can use it after OAuth redirect
-    localStorage.setItem("pending_oauth_role", selectedRole);
     const { error } = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
