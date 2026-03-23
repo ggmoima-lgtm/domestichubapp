@@ -200,7 +200,7 @@ const Index = () => {
         id: h.id,
         name: h.full_name,
         role: h.category,
-        location: "",
+        location: (h as any).location || "",
         rating: 0,
         reviews: 0,
         experience: `${h.experience_years || 0} yrs`,
