@@ -85,10 +85,12 @@ Deno.serve(async (req) => {
     }
 
     // Map Shufti events to our status
+    // Verification is NOT auto-approved. Accepted results go to "pending_review"
+    // for admin manual approval.
     let verificationStatus: string;
     switch (event) {
       case "verification.accepted":
-        verificationStatus = "verified";
+        verificationStatus = "pending_review";
         break;
       case "verification.declined":
         verificationStatus = "failed";
@@ -123,13 +125,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update verification status
+    // Update verification status — DO NOT auto-set is_verified
+    // Admin must manually approve via the admin dashboard
     const { error: updateError } = await supabase
       .from("helpers")
       .update({
         verification_status: verificationStatus,
-        verification_date: verificationStatus === "verified" ? new Date().toISOString() : null,
-        is_verified: verificationStatus === "verified",
+        verification_date: verificationStatus === "pending_review" ? new Date().toISOString() : null,
       })
       .eq("id", helper.id);
 
@@ -152,16 +154,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Award badge on verification
-    if (verificationStatus === "verified") {
-      try {
-        await supabase.functions.invoke("badge-engine", {
-          body: { helperId: helper.user_id, trigger: "verification_complete" },
-        });
-      } catch (err) {
-        console.error("Badge engine trigger failed:", err);
-      }
-    }
+    // Badge awarding is now handled by admin when they manually verify
+    // No auto-badge on webhook
 
     return new Response(
       JSON.stringify({ success: true, status: verificationStatus }),

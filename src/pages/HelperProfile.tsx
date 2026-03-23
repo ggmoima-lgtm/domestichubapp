@@ -297,7 +297,7 @@ const HelperProfile = () => {
 
   const handleVerifyClick = () => {
     if (!user || !helper) return;
-    if (helper.verification_status === "pending") {
+    if (helper.verification_status === "pending" || helper.verification_status === "pending_review") {
       toast.info("Your verification is already in progress. Please wait for the result.");
       return;
     }
@@ -475,7 +475,7 @@ const HelperProfile = () => {
                 <Award size={12} /> Highly Rated
               </Badge>
             )}
-            {helper.bio && helper.skills && helper.skills.length > 0 && (
+            {helper.is_verified && helper.bio && helper.skills && helper.skills.length > 0 && (
               <Badge variant="secondary" className="gap-1 shadow-soft">
                 <ShieldCheck size={12} /> Profile Complete
               </Badge>
@@ -502,12 +502,12 @@ const HelperProfile = () => {
                 <p className="text-xs text-muted-foreground">Your verification was unsuccessful</p>
               </div>
             </div>
-          ) : helper.verification_status === "pending" ? (
-            <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-              <Clock size={18} className="text-yellow-600 dark:text-yellow-400" />
+          ) : helper.verification_status === "pending" || helper.verification_status === "pending_review" ? (
+            <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
+              <Clock size={18} className="text-amber-600 dark:text-amber-400" />
               <div>
-                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Verification In Progress</p>
-                <p className="text-xs text-yellow-700 dark:text-yellow-400">Your identity is being verified. This may take a few minutes.</p>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Verification In Progress</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400">Your identity is being verified. This may take a few minutes.</p>
               </div>
             </div>
           ) : (
