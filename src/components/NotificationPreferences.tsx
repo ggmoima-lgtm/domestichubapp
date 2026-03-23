@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 interface Prefs {
   messages: boolean;
-  interviews: boolean;
   profile_unlocks: boolean;
   hire_updates: boolean;
   reviews: boolean;
@@ -19,7 +18,6 @@ interface Prefs {
 
 const defaultPrefs: Prefs = {
   messages: true,
-  interviews: true,
   profile_unlocks: true,
   hire_updates: true,
   reviews: true,
@@ -29,7 +27,6 @@ const defaultPrefs: Prefs = {
 
 const labels: Record<keyof Prefs, string> = {
   messages: "New Messages",
-  interviews: "Connection Requests",
   profile_unlocks: "Profile Unlocked",
   hire_updates: "Hire Updates",
   reviews: "Review Requests",
@@ -58,7 +55,6 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
           if (data) {
             setPrefs({
               messages: data.messages,
-              interviews: data.interviews,
               profile_unlocks: data.profile_unlocks,
               hire_updates: data.hire_updates,
               reviews: data.reviews,
