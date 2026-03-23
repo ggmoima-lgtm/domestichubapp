@@ -242,7 +242,7 @@ const LandingPage = () => {
             <Button
               size="lg"
               className="flex-1"
-              onClick={() => navigate("/auth?role=employer")}
+              onClick={() => navigate("/auth?role=employer&mode=signup")}
             >
               Continue as Employer
             </Button>
@@ -250,7 +250,7 @@ const LandingPage = () => {
               size="lg"
               variant="outline"
               className="flex-1"
-              onClick={() => navigate("/auth?role=helper")}
+              onClick={() => navigate("/auth?role=helper&mode=signup")}
             >
               Continue as Helper
             </Button>

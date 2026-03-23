@@ -501,21 +501,23 @@ const Auth = () => {
 
       <div className="flex-1 px-5 min-h-0 overflow-hidden">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="bg-card rounded-2xl shadow-card border border-border/40 p-4 max-w-sm mx-auto h-full flex flex-col">
-          {/* Tab toggle */}
-          <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
-            <button
-              onClick={() => { setMode("login"); setSignupStep("role"); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => setMode("signup")}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Sign Up
-            </button>
-          </div>
+          {/* Tab toggle - only show when in signup mode (coming from landing page) */}
+          {mode === "signup" && (
+            <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
+              <button
+                onClick={() => { setMode("login"); setSignupStep("role"); }}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => setMode("signup")}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
 
           <div className="flex-1 min-h-0 overflow-y-auto">
             <AnimatePresence mode="wait">
