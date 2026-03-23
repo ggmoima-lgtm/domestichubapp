@@ -28,23 +28,6 @@ const LandingPage = () => {
               Domestic Hub
             </span>
           </div>
-
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((l) => (
-              <button
-                key={l.href}
-                onClick={() => scrollTo(l.href.slice(1))}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                {l.label}
-              </button>
-            ))}
-            <Button size="sm" asChild>
-              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">Get the App</a>
-            </Button>
-          </div>
-
         </div>
       </nav>
 
