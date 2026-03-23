@@ -242,7 +242,50 @@ const HelperProfile = () => {
     }
   };
 
-  const avgRating = reviews.length > 0
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !helper || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("helpers")
+        .update({ avatar_url: urlData.publicUrl })
+        .eq("id", helper.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Profile photo updated!");
+      fetchHelperData();
+    } catch (err: any) {
+      toast.error("Failed to upload photo: " + (err.message || "Unknown error"));
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "0.0";
 
