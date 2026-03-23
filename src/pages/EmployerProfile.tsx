@@ -266,6 +266,41 @@ const EmployerProfile = () => {
     toast.success("Logged out successfully");
   };
 
+  const updateApplicationStatus = async (appId: string, newStatus: string, helperUserId: string | null, jobTitle: string) => {
+    const { error } = await supabase
+      .from("job_applications")
+      .update({ status: newStatus })
+      .eq("id", appId);
+
+    if (error) {
+      toast.error("Failed to update status");
+      return;
+    }
+
+    const statusLabels: Record<string, string> = {
+      shortlisted: "Shortlisted",
+      accepted: "Accepted",
+      rejected: "Declined",
+    };
+    toast.success(`Application ${statusLabels[newStatus] || newStatus}`);
+
+    // Update local state
+    setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
+
+    // Notify helper
+    if (helperUserId) {
+      supabase.functions.invoke("send-notification", {
+        body: {
+          user_id: helperUserId,
+          type: "hire_updates",
+          title: `Application ${statusLabels[newStatus] || "Updated"}`,
+          body: `Your application for "${jobTitle}" has been ${statusLabels[newStatus]?.toLowerCase() || "updated"}.`,
+          data: { application_id: appId },
+        },
+      }).catch(() => {});
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
