@@ -231,7 +231,7 @@ const ApplicationPreviewSheet = ({
                     {helper.availability_status === "available"
                       ? "🟢 Available"
                       : helper.availability_status === "interviewing"
-                      ? "🔵 Interviewing"
+                      ? "🔵 In Conversation"
                       : "🔴 Unavailable"}
                   </p>
                 </div>

@@ -325,12 +325,9 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             Once you're comfortable, you can continue the conversation outside the app.
           </div>
 
-          {/* Safety Warning Banner */}
-          <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs leading-relaxed">
-            <span className="shrink-0 mt-0.5">⚠️</span>
-            <span>
-              Domestic Hub monitors conversations for safety. Inappropriate, abusive, discriminatory, or illegal content may result in account suspension.
-            </span>
+          {/* Disclaimer */}
+          <div className="p-3 rounded-xl bg-muted/50 border border-border text-[10px] text-muted-foreground leading-relaxed text-center">
+            Domestic Hub is a connection platform. All communication and agreements outside the app are at your own discretion. Domestic Hub is not liable for interactions outside the platform.
           </div>
 
           {messages.length === 0 && (
@@ -358,6 +355,18 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             );
           })}
           <div ref={messagesEndRef} />
+        </div>
+
+        {/* WhatsApp CTA */}
+        <div className="px-5 py-2 bg-card">
+          <a
+            href={`https://wa.me/?text=Hi%2C%20I%20found%20your%20profile%20on%20Domestic%20Hub%20and%20would%20like%20to%20connect.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold transition-colors"
+          >
+            Continue on WhatsApp
+          </a>
         </div>
 
         {/* Input */}

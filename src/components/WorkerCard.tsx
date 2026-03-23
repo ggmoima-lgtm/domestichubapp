@@ -12,7 +12,7 @@ type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_ext
 
 const statusConfig: Record<HelperStatus, { label: string; emoji: string; className: string }> = {
   available: { label: "Available", emoji: "🟢", className: "text-green-600" },
-  interviewing: { label: "Interviewing", emoji: "🔵", className: "text-blue-600" },
+  interviewing: { label: "In Conversation", emoji: "🔵", className: "text-blue-600" },
   hired_platform: { label: "Hired", emoji: "🟡", className: "text-amber-600" },
   hired_external: { label: "Employed", emoji: "🟡", className: "text-amber-600" },
   unavailable: { label: "Unavailable", emoji: "🔴", className: "text-destructive" },

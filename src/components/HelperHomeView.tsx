@@ -56,7 +56,7 @@ const categoryIcons: Record<string, string> = {
 
 const statusConfig: Record<string, { label: string; emoji: string; color: string }> = {
   available: { label: "Available", emoji: "🟢", color: "text-primary" },
-  interviewing: { label: "Interviewing", emoji: "🟡", color: "text-secondary" },
+  interviewing: { label: "In Conversation", emoji: "🟡", color: "text-secondary" },
   hired: { label: "Hired", emoji: "🔴", color: "text-destructive" },
 };
 
