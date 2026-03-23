@@ -779,16 +779,22 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               </div>
 
               {/* Unlock CTA */}
-              <div className="mb-4 p-4 bg-muted/40 rounded-2xl">
-                <p className="text-sm font-semibold text-foreground mb-2">Unlock this profile to:</p>
-                <ul className="space-y-1.5 mb-4">
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MessageCircle size={14} className="text-primary shrink-0" /> Chat directly
+              <div className="mb-4 p-5 bg-gradient-to-b from-primary/5 to-primary/10 rounded-2xl border border-primary/15">
+                <p className="text-base font-bold text-foreground mb-3">Unlock this profile to:</p>
+                <ul className="space-y-2 mb-4">
+                  <li className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle size={14} className="text-primary shrink-0" /> View full details
                   </li>
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Eye size={14} className="text-primary shrink-0" /> View full details
+                  <li className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle size={14} className="text-primary shrink-0" /> Chat directly
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle size={14} className="text-primary shrink-0" /> View work history & reviews
                   </li>
                 </ul>
+                <p className="text-xs text-muted-foreground text-center mb-4 italic">
+                  Most employers view 3–5 profiles before hiring
+                </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   <Unlock size={18} />
                   Unlock Profile — 1 Credit

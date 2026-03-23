@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf, Star, FileText } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
+import TrustBanner from "@/components/TrustBanner";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import LowCreditBanner from "@/components/LowCreditBanner";
@@ -359,6 +360,8 @@ const Index = () => {
       )}
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
+        <>
+        <TrustBanner />
         <main className="px-4 py-4 space-y-5">
           {/* Welcome */}
           <div>
@@ -408,16 +411,16 @@ const Index = () => {
             ) : null;
           })()}
 
-          {/* Your Activity */}
+          {/* Your Activity + Urgency */}
           {newApplicantCount > 0 && (
-            <div className="bg-muted/40 rounded-2xl p-4">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/50">
               <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
               <button
                 onClick={() => handleTabChange("hub")}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
               >
                 <FileText size={14} className="text-primary" />
-                <span>{newApplicantCount} new applicant{newApplicantCount !== 1 ? "s" : ""}</span>
+                <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
               </button>
             </div>
           )}
@@ -452,6 +455,7 @@ const Index = () => {
             )}
           </div>
         </main>
+        </>
       )}
 
       {activeTab === "messages" && (
