@@ -213,7 +213,7 @@ const HelperHomeView = () => {
           <Button
             size="sm"
             className="mt-3 rounded-xl w-full"
-            onClick={() => navigate("/helper-profile")}
+            onClick={() => navigate("/home?tab=profile")}
           >
             Complete Profile
           </Button>
