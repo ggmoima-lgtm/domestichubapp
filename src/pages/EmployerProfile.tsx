@@ -726,11 +726,39 @@ const EmployerProfile = () => {
                       </p>
                     </div>
                     <Badge
-                      variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : "outline"}
+                      variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : app.status === "shortlisted" ? "outline" : "destructive"}
                       className="text-[10px] shrink-0"
                     >
-                      {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status}
+                      {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status === "shortlisted" ? "⭐ Shortlisted" : app.status === "rejected" ? "❌ Declined" : app.status}
                     </Badge>
+                  </div>
+                  {app.status === "pending" && (
+                    <div className="flex gap-2 mt-2 pl-13">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[10px] rounded-lg border-blue-300 text-blue-600 hover:bg-blue-50"
+                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "shortlisted", app.helpers?.user_id, app.job_title); }}
+                      >
+                        ⭐ Shortlist
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="h-7 text-[10px] rounded-lg"
+                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "accepted", app.helpers?.user_id, app.job_title); }}
+                      >
+                        ✅ Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-[10px] rounded-lg border-destructive text-destructive hover:bg-destructive/10"
+                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "rejected", app.helpers?.user_id, app.job_title); }}
+                      >
+                        ✕ Decline
+                      </Button>
+                    </div>
+                  )}
                   </div>
                 ))
               )}
