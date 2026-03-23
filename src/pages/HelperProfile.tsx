@@ -297,7 +297,7 @@ const HelperProfile = () => {
 
   const handleVerifyClick = () => {
     if (!user || !helper) return;
-    if (helper.verification_status === "pending" || helper.verification_status === "pending_review") {
+    if (helper.verification_status === "pending_review") {
       toast.info("Your verification is already in progress. Please wait for the result.");
       return;
     }
