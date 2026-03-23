@@ -783,20 +783,19 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 <p className="text-base font-bold text-foreground mb-3">Unlock this profile to:</p>
                 <ul className="space-y-2 mb-4">
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle size={14} className="text-primary shrink-0" /> View full details
+                    ✔ View full details
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle size={14} className="text-primary shrink-0" /> Chat directly
+                    ✔ Chat directly
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle size={14} className="text-primary shrink-0" /> View work history & reviews
+                    ✔ Connect outside the app
                   </li>
                 </ul>
-                <p className="text-xs text-muted-foreground text-center mb-4 italic">
-                  Most employers view 3–5 profiles before hiring
+                <p className="text-xs text-muted-foreground text-center mb-4">
+                  Find the right helper faster
                 </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
-                  <Unlock size={18} />
                   Unlock Profile — 1 Credit
                 </Button>
               </div>
