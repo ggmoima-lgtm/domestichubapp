@@ -289,6 +289,20 @@ const LandingPage = () => {
               Log in
             </button>
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-10 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle size={14} className="text-primary" />
+              ID Verified
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle size={14} className="text-primary" />
+              Safe Hiring
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle size={14} className="text-primary" />
+              Real Users Only
+            </span>
+          </div>
         </div>
       </section>
 
