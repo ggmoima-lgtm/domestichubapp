@@ -585,7 +585,7 @@ const Auth = () => {
 
               {mode === "signup" && (
                 <div key="signup">
-                  {signupStep === "role" && renderRoleSelection()}
+                  {/* Role selection removed - handled by landing page */}
                   {signupStep === "details" && renderDetailsStep()}
                   {signupStep === "verify-phone" && renderPhoneVerification()}
                 </div>
