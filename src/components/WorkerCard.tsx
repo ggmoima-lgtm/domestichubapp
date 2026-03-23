@@ -55,6 +55,10 @@ const WorkerCard = ({
   availabilityStatus = "available",
   isUnlocked = false,
   onClick,
+  serviceType = "domestic",
+  hasTools = false,
+  skillsDomestic = [],
+  skillsGardening = [],
 }: WorkerCardProps) => {
   const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
