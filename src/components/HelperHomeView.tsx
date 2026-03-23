@@ -204,6 +204,22 @@ const HelperHomeView = () => {
         </div>
       </Card>
 
+      {/* ─── Profile Live Banner ─── */}
+      {helperProfile && percent < 100 && (
+        <Card className="p-5 border-primary/30 bg-primary/5">
+          <p className="text-base font-bold text-foreground">🎉 Your profile is live!</p>
+          <p className="text-sm text-muted-foreground mt-1">Employers can now find you.</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Complete your profile to increase your chances.</p>
+          <Button
+            size="sm"
+            className="mt-3 rounded-xl w-full"
+            onClick={() => navigate("/helper-profile")}
+          >
+            Complete Profile
+          </Button>
+        </Card>
+      )}
+
       {/* ─── Incomplete profile banner ─── */}
       {!helperProfile && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 flex items-center gap-3">
