@@ -360,6 +360,8 @@ const Index = () => {
       )}
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
+        <>
+        <TrustBanner />
         <main className="px-4 py-4 space-y-5">
           {/* Welcome */}
           <div>
