@@ -154,6 +154,10 @@ const Auth = () => {
       if (data?.error) throw new Error(data.error);
       setPhoneVerified(true);
       toast({ title: "Phone verified!" });
+      // Auto-proceed to account creation after successful verification
+      setTimeout(() => {
+        handleSignupComplete();
+      }, 500);
     } catch (error: any) {
       toast({ title: "Verification failed", description: error.message, variant: "destructive" });
     } finally {
