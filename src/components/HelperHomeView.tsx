@@ -121,6 +121,11 @@ const HelperHomeView = () => {
       toast.error("Please complete your helper profile first.");
       return;
     }
+    const { percent: currentStrength } = computeProfileStrength(helperProfile);
+    if (currentStrength < 80) {
+      toast.error("Your profile must be at least 80% complete to apply for jobs.");
+      return;
+    }
     const { error } = await supabase.from("job_applications").insert({
       job_id: jobId,
       helper_id: helperProfile.id,
