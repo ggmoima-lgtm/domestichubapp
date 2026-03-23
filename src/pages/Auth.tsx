@@ -35,7 +35,7 @@ const Auth = () => {
   const urlMode = searchParams.get("mode");
   const urlRole = searchParams.get("role");
   const [mode, setMode] = useState<"login" | "signup">(urlMode === "signup" ? "signup" : "login");
-  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "role");
+  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "details");
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(urlRole === "employer" || urlRole === "helper" ? urlRole : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
