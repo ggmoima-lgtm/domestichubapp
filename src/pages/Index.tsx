@@ -464,7 +464,7 @@ const Index = () => {
             <p className="text-sm text-muted-foreground mt-0.5">Find trusted domestic helpers and gardeners near you</p>
           </div>
 
-          <LowCreditBanner balance={creditBalance} onBuyCredits={() => setShowCreditStore(true)} />
+          
 
           {/* Quick Category Tabs */}
           <div className="grid grid-cols-2 gap-3">
