@@ -330,19 +330,32 @@ const EmployerProfile = () => {
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Category of Need</Label>
-                <Select
-                  value={editData.category || ""}
-                  onValueChange={(val) => setEditData({ ...editData, category: val })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((cat) => {
+                    const selectedCats = (editData.category || "").split(",").filter(Boolean);
+                    const isSelected = selectedCats.includes(cat.value);
+                    return (
+                      <button
+                        key={cat.value}
+                        type="button"
+                        onClick={() => {
+                          const current = (editData.category || "").split(",").filter(Boolean);
+                          const updated = isSelected
+                            ? current.filter((c) => c !== cat.value)
+                            : [...current, cat.value];
+                          setEditData({ ...editData, category: updated.join(",") });
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted text-muted-foreground border-border hover:border-primary/30"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Type of Work</Label>
