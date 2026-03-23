@@ -167,6 +167,11 @@ const WorkerCard = ({
               )}
             </div>
 
+            {/* Service type */}
+            <p className="text-xs font-medium text-muted-foreground mt-0.5">
+              {isGardener ? "🌱 Gardener" : `🏠 ${role}`}
+            </p>
+
             <span className={`text-xs font-medium ${status.className} mt-1 block`}>
               {status.emoji} {status.label}
             </span>
@@ -185,8 +190,25 @@ const WorkerCard = ({
           </div>
         </div>
 
+        {/* Service highlights for gardeners */}
+        {isGardener && skills.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            {skills.slice(0, 3).map((skill) => (
+              <span key={skill} className="text-xs text-foreground">✔ {skill}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Gardener tools badge */}
+        {isGardener && (
+          <div className="mt-2 flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">🧰 Own Tools</span>
+            <span className="text-xs text-muted-foreground">📍 Works in your area</span>
+          </div>
+        )}
+
         {/* Activity row */}
-        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
           <span className="text-xs text-green-600 font-medium">
             🟢 Active this week
           </span>
