@@ -191,7 +191,7 @@ const WorkerCard = ({
               </span>
             )}
 
-            <span className="text-xs text-primary font-medium block mt-0.5">
+            <span className="text-sm text-primary font-semibold block mt-0.5">
               📱 Phone Verified
             </span>
 
