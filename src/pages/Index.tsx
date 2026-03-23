@@ -455,6 +455,7 @@ const Index = () => {
             )}
           </div>
         </main>
+        </>
       )}
 
       {activeTab === "messages" && (
