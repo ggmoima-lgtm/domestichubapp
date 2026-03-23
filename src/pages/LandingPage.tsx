@@ -238,10 +238,10 @@ const LandingPage = () => {
             Verified helpers. Safe hiring. Simple process.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
             <Button
               size="lg"
-              className="flex-1"
+              className="flex-1 w-full"
               onClick={() => navigate("/auth?role=employer&mode=signup")}
             >
               Continue as Employer
@@ -249,7 +249,7 @@ const LandingPage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="flex-1"
+              className="flex-1 w-full"
               onClick={() => navigate("/auth?role=helper&mode=signup")}
             >
               Continue as Helper
