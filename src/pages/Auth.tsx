@@ -256,7 +256,7 @@ const Auth = () => {
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>
         <h2 className="text-sm font-bold text-foreground">
-          {selectedRole === "employer" ? "Employer" : "Helper"} Sign Up
+          {selectedRole === "employer" ? "Employer" : "Helper / Gardener"} Sign Up
         </h2>
       </div>
 
