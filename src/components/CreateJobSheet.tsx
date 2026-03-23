@@ -26,9 +26,14 @@ const CATEGORIES = [
   { value: "gardener", label: "Gardener" },
 ];
 
-const DUTY_OPTIONS = [
+const DOMESTIC_DUTIES = [
   "Childcare", "Cooking", "Cleaning", "Laundry", "Ironing",
-  "Grocery Shopping", "Pet Care", "Elder Care", "Tutoring", "Gardening",
+  "Grocery Shopping", "Pet Care", "Elder Care", "Tutoring",
+];
+
+const GARDENING_DUTIES = [
+  "Lawn Mowing", "Hedge Trimming", "Tree Pruning", "Planting",
+  "Weeding", "Irrigation", "Composting", "Landscaping", "Pool Maintenance",
 ];
 
 const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => {
