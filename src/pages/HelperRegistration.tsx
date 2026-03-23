@@ -226,7 +226,6 @@ const HelperRegistration = () => {
     if (!formData.fullName || !formData.surname || !formData.phone) {
       toast.error("Please fill in all required fields"); return;
     }
-    }
     if (!dateOfBirth) { toast.error("Please select your date of birth"); return; }
     const calculatedAge = differenceInYears(new Date(), dateOfBirth);
     if (calculatedAge < 18) { toast.error("You must be at least 18 years old to register"); return; }
