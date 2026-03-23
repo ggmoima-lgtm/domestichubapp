@@ -269,18 +269,26 @@ const HelperRegistration = () => {
       } as any, { onConflict: 'user_id' });
       if (profilesError) console.error('Profiles row error:', profilesError);
 
+      // Determine category based on service type
+      const resolvedCategory = serviceType === "gardening" ? "gardener" 
+        : serviceType === "both" ? [...formData.category, "gardener"].join(", ")
+        : formData.category.join(", ") || "all-around";
+
+      // Merge all skills
+      const allSkills = [...selectedSkills, ...selectedDomesticSkills, ...selectedGardeningSkills];
+
       // Create helper profile
       const { error: profileError } = await supabase.from('helpers').insert({
         user_id: userId,
         full_name: `${formData.fullName} ${formData.surname}`.trim(),
         email: formData.email || `${formData.phone.replace(/\D/g, "")}@helper.domestichub.app`,
         phone: formData.phone,
-        category: formData.category.join(", "),
+        category: resolvedCategory,
         experience_years: formData.experience ? parseInt(formData.experience) : 0,
         hourly_rate: formData.monthlyRate ? parseFloat(formData.monthlyRate) : null,
         bio: formData.bio || null,
         availability: formData.availability || null,
-        skills: selectedSkills,
+        skills: allSkills,
         languages: selectedLanguages,
         has_work_permit: hasWorkPermit,
         intro_video_url: videoUrl,
@@ -289,6 +297,10 @@ const HelperRegistration = () => {
         gender: formData.gender || null,
         nationality: formData.nationality || null,
         living_arrangement: formData.livingArrangement || null,
+        service_type: serviceType,
+        skills_domestic: selectedDomesticSkills,
+        skills_gardening: selectedGardeningSkills,
+        has_tools: hasTools,
       } as any);
 
       if (profileError) {
