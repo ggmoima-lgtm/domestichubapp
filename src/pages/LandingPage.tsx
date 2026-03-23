@@ -286,9 +286,3 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
-    </div>
-  );
-};
-
-export default LandingPage;
