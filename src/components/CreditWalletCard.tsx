@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Wallet, Plus, History, ChevronRight, Coins } from "lucide-react";
+import { Wallet, Plus, History, ChevronRight, Coins, CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -13,12 +13,13 @@ interface CreditBundle {
   price: number;
   label: string;
   popular?: boolean;
+  description?: string;
 }
 
 const creditBundles: CreditBundle[] = [
-  { id: "credits_3", credits: 3, price: 150, label: "3 Credits" },
-  { id: "credits_5", credits: 5, price: 225, label: "5 Credits", popular: true },
-  { id: "credits_10", credits: 10, price: 400, label: "10 Credits" },
+  { id: "credits_3", credits: 3, price: 150, label: "3 Credits", description: "Perfect to get started" },
+  { id: "credits_5", credits: 5, price: 225, label: "5 Credits", popular: true, description: "Most popular" },
+  { id: "credits_10", credits: 10, price: 400, label: "10 Credits", description: "Best value" },
 ];
 
 interface Transaction {
@@ -104,7 +105,6 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
           <div>
             <p className="text-xs text-muted-foreground">Available Credits</p>
             <p className="text-3xl font-bold text-foreground">{balance}</p>
-            <p className="text-xs text-muted-foreground">1 credit = 1 profile unlock</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
             <Coins size={24} className="text-primary" />
@@ -116,7 +116,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
           <Button
             size="sm"
             className="flex-1 gap-1"
-            onClick={() => setShowBundles(!showBundles)}
+            onClick={() => { setShowBundles(!showBundles); setShowHistory(false); }}
           >
             <Plus size={14} /> Buy Credits
           </Button>
@@ -124,7 +124,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
             size="sm"
             variant="outline"
             className="flex-1 gap-1"
-            onClick={() => setShowHistory(!showHistory)}
+            onClick={() => { setShowHistory(!showHistory); setShowBundles(false); }}
           >
             <History size={14} /> History
           </Button>
@@ -132,26 +132,45 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
 
         {/* Bundle Options */}
         {showBundles && (
-          <div className="space-y-2 pt-2">
-            {creditBundles.map((bundle) => (
-              <button
-                key={bundle.id}
-                onClick={() => handlePurchase(bundle)}
-                disabled={isProcessing}
-                className="w-full p-3 rounded-xl border-2 border-border hover:border-primary/40 transition-all text-left flex items-center justify-between relative"
-              >
-                {bundle.popular && (
-                  <Badge className="absolute -top-2 right-3 bg-primary text-primary-foreground text-[10px] px-2">
-                    Best Value
-                  </Badge>
-                )}
-                <div>
-                  <p className="font-bold text-foreground text-sm">{bundle.credits} Credits</p>
-                  <p className="text-xs text-muted-foreground">R{(bundle.price / bundle.credits).toFixed(0)}/credit</p>
-                </div>
-                <p className="text-lg font-bold text-foreground">R{bundle.price}</p>
-              </button>
-            ))}
+          <div className="space-y-3 pt-2">
+            <h3 className="font-bold text-foreground text-sm">Choose a Credit Package</h3>
+            <div className="space-y-2">
+              {creditBundles.map((bundle) => (
+                <button
+                  key={bundle.id}
+                  onClick={() => handlePurchase(bundle)}
+                  disabled={isProcessing}
+                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center justify-between relative ${
+                    bundle.popular
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  {bundle.popular && (
+                    <Badge className="absolute -top-2.5 right-3 bg-primary text-primary-foreground text-[10px] px-2 gap-1">
+                      ⭐ Most Popular
+                    </Badge>
+                  )}
+                  <div>
+                    <p className="font-bold text-foreground">{bundle.credits} Credits – R{bundle.price}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{bundle.description}</p>
+                  </div>
+                  <ChevronRight size={16} className="text-muted-foreground flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+
+            {/* Trust strip */}
+            <div className="pt-2 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle size={14} className="text-primary flex-shrink-0" />
+                1 credit = 1 profile unlock
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle size={14} className="text-primary flex-shrink-0" />
+                Profiles stay unlocked forever
+              </div>
+            </div>
           </div>
         )}
 
@@ -178,7 +197,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
           </div>
         )}
 
-        {balance < 3 && (
+        {balance < 3 && !showBundles && (
           <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 rounded-xl p-2 text-center">
             ⚠️ Low credits — buy more to unlock helper profiles
           </p>
