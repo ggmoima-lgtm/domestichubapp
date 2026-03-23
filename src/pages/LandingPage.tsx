@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
+import { lovable } from "@/integrations/lovable/index";
 
 const LandingPage = () => {
   const navigate = useNavigate();
