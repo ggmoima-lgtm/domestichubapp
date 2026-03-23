@@ -340,7 +340,7 @@ const HelperRegistration = () => {
             <button onClick={() => navigate("/")} className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
               <ArrowLeft size={20} className="text-foreground" />
             </button>
-            <h1 className="text-lg font-bold text-foreground">Helper Registration</h1>
+            <h1 className="text-lg font-bold text-foreground">Registration</h1>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={saveDraft} className="gap-1.5 text-xs">
             <Save size={14} />
@@ -432,7 +432,7 @@ const HelperRegistration = () => {
                     {dateOfBirth ? format(dateOfBirth, "dd MMM yyyy") : <span>Select</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="start" side="bottom" sideOffset={4}>
                   <Calendar
                     mode="single"
                     selected={dateOfBirth}
@@ -442,7 +442,7 @@ const HelperRegistration = () => {
                     captionLayout="dropdown-buttons"
                     fromYear={1940}
                     toYear={new Date().getFullYear() - 18}
-                    className={cn("p-3 pointer-events-auto")}
+                    className={cn("p-4 pointer-events-auto min-w-[300px]")}
                   />
                 </PopoverContent>
               </Popover>
@@ -612,17 +612,19 @@ const HelperRegistration = () => {
           </section>
         )}
 
-        {/* Additional Skills */}
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
-          <div className="flex flex-wrap gap-2">
-            {skillOptions.map((skill) => (
-              <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
-                {skill}
-              </Badge>
-            ))}
-          </div>
-        </section>
+        {/* Additional Skills — shown for gardening/both only */}
+        {(serviceType === "gardening" || serviceType === "both") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {skillOptions.map((skill) => (
+                <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Experience & Rate */}
         <section className="space-y-3">
@@ -631,10 +633,10 @@ const HelperRegistration = () => {
             <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
           </div>
           <div>
-            <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
+            <Label htmlFor="monthlyRate">{serviceType === "gardening" ? "Rate (ZAR)" : "Monthly Rate (ZAR)"}</Label>
             <div className="relative mt-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
-              <Input id="monthlyRate" type="number" placeholder="e.g., 3500" value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
+              <Input id="monthlyRate" type="number" placeholder={serviceType === "gardening" ? "e.g., 250" : "e.g., 3500"} value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
             </div>
           </div>
         </section>

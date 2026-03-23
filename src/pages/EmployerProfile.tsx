@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
-  LogOut, Trash2, Lock, Mail, Users, CreditCard,
+  LogOut, Trash2, Lock, Mail, Users, CreditCard, AlertTriangle,
   Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
@@ -253,8 +253,24 @@ const EmployerProfile = () => {
     );
   }
 
+  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category;
+
   return (
     <div className="pb-28 space-y-4">
+      {/* Incomplete profile banner */}
+      {isProfileIncomplete && (
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 flex items-center gap-3">
+          <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
+            <p className="text-xs text-muted-foreground">You need a complete profile to apply for jobs</p>
+          </div>
+          <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0 border-primary text-primary" onClick={() => setIsEditing(true)}>
+            Complete
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <Card variant="gradient" className="overflow-hidden">
         <div className="gradient-primary p-6">
