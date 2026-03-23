@@ -255,7 +255,7 @@ const LandingPage = () => {
           </h1>
 
           <p className="text-lg md:text-xl font-semibold text-primary mb-4">
-            Or Get Hired Faster
+            Get Hired Faster
           </p>
 
           <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-10">
