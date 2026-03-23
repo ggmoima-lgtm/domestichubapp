@@ -197,7 +197,7 @@ const HelperHomeView = () => {
             size="sm"
             variant="outline"
             className="flex-1 rounded-xl gap-1.5"
-            onClick={() => navigate("/index?tab=hub")}
+            onClick={() => navigate("/home?tab=hub")}
           >
             <FileText size={14} /> View Applications
           </Button>
