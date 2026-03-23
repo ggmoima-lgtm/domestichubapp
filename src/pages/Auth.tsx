@@ -35,7 +35,7 @@ const Auth = () => {
   const urlMode = searchParams.get("mode");
   const urlRole = searchParams.get("role");
   const [mode, setMode] = useState<"login" | "signup">(urlMode === "signup" ? "signup" : "login");
-  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "role");
+  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "details");
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(urlRole === "employer" || urlRole === "helper" ? urlRole : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -185,7 +185,7 @@ const Auth = () => {
         if (error.message?.toLowerCase().includes("already registered") || error.message?.toLowerCase().includes("already been registered")) {
           toast({ title: "Account already exists", description: "This email or phone is already registered. Please log in instead.", variant: "destructive" });
           setMode("login");
-          setSignupStep("role");
+           setSignupStep("details");
           return;
         }
         throw error;
@@ -252,7 +252,7 @@ const Auth = () => {
   const renderDetailsStep = () => (
     <motion.div {...fadeSlide} className="space-y-4">
       <div className="flex items-center gap-2 mb-1">
-        <button type="button" onClick={() => { setSignupStep("role"); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
+        <button type="button" onClick={() => { navigate("/"); }} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>
         <h2 className="text-sm font-bold text-foreground">
@@ -491,7 +491,7 @@ const Auth = () => {
           {mode === "signup" && (
             <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
               <button
-                onClick={() => { setMode("login"); setSignupStep("role"); }}
+                onClick={() => { setMode("login"); setSignupStep("details"); }}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-muted-foreground hover:text-foreground"
               >
                 Log In
@@ -585,7 +585,7 @@ const Auth = () => {
 
               {mode === "signup" && (
                 <div key="signup">
-                  {signupStep === "role" && renderRoleSelection()}
+                  {/* Role selection removed - handled by landing page */}
                   {signupStep === "details" && renderDetailsStep()}
                   {signupStep === "verify-phone" && renderPhoneVerification()}
                 </div>
