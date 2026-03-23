@@ -185,7 +185,7 @@ const Auth = () => {
         if (error.message?.toLowerCase().includes("already registered") || error.message?.toLowerCase().includes("already been registered")) {
           toast({ title: "Account already exists", description: "This email or phone is already registered. Please log in instead.", variant: "destructive" });
           setMode("login");
-          setSignupStep("role");
+           setSignupStep("details");
           return;
         }
         throw error;
