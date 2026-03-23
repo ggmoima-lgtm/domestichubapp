@@ -154,16 +154,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Award badge on verification
-    if (verificationStatus === "verified") {
-      try {
-        await supabase.functions.invoke("badge-engine", {
-          body: { helperId: helper.user_id, trigger: "verification_complete" },
-        });
-      } catch (err) {
-        console.error("Badge engine trigger failed:", err);
-      }
-    }
+    // Badge awarding is now handled by admin when they manually verify
+    // No auto-badge on webhook
 
     return new Response(
       JSON.stringify({ success: true, status: verificationStatus }),
