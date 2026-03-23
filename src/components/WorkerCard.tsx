@@ -186,16 +186,18 @@ const WorkerCard = ({
             </span>
 
             {verified && (
-              <span className="text-xs text-primary font-medium block mt-1">
-                📱 Phone Verified
+              <span className="text-xs text-primary font-medium block mt-0.5">
+                ✅ ID Verified
               </span>
             )}
 
-            {expYears > 0 && (
-              <p className="text-sm font-semibold text-foreground mt-1.5">
-                ⭐ {expYears} Year{expYears !== 1 ? "s" : ""} Experience
-              </p>
-            )}
+            <span className="text-xs text-primary font-medium block mt-0.5">
+              📱 Phone Verified
+            </span>
+
+            <p className="text-sm font-semibold text-foreground mt-1">
+              ⭐ {expYears > 0 ? `${expYears} Year${expYears !== 1 ? "s" : ""}` : "New"} Experience
+            </p>
           </div>
         </div>
 

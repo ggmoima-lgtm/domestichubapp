@@ -177,6 +177,20 @@ const ApplicationPreviewSheet = ({
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground capitalize">{helper.category}</p>
+
+                <div className="mt-2 space-y-0.5">
+                  <p className="text-xs font-medium text-green-600">
+                    🟢 {helper.availability_status === "available" ? "Available" : helper.availability_status === "interviewing" ? "In Conversation" : "Unavailable"}
+                  </p>
+                  {helper.is_verified && (
+                    <p className="text-xs font-medium text-primary">✅ ID Verified</p>
+                  )}
+                  <p className="text-xs font-medium text-primary">📱 Phone Verified</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    ⭐ {helper.experience_years && helper.experience_years > 0 ? `${helper.experience_years} Year${helper.experience_years !== 1 ? "s" : ""}` : "New"} Experience
+                  </p>
+                </div>
+
                 {avgRating !== null && (
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <Star size={14} className="text-amber-400 fill-amber-400" />
