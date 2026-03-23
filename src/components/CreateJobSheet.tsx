@@ -26,9 +26,14 @@ const CATEGORIES = [
   { value: "gardener", label: "Gardener" },
 ];
 
-const DUTY_OPTIONS = [
+const DOMESTIC_DUTIES = [
   "Childcare", "Cooking", "Cleaning", "Laundry", "Ironing",
-  "Grocery Shopping", "Pet Care", "Elder Care", "Tutoring", "Gardening",
+  "Grocery Shopping", "Pet Care", "Elder Care", "Tutoring",
+];
+
+const GARDENING_DUTIES = [
+  "Lawn Mowing", "Hedge Trimming", "Tree Pruning", "Planting",
+  "Weeding", "Irrigation", "Composting", "Landscaping", "Pool Maintenance",
 ];
 
 const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => {
@@ -143,44 +148,84 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground">Job Type</Label>
-              <Select value={jobType} onValueChange={setJobType}>
-                <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full-time">Full-time</SelectItem>
-                  <SelectItem value="part-time">Part-time</SelectItem>
-                </SelectContent>
-              </Select>
+          {category !== "gardener" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Job Type</Label>
+                <Select value={jobType} onValueChange={setJobType}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Living Arrangement</Label>
+                <Select value={liveInOut} onValueChange={setLiveInOut}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="live-in">Live-in</SelectItem>
+                    <SelectItem value="live-out">Live-out</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground">Living Arrangement</Label>
-              <Select value={liveInOut} onValueChange={setLiveInOut}>
-                <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="live-in">Live-in</SelectItem>
-                  <SelectItem value="live-out">Live-out</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
-              <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
+          {category !== "gardener" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
+                <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Family Size</Label>
+                <Input value={familySize} onChange={(e) => setFamilySize(e.target.value)} placeholder="e.g. 4 members" className="rounded-xl h-12" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground">Family Size</Label>
-              <Input value={familySize} onChange={(e) => setFamilySize(e.target.value)} placeholder="e.g. 4 members" className="rounded-xl h-12" />
+          )}
+
+          {category === "gardener" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Frequency</Label>
+                <Select value={jobType} onValueChange={setJobType}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="once-off">Once-off</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Garden Size</Label>
+                <Select value={houseSize} onValueChange={setHouseSize}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="large">Large</SelectItem>
+                    <SelectItem value="estate">Estate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
+          )}
+
+          {category === "gardener" && (
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+              <Label className="text-sm">Must have own tools</Label>
+              <Switch checked={liveInOut === "own-tools"} onCheckedChange={(v) => setLiveInOut(v ? "own-tools" : "")} />
+            </div>
+          )}
 
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground">Duties Required</Label>
+            <Label className="text-xs font-semibold text-muted-foreground">{category === "gardener" ? "Services Required" : "Duties Required"}</Label>
             <div className="flex flex-wrap gap-2">
-              {DUTY_OPTIONS.map((duty) => (
+              {(category === "gardener" ? GARDENING_DUTIES : DOMESTIC_DUTIES).map((duty) => (
                 <button
                   key={duty}
                   type="button"
