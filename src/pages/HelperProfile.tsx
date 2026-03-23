@@ -78,6 +78,7 @@ const HelperProfile = () => {
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
     if (user) fetchHelperData();
