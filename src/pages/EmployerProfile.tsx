@@ -215,13 +215,15 @@ const EmployerProfile = () => {
 
   const handleSave = async () => {
     if (!user) return;
-    if (!editData.email || !editData.email.includes("@")) {
+
+    const resolvedEmail = (editData.email || user.email || "").trim();
+    if (!resolvedEmail || !resolvedEmail.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
     const payload = {
       full_name: editData.full_name || null,
-      email: editData.email,
+      email: resolvedEmail,
       location: editData.location || null,
       type_of_need: editData.type_of_need || null,
       category: editData.category || null,
