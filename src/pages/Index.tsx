@@ -303,10 +303,21 @@ const Index = () => {
   }, [user, searchParams]);
 
   const filteredWorkers = dbHelpers.filter((worker) => {
+    // Hide helpers with less than 80% profile completeness from search
+    const profileChecks = [
+      Boolean(worker.avatar && !worker.avatar.includes("unsplash")),
+      Boolean(worker.verified),
+      Boolean(worker.bio && worker.bio.length > 10),
+      Boolean(parseInt(worker.experience) > 0),
+      Boolean(worker.skills && worker.skills.length > 0),
+    ];
+    const profilePercent = Math.round((profileChecks.filter(Boolean).length / profileChecks.length) * 100);
+    const isUnlockedByEmployer = unlockedIds.includes(worker.id);
+    if (profilePercent < 80 && !isUnlockedByEmployer) return false;
+
     // Always show unlocked helpers regardless of status; hide non-available unless toggled
     const helperStatus = worker.availabilityStatus || "available";
     const isAvailable = helperStatus === "available" || helperStatus === "interviewing";
-    const isUnlockedByEmployer = unlockedIds.includes(worker.id);
     if (!showUnavailable && !isAvailable && !isUnlockedByEmployer) return false;
 
     // Text search
