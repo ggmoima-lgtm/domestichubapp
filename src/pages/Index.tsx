@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf } from "lucide-react";
+import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf, Star, FileText } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
@@ -59,6 +59,8 @@ const Index = () => {
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
   const [showCreditStore, setShowCreditStore] = useState(false);
+  const [employerName, setEmployerName] = useState<string>("");
+  const [newApplicantCount, setNewApplicantCount] = useState(0);
 
   // Fetch user role + helper profile status
   useEffect(() => {
@@ -71,7 +73,7 @@ const Index = () => {
     const fetchRoleAndProfile = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, full_name")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -80,6 +82,7 @@ const Index = () => {
       const resolvedRole = data?.role || fallbackRole;
 
       setUserRole(resolvedRole);
+      setEmployerName(data?.full_name?.split(" ")[0] || "");
 
       if (resolvedRole === "helper") {
         const { data: helperProfile } = await supabase
@@ -95,6 +98,26 @@ const Index = () => {
 
     fetchRoleAndProfile();
   }, [user]);
+
+  // Fetch new applicant count for employer
+  useEffect(() => {
+    if (!user || userRole !== "employer") return;
+    const fetchApplicants = async () => {
+      const { data: jobs } = await supabase
+        .from("job_posts")
+        .select("id")
+        .eq("employer_id", user.id);
+      if (!jobs || jobs.length === 0) { setNewApplicantCount(0); return; }
+      const jobIds = jobs.map(j => j.id);
+      const { count } = await supabase
+        .from("job_applications")
+        .select("id", { count: "exact", head: true })
+        .in("job_id", jobIds)
+        .eq("status", "pending");
+      setNewApplicantCount(count || 0);
+    };
+    fetchApplicants();
+  }, [user, userRole]);
 
   // Fetch helpers from database
   useEffect(() => {
@@ -336,65 +359,98 @@ const Index = () => {
       )}
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
-        <main className="px-4 py-4">
+        <main className="px-4 py-4 space-y-5">
+          {/* Welcome */}
+          <div>
+            <p className="text-lg font-bold text-foreground">👋 Welcome back, {employerName || "there"}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Find trusted help near you</p>
+          </div>
+
           <LowCreditBanner balance={creditBalance} onBuyCredits={() => setShowCreditStore(true)} />
-          <div className="mb-5">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onFilter={() => setIsFilterOpen(true)}
-              filterCount={activeFilterCount}
-            />
-          </div>
 
-          <div className="mb-5">
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {categories.map((category) => (
-                <CategoryPill
-                  key={category.id}
-                  icon={categoryIcons[category.id as keyof typeof categoryIcons]}
-                  label={category.label}
-                  active={activeCategory === category.id}
-                  onClick={() => setActiveCategory(category.id)}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Search */}
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onFilter={() => setIsFilterOpen(true)}
+            filterCount={activeFilterCount}
+          />
 
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-foreground">
-              Available Helpers
-              <span className="text-muted-foreground font-normal ml-2">
-                ({filteredWorkers.length})
-              </span>
-            </h3>
-            <button
-              onClick={() => setShowUnavailable(!showUnavailable)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
-                showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {showUnavailable ? "Hide unavailable" : "Show unavailable"}
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {filteredWorkers.map((worker, index) => (
-              <div
-                key={worker.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
-              </div>
+          {/* Categories */}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+            {categories.map((category) => (
+              <CategoryPill
+                key={category.id}
+                icon={categoryIcons[category.id as keyof typeof categoryIcons]}
+                label={category.label}
+                active={activeCategory === category.id}
+                onClick={() => setActiveCategory(category.id)}
+              />
             ))}
           </div>
 
-          {filteredWorkers.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No helpers found matching your criteria.</p>
+          {/* Featured Helpers (Verified) */}
+          {(() => {
+            const verified = filteredWorkers.filter(w => w.verified);
+            return verified.length > 0 ? (
+              <div>
+                <h3 className="font-bold text-foreground text-sm mb-3">
+                  ⭐ Featured Helpers (Verified)
+                </h3>
+                <div className="space-y-3">
+                  {verified.slice(0, 5).map((worker, index) => (
+                    <div key={worker.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null;
+          })()}
+
+          {/* Your Activity */}
+          {newApplicantCount > 0 && (
+            <div className="bg-muted/40 rounded-2xl p-4">
+              <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
+              <button
+                onClick={() => handleTabChange("hub")}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <FileText size={14} className="text-primary" />
+                <span>{newApplicantCount} new applicant{newApplicantCount !== 1 ? "s" : ""}</span>
+              </button>
             </div>
           )}
+
+          {/* All Helpers */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-foreground text-sm">
+                Available Helpers
+                <span className="text-muted-foreground font-normal ml-1">({filteredWorkers.length})</span>
+              </h3>
+              <button
+                onClick={() => setShowUnavailable(!showUnavailable)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+                  showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {showUnavailable ? "Hide unavailable" : "Show unavailable"}
+              </button>
+            </div>
+            <div className="space-y-3">
+              {filteredWorkers.map((worker, index) => (
+                <div key={worker.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
+                </div>
+              ))}
+            </div>
+            {filteredWorkers.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No helpers found matching your criteria.</p>
+              </div>
+            )}
+          </div>
         </main>
       )}
 
