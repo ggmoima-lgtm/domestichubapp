@@ -11,7 +11,7 @@ import HelperRegistration from "./pages/HelperRegistration";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import SplashScreen from "./pages/SplashScreen";
-import Onboarding from "./pages/Onboarding";
+
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import AdminDashboard from "./pages/AdminDashboard";
