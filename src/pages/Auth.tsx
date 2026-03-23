@@ -75,7 +75,7 @@ const Auth = () => {
   }
 
   if (session) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/splash" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
