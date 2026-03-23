@@ -75,6 +75,10 @@ const HelperRegistration = () => {
   const [draftSaved, setDraftSaved] = useState(false);
   
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
+  const [serviceType, setServiceType] = useState<string>("");
+  const [selectedDomesticSkills, setSelectedDomesticSkills] = useState<string[]>([]);
+  const [selectedGardeningSkills, setSelectedGardeningSkills] = useState<string[]>([]);
+  const [hasTools, setHasTools] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     surname: "",
