@@ -210,31 +210,7 @@ const LandingPage = () => {
             </Button>
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border/50 bg-card px-4 py-4 space-y-3 animate-fade-in">
-            {NAV_LINKS.map((l) => (
-              <button
-                key={l.href}
-                onClick={() => scrollTo(l.href.slice(1))}
-                className="block w-full text-left text-sm text-muted-foreground hover:text-primary py-1"
-              >
-                {l.label}
-              </button>
-            ))}
-            <Button className="w-full" asChild>
-              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">Get the App</a>
-            </Button>
-          </div>
-        )}
       </nav>
 
       {/* ─── Hero ─── */}
