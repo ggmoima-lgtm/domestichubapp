@@ -205,26 +205,35 @@ const EmployerProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!employer) return;
+    if (!user) return;
     if (!editData.email || !editData.email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
-    const { error } = await supabase
-      .from("employer_profiles")
-      .update({
-        full_name: editData.full_name,
-        email: editData.email,
-        location: editData.location,
-        type_of_need: editData.type_of_need,
-        category: editData.category,
-        availability: editData.availability || [],
-        custom_notes: editData.custom_notes,
-      })
-      .eq("id", employer.id);
+    const payload = {
+      full_name: editData.full_name || null,
+      email: editData.email,
+      location: editData.location || null,
+      type_of_need: editData.type_of_need || null,
+      category: editData.category || null,
+      availability: editData.availability || [],
+      custom_notes: editData.custom_notes || null,
+    };
+
+    let error;
+    if (employer) {
+      ({ error } = await supabase
+        .from("employer_profiles")
+        .update(payload)
+        .eq("id", employer.id));
+    } else {
+      ({ error } = await supabase
+        .from("employer_profiles")
+        .insert({ ...payload, user_id: user.id }));
+    }
 
     if (error) {
-      toast.error("Failed to update profile");
+      toast.error("Failed to update profile: " + error.message);
     } else {
       toast.success("Profile updated!");
       setIsEditing(false);
@@ -330,19 +339,32 @@ const EmployerProfile = () => {
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Category of Need</Label>
-                <Select
-                  value={editData.category || ""}
-                  onValueChange={(val) => setEditData({ ...editData, category: val })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((cat) => {
+                    const selectedCats = (editData.category || "").split(",").filter(Boolean);
+                    const isSelected = selectedCats.includes(cat.value);
+                    return (
+                      <button
+                        key={cat.value}
+                        type="button"
+                        onClick={() => {
+                          const current = (editData.category || "").split(",").filter(Boolean);
+                          const updated = isSelected
+                            ? current.filter((c) => c !== cat.value)
+                            : [...current, cat.value];
+                          setEditData({ ...editData, category: updated.join(",") });
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted text-muted-foreground border-border hover:border-primary/30"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Type of Work</Label>
@@ -402,9 +424,19 @@ const EmployerProfile = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin size={14} className="shrink-0" /> <span>{employer?.location || "Not set"}</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Briefcase size={14} className="shrink-0" />
-                <span>{CATEGORIES.find((c) => c.value === employer?.category)?.label || employer?.category || "Not set"}</span>
+              <div className="flex items-start gap-2 text-muted-foreground">
+                <Briefcase size={14} className="shrink-0 mt-0.5" />
+                <div className="flex flex-wrap gap-1.5">
+                  {employer?.category ? (
+                    employer.category.split(",").filter(Boolean).map((c) => (
+                      <Badge key={c} variant="outline" className="text-[10px]">
+                        {CATEGORIES.find((cat) => cat.value === c)?.label || c}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span>Not set</span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Briefcase size={14} className="shrink-0" /> <span>{employer?.type_of_need || "Not set"}</span>
