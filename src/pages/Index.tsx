@@ -15,6 +15,7 @@ import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
+import PushNotificationDialog from "@/components/PushNotificationDialog";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,7 +63,34 @@ const Index = () => {
   const [showCreditStore, setShowCreditStore] = useState(false);
   const [employerName, setEmployerName] = useState<string>("");
   const [newApplicantCount, setNewApplicantCount] = useState(0);
+  const [showPushDialog, setShowPushDialog] = useState(false);
+  const permissionsPromptedRef = useRef(false);
 
+  // Prompt for push notifications and location on first load
+  useEffect(() => {
+    if (!user || permissionsPromptedRef.current) return;
+    permissionsPromptedRef.current = true;
+
+    const prompted = localStorage.getItem("dh_permissions_prompted");
+    if (prompted) return;
+    localStorage.setItem("dh_permissions_prompted", "true");
+
+    // Delay slightly so UI settles
+    setTimeout(() => {
+      // Request push notifications
+      if ("Notification" in window && Notification.permission === "default") {
+        setShowPushDialog(true);
+      }
+      // Request location
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          () => {},
+          () => {},
+          { timeout: 5000 }
+        );
+      }
+    }, 1500);
+  }, [user]);
   // Fetch user role + helper profile status
   useEffect(() => {
     if (!user) {
@@ -594,6 +622,9 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      {/* Push Notification Permission Dialog */}
+      <PushNotificationDialog open={showPushDialog} onOpenChange={setShowPushDialog} />
     </div>
   );
 };
