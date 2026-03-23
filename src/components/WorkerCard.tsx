@@ -170,7 +170,7 @@ const WorkerCard = ({
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-foreground text-base truncate">{getPreviewName(name)}</h3>
               {isUnlocked && (
-                <Badge variant="success" className="text-[10px] shrink-0">
+                <Badge variant="success" className="text-xs px-2.5 py-0.5 shrink-0">
                   Unlocked
                 </Badge>
               )}
