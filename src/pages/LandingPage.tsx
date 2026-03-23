@@ -58,7 +58,7 @@ const LandingPage = () => {
             Safe. Simple. Reliable.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
+          <div className="flex flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
             <Button
               size="lg"
               className="flex-1 w-full"
