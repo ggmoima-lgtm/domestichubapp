@@ -63,6 +63,7 @@ const Index = () => {
   const [showCreditStore, setShowCreditStore] = useState(false);
   const [employerName, setEmployerName] = useState<string>("");
   const [newApplicantCount, setNewApplicantCount] = useState(0);
+  const [profileViewCount, setProfileViewCount] = useState(0);
   const [showPushDialog, setShowPushDialog] = useState(false);
   const permissionsPromptedRef = useRef(false);
 
@@ -146,6 +147,28 @@ const Index = () => {
       setNewApplicantCount(count || 0);
     };
     fetchApplicants();
+  }, [user, userRole]);
+
+  // Fetch profile view count (how many employers unlocked helper's profile, or for helpers how many employers viewed theirs)
+  useEffect(() => {
+    if (!user || !userRole) return;
+    const fetchProfileViews = async () => {
+      if (userRole === "helper") {
+        // Count how many employers unlocked this helper's profile
+        const { data: helperData } = await supabase
+          .from("helpers")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (!helperData) { setProfileViewCount(0); return; }
+        const { count } = await supabase
+          .from("profile_unlocks")
+          .select("id", { count: "exact", head: true })
+          .eq("helper_id", helperData.id);
+        setProfileViewCount(count || 0);
+      }
+    };
+    fetchProfileViews();
   }, [user, userRole]);
 
   // Fetch helpers from database
@@ -484,15 +507,24 @@ const Index = () => {
           })()}
 
           {/* Your Activity + Urgency */}
-          {newApplicantCount > 0 && (
+          {(newApplicantCount > 0 || profileViewCount > 0) && (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/50">
               <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
-              <button
-                onClick={() => handleTabChange("hub")}
-                className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
-              >
-                <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
-              </button>
+              <div className="space-y-2">
+                {newApplicantCount > 0 && (
+                  <button
+                    onClick={() => handleTabChange("hub")}
+                    className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
+                  >
+                    <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
+                  </button>
+                )}
+                {profileViewCount > 0 && (
+                  <p className="flex items-center gap-2 text-sm text-foreground font-medium">
+                    <span>👀 {profileViewCount} employer{profileViewCount !== 1 ? "s" : ""} viewed your profile</span>
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
