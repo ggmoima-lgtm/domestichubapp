@@ -297,7 +297,7 @@ const HelperProfile = () => {
 
   const handleVerifyClick = () => {
     if (!user || !helper) return;
-    if (helper.verification_status === "pending" || helper.verification_status === "pending_review") {
+    if (helper.verification_status === "pending_review") {
       toast.info("Your verification is already in progress. Please wait for the result.");
       return;
     }
@@ -502,12 +502,12 @@ const HelperProfile = () => {
                 <p className="text-xs text-muted-foreground">Your verification was unsuccessful</p>
               </div>
             </div>
-          ) : helper.verification_status === "pending" || helper.verification_status === "pending_review" ? (
+          ) : helper.verification_status === "pending_review" ? (
             <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
               <Clock size={18} className="text-amber-600 dark:text-amber-400" />
               <div>
                 <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Verification In Progress</p>
-                <p className="text-xs text-amber-700 dark:text-amber-400">Your identity is being verified. This may take a few minutes.</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400">Your identity is being reviewed. This may take some time.</p>
               </div>
             </div>
           ) : (
