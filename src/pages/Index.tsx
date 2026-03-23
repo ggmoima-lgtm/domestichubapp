@@ -466,31 +466,7 @@ const Index = () => {
 
           
 
-          {/* Quick Category Tabs */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className={`p-4 rounded-2xl border-2 text-center transition-all ${
-                activeCategory !== "gardener"
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-foreground hover:border-primary/40"
-              }`}
-            >
-              <span className="text-2xl block mb-1">🏠</span>
-              <span className="text-sm font-bold">Domestic Helpers</span>
-            </button>
-            <button
-              onClick={() => setActiveCategory("gardener")}
-              className={`p-4 rounded-2xl border-2 text-center transition-all ${
-                activeCategory === "gardener"
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-foreground hover:border-primary/40"
-              }`}
-            >
-              <span className="text-2xl block mb-1">🌱</span>
-              <span className="text-sm font-bold">Gardeners</span>
-            </button>
-          </div>
+          {/* Sub-categories with gardener */}
 
           {/* Search */}
           <SearchBar
