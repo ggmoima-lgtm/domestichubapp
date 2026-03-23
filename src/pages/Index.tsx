@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf, Star, FileText } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
+import TrustBanner from "@/components/TrustBanner";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
 import LowCreditBanner from "@/components/LowCreditBanner";
