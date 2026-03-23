@@ -419,7 +419,6 @@ const Index = () => {
                 onClick={() => handleTabChange("hub")}
                 className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
               >
-                <FileText size={14} className="text-primary" />
                 <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
               </button>
             </div>

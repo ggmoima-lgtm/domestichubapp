@@ -123,7 +123,6 @@ const WorkerCard = ({
       {/* Status banner for unlocked but non-available helpers */}
       {isUnlocked && (availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable") && (
         <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
-          <Lock size={12} className="text-destructive" />
           <span className="text-xs font-semibold text-destructive">
             {availabilityStatus === "unavailable" ? "Currently Unavailable" : "Currently Hired — Not Available"}
           </span>
@@ -162,7 +161,6 @@ const WorkerCard = ({
               <h3 className="font-bold text-foreground text-base truncate">{getPreviewName(name)}</h3>
               {isUnlocked && (
                 <Badge variant="success" className="text-[10px] shrink-0">
-                  <Unlock size={10} className="mr-0.5" />
                   Unlocked
                 </Badge>
               )}
@@ -171,11 +169,11 @@ const WorkerCard = ({
             {/* Location + Status */}
             <div className="flex items-center gap-3 mt-1">
               {location && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin size={12} /> {location}
+                <span className="text-xs text-muted-foreground">
+                  📍 {location}
                 </span>
               )}
-              <span className={`flex items-center gap-1 text-xs font-medium ${status.className}`}>
+              <span className={`text-xs font-medium ${status.className}`}>
                 {status.emoji} {status.label}
               </span>
             </div>
@@ -183,30 +181,29 @@ const WorkerCard = ({
             {/* Verification badges */}
             <div className="flex items-center gap-3 mt-2">
               {verified && (
-                <span className="flex items-center gap-1 text-xs text-primary font-medium">
-                  <CheckCircle size={12} /> ID Verified
+                <span className="text-xs text-primary font-medium">
+                  ✅ ID Verified
                 </span>
               )}
-              <span className="flex items-center gap-1 text-xs text-primary font-medium">
-                <Phone size={12} /> Phone Verified
+              <span className="text-xs text-primary font-medium">
+                📱 Phone Verified
               </span>
             </div>
 
             {/* Experience */}
             {expYears > 0 && (
-              <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1.5">
-                <Briefcase size={12} className="text-amber-500" />
-                <span className="font-semibold text-foreground">{expYears} Year{expYears !== 1 ? "s" : ""} Experience</span>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                <span className="font-semibold text-foreground">⭐ {expYears} Year{expYears !== 1 ? "s" : ""} Experience</span>
               </p>
             )}
 
             {/* Activity indicators */}
             <div className="flex items-center gap-3 mt-1.5">
-              <span className="flex items-center gap-1 text-[11px] text-green-600 font-medium">
-                <Activity size={10} /> Active this week
+              <span className="text-[11px] text-green-600 font-medium">
+                🟢 Active this week
               </span>
-              <span className="flex items-center gap-1 text-[11px] text-primary font-medium">
-                <Zap size={10} /> Responds quickly
+              <span className="text-[11px] text-primary font-medium">
+                ⚡ Responds quickly
               </span>
             </div>
           </div>
@@ -222,7 +219,6 @@ const WorkerCard = ({
             onClick?.();
           }}
         >
-          <Eye size={14} />
           View Profile
         </Button>
       </div>
