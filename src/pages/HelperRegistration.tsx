@@ -37,6 +37,11 @@ const skillOptions = [
   "Medication Management", "Physical Therapy", "Arts & Crafts"
 ];
 
+const gardenerServiceOptions = [
+  "Lawn Mowing", "Hedge Trimming", "Garden Maintenance", 
+  "Landscaping", "Tree Trimming", "Irrigation", "Planting"
+];
+
 const languageOptions = [
   "English", "Afrikaans", "isiZulu", "isiXhosa", "Sesotho", 
   "Setswana", "Sepedi", "Xitsonga", "siSwati", "Tshivenda", "isiNdebele"
