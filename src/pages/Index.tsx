@@ -566,7 +566,7 @@ const Index = () => {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-foreground text-sm">
-                Available Helpers
+                {activeCategory === "gardener" ? "Available Gardeners" : "Available Helpers"}
                 <span className="text-muted-foreground font-normal ml-1">({filteredWorkers.length})</span>
               </h3>
               <button
