@@ -476,20 +476,17 @@ const Index = () => {
             filterCount={activeFilterCount}
           />
 
-          {/* Sub-categories (only for domestic helpers) */}
-          {activeCategory !== "gardener" && (
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-              {categories.filter(c => c.id !== "gardener").map((category) => (
-                <CategoryPill
-                  key={category.id}
-                  icon={categoryIcons[category.id as keyof typeof categoryIcons]}
-                  label={category.label}
-                  active={activeCategory === category.id}
-                  onClick={() => setActiveCategory(category.id)}
-                />
-              ))}
-            </div>
-          )}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+            {categories.map((category) => (
+              <CategoryPill
+                key={category.id}
+                icon={categoryIcons[category.id as keyof typeof categoryIcons]}
+                label={category.label}
+                active={activeCategory === category.id}
+                onClick={() => setActiveCategory(category.id)}
+              />
+            ))}
+          </div>
 
           {/* Featured Helpers (Verified) */}
           {(() => {
