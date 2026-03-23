@@ -199,7 +199,7 @@ const Auth = () => {
           phone,
           email: signupEmail.trim() || null,
           role: selectedRole!,
-          onboarding_completed: false,
+          onboarding_completed: true,
         } as any);
         if (termsAccepted) {
           await supabase.from("terms_acceptances").insert({
