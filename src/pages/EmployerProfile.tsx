@@ -107,8 +107,17 @@ const EmployerProfile = () => {
       .maybeSingle();
 
     if (data) {
-      setEmployer(data as EmployerData);
-      setEditData(data as EmployerData);
+      const normalizedData = {
+        ...data,
+        email: data.email || user.email || null,
+      } as EmployerData;
+      setEmployer(normalizedData);
+      setEditData(normalizedData);
+    } else {
+      setEditData({
+        email: user.email || "",
+        availability: [],
+      });
     }
 
     const { count: unlocks } = await supabase
@@ -206,13 +215,15 @@ const EmployerProfile = () => {
 
   const handleSave = async () => {
     if (!user) return;
-    if (!editData.email || !editData.email.includes("@")) {
+
+    const resolvedEmail = (editData.email || user.email || "").trim();
+    if (!resolvedEmail || !resolvedEmail.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
     const payload = {
       full_name: editData.full_name || null,
-      email: editData.email,
+      email: resolvedEmail,
       location: editData.location || null,
       type_of_need: editData.type_of_need || null,
       category: editData.category || null,
