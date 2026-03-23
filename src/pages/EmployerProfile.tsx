@@ -154,7 +154,7 @@ const EmployerProfile = () => {
     // Fetch unlocked profiles with helper details
     const { data: unlocksData } = await supabase
       .from("profile_unlocks")
-      .select("*, helpers(id, full_name, avatar_url, category, availability_status)")
+      .select("*, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
