@@ -244,53 +244,51 @@ const LandingPage = () => {
         <div className="absolute bottom-10 left-10 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
 
         <div className="relative max-w-6xl mx-auto px-4 py-20 md:py-32 text-center">
-          <div className="inline-flex items-center gap-2 bg-primary-light rounded-full px-4 py-1.5 mb-6">
-            <Heart size={14} className="text-primary fill-primary" />
-            <span className="text-xs font-semibold text-primary">
-              South Africa's Trusted Platform
-            </span>
-          </div>
+          <img
+            src={logo}
+            alt="Domestic Hub"
+            className="w-20 h-20 rounded-2xl shadow-lg mx-auto mb-8"
+          />
 
-          <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight mb-4">
-            Connecting Homes
-            <br />
-            <span className="text-primary">With Trusted Hands</span>
+          <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-3">
+            Find Trusted Domestic Help
           </h1>
 
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Find verified nannies, housekeepers, caregivers, and cleaners in
-            your area — or post your profile and get discovered by families who
-            need your skills.
+          <p className="text-lg md:text-xl font-semibold text-primary mb-4">
+            Or Get Hired Faster
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-            <Button size="lg" asChild>
-              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
-                Download on iOS <ArrowRight size={18} />
-              </a>
+          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-10">
+            Verified helpers. Safe hiring. Simple process.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6">
+            <Button
+              size="lg"
+              className="flex-1"
+              onClick={() => navigate("/auth?role=employer")}
+            >
+              Continue as Employer
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
-                Get it on Android
-              </a>
+            <Button
+              size="lg"
+              variant="outline"
+              className="flex-1"
+              onClick={() => navigate("/auth?role=helper")}
+            >
+              Continue as Helper
             </Button>
           </div>
 
-          {/* Stats bar */}
-          <div className="flex flex-wrap justify-center gap-8 text-center">
-            {[
-              { value: "1,200+", label: "Verified Helpers" },
-              { value: "5,000+", label: "Happy Families" },
-              { value: "98%", label: "Satisfaction Rate" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="font-display text-2xl md:text-3xl font-bold text-primary">
-                  {s.value}
-                </p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <button
+              onClick={() => navigate("/auth")}
+              className="text-primary font-semibold hover:underline"
+            >
+              Log in
+            </button>
+          </p>
         </div>
       </section>
 
