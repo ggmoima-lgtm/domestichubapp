@@ -125,7 +125,7 @@ const EmployerProfile = () => {
 
     const { data: dbSaved } = await supabase
       .from("saved_helpers")
-      .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status)")
+      .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
       .order("created_at", { ascending: false });
 
