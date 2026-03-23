@@ -816,7 +816,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                   </li>
                 </ul>
                 <p className="text-xs text-muted-foreground text-center mb-4">
-                  Find the right helper faster
+                  Most employers view 3–5 profiles before hiring
                 </p>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   Unlock Profile — 1 Credit
