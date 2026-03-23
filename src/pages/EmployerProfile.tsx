@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
-  LogOut, Trash2, Lock, Mail, Users, CreditCard,
+  LogOut, Trash2, Lock, Mail, Users, CreditCard, AlertTriangle,
   Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";

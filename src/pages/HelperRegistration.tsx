@@ -432,7 +432,7 @@ const HelperRegistration = () => {
                     {dateOfBirth ? format(dateOfBirth, "dd MMM yyyy") : <span>Select</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="start" side="bottom" sideOffset={4}>
                   <Calendar
                     mode="single"
                     selected={dateOfBirth}
@@ -442,7 +442,7 @@ const HelperRegistration = () => {
                     captionLayout="dropdown-buttons"
                     fromYear={1940}
                     toYear={new Date().getFullYear() - 18}
-                    className={cn("p-3 pointer-events-auto")}
+                    className={cn("p-4 pointer-events-auto min-w-[300px]")}
                   />
                 </PopoverContent>
               </Popover>
