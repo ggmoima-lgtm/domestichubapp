@@ -535,7 +535,10 @@ const EmployerProfile = () => {
                       <p className="text-xs text-muted-foreground">{unlock.helpers?.category || "Helper"}</p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
-                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" : "🔴 Unavailable"}
+                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" 
+                        : unlock.helpers?.availability_status === "interviewing" ? "🔵 In Conversation"
+                        : unlock.helpers?.availability_status === "hired_platform" || unlock.helpers?.availability_status === "hired_external" ? "🟡 Hired"
+                        : "🔴 Unavailable"}
                     </Badge>
                   </div>
                 ))
