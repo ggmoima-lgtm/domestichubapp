@@ -68,6 +68,14 @@ const Index = () => {
   const [showPushDialog, setShowPushDialog] = useState(false);
   const permissionsPromptedRef = useRef(false);
 
+  // Sync activeTab when search params change (e.g. navigating from another page)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["home", "messages", "hub", "profile"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
   // Prompt for push notifications and location on first load
   useEffect(() => {
     if (!user || permissionsPromptedRef.current) return;
