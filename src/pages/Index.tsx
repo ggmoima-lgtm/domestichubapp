@@ -449,7 +449,7 @@ const Index = () => {
 
       {/* Tab Content */}
       {activeTab === "home" && userRole === "helper" && (
-        <main className="px-4 py-4">
+        <main className="px-4 py-4 pb-24">
           <HelperHomeView />
         </main>
       )}
