@@ -63,6 +63,7 @@ const Index = () => {
   const [showCreditStore, setShowCreditStore] = useState(false);
   const [employerName, setEmployerName] = useState<string>("");
   const [newApplicantCount, setNewApplicantCount] = useState(0);
+  const [profileViewCount, setProfileViewCount] = useState(0);
   const [showPushDialog, setShowPushDialog] = useState(false);
   const permissionsPromptedRef = useRef(false);
 
