@@ -579,7 +579,11 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{getPreviewName(helper.full_name)}</p>
-                      <p className="text-xs text-muted-foreground">{helper.category}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {helper.service_type === "gardening" ? "🌱 Gardener" 
+                          : helper.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
+                          : `🏠 ${helper.category || "Helper"}`}
+                      </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
                       {helper.availability_status === "available" ? "🟢 Available" 
