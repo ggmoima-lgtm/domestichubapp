@@ -196,6 +196,10 @@ const Index = () => {
           availableFrom: h.available_from || null,
           phone: h.phone || undefined,
           email: h.email || undefined,
+          serviceType: (h as any).service_type || "domestic",
+          skillsDomestic: (h as any).skills_domestic || [],
+          skillsGardening: (h as any).skills_gardening || [],
+          hasTools: (h as any).has_tools || false,
         }));
         setUnlockedHelpers(mapped);
       } else {

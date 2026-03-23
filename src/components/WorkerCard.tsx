@@ -34,6 +34,10 @@ interface WorkerCardProps {
   availabilityStatus?: HelperStatus;
   isUnlocked?: boolean;
   onClick?: () => void;
+  serviceType?: string;
+  hasTools?: boolean;
+  skillsDomestic?: string[];
+  skillsGardening?: string[];
 }
 
 const WorkerCard = ({
