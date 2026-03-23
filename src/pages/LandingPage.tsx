@@ -37,11 +37,11 @@ const LandingPage = () => {
             Find Trusted Domestic Help and Gardeners
           </h1>
 
-          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-2">
-            Verified helpers and gardeners near you.
+          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-1">
+            Verified helpers near you.
           </p>
           <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-10">
-            Safe, simple, and reliable.
+            Safe. Simple. Reliable.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
