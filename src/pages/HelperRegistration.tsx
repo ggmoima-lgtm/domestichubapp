@@ -23,23 +23,31 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const serviceTypeOptions = [
+  { id: "domestic", label: "Domestic Work", icon: "🏠" },
+  { id: "gardening", label: "Gardening", icon: "🌱" },
+  { id: "both", label: "Both", icon: "🏠🌱" },
+];
+
 const categories = [
   { id: "nanny", label: "Nanny" },
   { id: "housekeeper", label: "Housekeeper" },
   { id: "caregiver", label: "Caregiver" },
   { id: "all-around", label: "All-around" },
-  { id: "gardener", label: "Gardener" },
+];
+
+const domesticSkillOptions = [
+  "Cleaning", "Childcare", "Cooking", "Laundry"
+];
+
+const gardeningSkillOptions = [
+  "Lawn Mowing", "Hedge Trimming", "Garden Cleaning", "Landscaping"
 ];
 
 const skillOptions = [
   "Childcare", "Cooking", "Cleaning", "Laundry", "First Aid", 
   "Tutoring", "Elder Care", "Pet Care", "Driving", "Organizing",
   "Medication Management", "Physical Therapy", "Arts & Crafts"
-];
-
-const gardenerServiceOptions = [
-  "Lawn Mowing", "Hedge Trimming", "Garden Maintenance", 
-  "Landscaping", "Tree Trimming", "Irrigation", "Planting"
 ];
 
 const languageOptions = [
