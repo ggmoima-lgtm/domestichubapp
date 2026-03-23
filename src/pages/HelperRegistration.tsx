@@ -37,6 +37,11 @@ const skillOptions = [
   "Medication Management", "Physical Therapy", "Arts & Crafts"
 ];
 
+const gardenerServiceOptions = [
+  "Lawn Mowing", "Hedge Trimming", "Garden Maintenance", 
+  "Landscaping", "Tree Trimming", "Irrigation", "Planting"
+];
+
 const languageOptions = [
   "English", "Afrikaans", "isiZulu", "isiXhosa", "Sesotho", 
   "Setswana", "Sepedi", "Xitsonga", "siSwati", "Tshivenda", "isiNdebele"
@@ -530,6 +535,52 @@ const HelperRegistration = () => {
             ))}
           </div>
         </section>
+
+        {/* Gardener Services — only shown when gardener category is selected */}
+        {formData.category.includes("gardener") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">🌱 Gardening Services</h2>
+            <div className="flex flex-wrap gap-2">
+              {gardenerServiceOptions.map((service) => (
+                <Badge
+                  key={service}
+                  variant={selectedSkills.includes(service) ? "default" : "outline"}
+                  className="cursor-pointer transition-all"
+                  onClick={() => toggleSkill(service)}
+                >
+                  {service}
+                </Badge>
+              ))}
+            </div>
+            <div className="mt-3 bg-muted/50 rounded-2xl p-4 space-y-3">
+              <Label className="text-sm font-semibold">Do you have your own tools/equipment?</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {["Yes — own equipment", "No — need tools provided"].map((opt) => (
+                  <label
+                    key={opt}
+                    className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
+                      selectedSkills.includes(opt)
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border bg-card text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="gardener_tools"
+                      checked={selectedSkills.includes(opt)}
+                      onChange={() => {
+                        const cleaned = selectedSkills.filter(s => !s.startsWith("Yes —") && !s.startsWith("No —"));
+                        toggleSkill(opt);
+                      }}
+                      className="sr-only"
+                    />
+                    <span className="text-sm">{opt.startsWith("Yes") ? "🧰 Yes" : "❌ No"}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Languages */}
         <section className="space-y-3">
