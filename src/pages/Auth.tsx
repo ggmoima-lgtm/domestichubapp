@@ -394,20 +394,6 @@ const Auth = () => {
               }
             }
 
-            // Also check if the auth email (or generated placeholder) is already in auth
-            const authEmail = signupEmail.trim() || `${phoneDigits}@helper.domestichub.app`;
-            const { error: signInCheck } = await supabase.auth.signInWithPassword({
-              email: authEmail,
-              password: "___check_only___",
-            });
-            // If we get "Invalid login credentials" it means user exists but wrong password
-            // If we get nothing or other error, user may not exist
-            if (signInCheck && signInCheck.message === "Invalid login credentials") {
-              toast({ title: "Account already exists", description: "An account with this email or phone already exists. Please log in instead.", variant: "destructive" });
-              setIsSubmitting(false);
-              return;
-            }
-
             setSignupStep("verify-phone");
           } catch (err) {
             // Allow proceeding if check fails
