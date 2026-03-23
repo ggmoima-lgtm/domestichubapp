@@ -260,7 +260,9 @@ const Index = () => {
 
     const matchesCategory =
       activeCategory === "all" ||
-      worker.role.toLowerCase().includes(activeCategory.toLowerCase());
+      (activeCategory === "gardener" 
+        ? (worker.serviceType === "gardening" || worker.serviceType === "both" || worker.role.toLowerCase().includes("gardener"))
+        : (worker.serviceType !== "gardening" && (activeCategory === "all" || worker.role.toLowerCase().includes(activeCategory.toLowerCase()))));
 
     const matchesLocation =
       filters.locations.length === 0 ||
