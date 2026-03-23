@@ -40,6 +40,7 @@ const App = () => (
               <Route path="/welcome" element={<LandingPage />} />
               <Route path="/splash" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
               <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/index" element={<Navigate to="/home" replace />} />
               <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsConditions />} />
