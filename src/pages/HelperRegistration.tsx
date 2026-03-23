@@ -612,17 +612,19 @@ const HelperRegistration = () => {
           </section>
         )}
 
-        {/* Additional Skills */}
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
-          <div className="flex flex-wrap gap-2">
-            {skillOptions.map((skill) => (
-              <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
-                {skill}
-              </Badge>
-            ))}
-          </div>
-        </section>
+        {/* Additional Skills — shown for gardening/both only */}
+        {(serviceType === "gardening" || serviceType === "both") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {skillOptions.map((skill) => (
+                <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Experience & Rate */}
         <section className="space-y-3">
