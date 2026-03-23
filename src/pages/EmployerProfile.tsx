@@ -699,66 +699,66 @@ const EmployerProfile = () => {
                 <p className="text-xs text-muted-foreground py-2">No applications received yet.</p>
               ) : (
                 applications.map((app: any) => (
-                  <div
-                    key={app.id}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
-                    onClick={() => {
-                      const h = app.helpers;
-                      if (!h) return;
-                      setSelectedApplicant(h);
-                      setSelectedAppMeta({ jobTitle: app.job_title, date: app.created_at });
-                    }}
-                  >
-                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
-                      {app.helpers?.avatar_url ? (
-                        <img src={app.helpers.avatar_url} alt={app.helpers.full_name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-primary font-bold">
-                          {app.helpers?.full_name?.charAt(0) || "?"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate">{getPreviewName(app.helpers?.full_name || "Unknown")}</p>
-                      <p className="text-xs text-muted-foreground truncate">Applied for: {app.job_title}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {new Date(app.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : app.status === "shortlisted" ? "outline" : "destructive"}
-                      className="text-[10px] shrink-0"
+                  <div key={app.id} className="rounded-xl bg-muted/50 overflow-hidden">
+                    <div
+                      className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/80 transition-colors"
+                      onClick={() => {
+                        const h = app.helpers;
+                        if (!h) return;
+                        setSelectedApplicant(h);
+                        setSelectedAppMeta({ jobTitle: app.job_title, date: app.created_at });
+                      }}
                     >
-                      {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status === "shortlisted" ? "⭐ Shortlisted" : app.status === "rejected" ? "❌ Declined" : app.status}
-                    </Badge>
-                  </div>
-                  {app.status === "pending" && (
-                    <div className="flex gap-2 mt-2 pl-13">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-[10px] rounded-lg border-blue-300 text-blue-600 hover:bg-blue-50"
-                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "shortlisted", app.helpers?.user_id, app.job_title); }}
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
+                        {app.helpers?.avatar_url ? (
+                          <img src={app.helpers.avatar_url} alt={app.helpers.full_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-primary font-bold">
+                            {app.helpers?.full_name?.charAt(0) || "?"}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{getPreviewName(app.helpers?.full_name || "Unknown")}</p>
+                        <p className="text-xs text-muted-foreground truncate">Applied for: {app.job_title}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Date(app.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                      <Badge
+                        variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : app.status === "shortlisted" ? "outline" : "destructive"}
+                        className="text-[10px] shrink-0"
                       >
-                        ⭐ Shortlist
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="h-7 text-[10px] rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "accepted", app.helpers?.user_id, app.job_title); }}
-                      >
-                        ✅ Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-[10px] rounded-lg border-destructive text-destructive hover:bg-destructive/10"
-                        onClick={(e) => { e.stopPropagation(); updateApplicationStatus(app.id, "rejected", app.helpers?.user_id, app.job_title); }}
-                      >
-                        ✕ Decline
-                      </Button>
+                        {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status === "shortlisted" ? "⭐ Shortlisted" : app.status === "rejected" ? "❌ Declined" : app.status}
+                      </Badge>
                     </div>
-                  )}
+                    {app.status === "pending" && (
+                      <div className="flex gap-2 px-3 pb-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-[10px] rounded-lg"
+                          onClick={() => updateApplicationStatus(app.id, "shortlisted", app.helpers?.user_id, app.job_title)}
+                        >
+                          ⭐ Shortlist
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-7 text-[10px] rounded-lg"
+                          onClick={() => updateApplicationStatus(app.id, "accepted", app.helpers?.user_id, app.job_title)}
+                        >
+                          ✅ Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-[10px] rounded-lg border-destructive text-destructive hover:bg-destructive/10"
+                          onClick={() => updateApplicationStatus(app.id, "rejected", app.helpers?.user_id, app.job_title)}
+                        >
+                          ✕ Decline
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))
               )}
