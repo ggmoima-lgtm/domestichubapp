@@ -357,6 +357,18 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
           <div ref={messagesEndRef} />
         </div>
 
+        {/* WhatsApp CTA */}
+        <div className="px-5 py-2 bg-card">
+          <a
+            href={`https://wa.me/?text=Hi%2C%20I%20found%20your%20profile%20on%20Domestic%20Hub%20and%20would%20like%20to%20connect.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold transition-colors"
+          >
+            Continue on WhatsApp
+          </a>
+        </div>
+
         {/* Input */}
         <div className="px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border flex gap-2 bg-card">
           <Input

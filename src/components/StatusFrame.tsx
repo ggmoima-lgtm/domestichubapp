@@ -4,7 +4,7 @@ type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_ext
 
 const statusFrameColors: Record<HelperStatus, string> = {
   available: "ring-green-400 ring-2",
-  interviewing: "ring-blue-400 ring-2 animate-pulse",
+  interviewing: "ring-blue-400 ring-2 animate-pulse", // "In Conversation" status
   hired_platform: "ring-amber-400 ring-2",
   hired_external: "ring-amber-400 ring-2",
   unavailable: "ring-destructive/50 ring-2",

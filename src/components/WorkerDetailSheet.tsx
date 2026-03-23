@@ -41,7 +41,7 @@ interface Placement {
 
 const statusLabels: Record<HelperStatus, { label: string; emoji: string }> = {
   available: { label: "Available", emoji: "🟢" },
-  interviewing: { label: "Interviewing", emoji: "🔵" },
+  interviewing: { label: "In Conversation", emoji: "🔵" },
   hired_platform: { label: "Hired (via platform)", emoji: "🟡" },
   hired_external: { label: "Currently Employed", emoji: "🟡" },
   unavailable: { label: "Unavailable", emoji: "🔴" },

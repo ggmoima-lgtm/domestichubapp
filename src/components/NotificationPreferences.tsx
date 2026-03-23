@@ -29,7 +29,7 @@ const defaultPrefs: Prefs = {
 
 const labels: Record<keyof Prefs, string> = {
   messages: "New Messages",
-  interviews: "Interview Requests",
+  interviews: "Connection Requests",
   profile_unlocks: "Profile Unlocked",
   hire_updates: "Hire Updates",
   reviews: "Review Requests",
