@@ -82,6 +82,7 @@ const Index = () => {
       const resolvedRole = data?.role || fallbackRole;
 
       setUserRole(resolvedRole);
+      setEmployerName(data?.full_name?.split(" ")[0] || "");
 
       if (resolvedRole === "helper") {
         const { data: helperProfile } = await supabase
