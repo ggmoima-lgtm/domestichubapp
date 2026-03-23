@@ -43,7 +43,8 @@ const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("home");
+  const initialTab = searchParams.get("tab") || "home";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
@@ -66,6 +67,14 @@ const Index = () => {
   const [profileViewCount, setProfileViewCount] = useState(0);
   const [showPushDialog, setShowPushDialog] = useState(false);
   const permissionsPromptedRef = useRef(false);
+
+  // Sync activeTab when search params change (e.g. navigating from another page)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["home", "messages", "hub", "profile"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Prompt for push notifications and location on first load
   useEffect(() => {
