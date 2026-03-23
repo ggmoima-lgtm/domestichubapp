@@ -181,7 +181,7 @@ const WorkerCard = ({
               {serviceType === "both" ? "🏠🌱 Domestic + Gardening" : isGardener ? "🌱 Gardener" : `🏠 ${role}`}
             </p>
 
-            <span className={`text-xs font-medium ${status.className} mt-1 block`}>
+            <span className={`text-sm font-bold ${status.className} mt-1 block`}>
               {status.emoji} {status.label}
             </span>
 
