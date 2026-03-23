@@ -78,6 +78,7 @@ const HelperProfile = () => {
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
     if (user) fetchHelperData();
@@ -241,6 +242,50 @@ const HelperProfile = () => {
     }
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !helper || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("helpers")
+        .update({ avatar_url: urlData.publicUrl })
+        .eq("id", helper.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Profile photo updated!");
+      fetchHelperData();
+    } catch (err: any) {
+      toast.error("Failed to upload photo: " + (err.message || "Unknown error"));
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+
   const avgRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "0.0";
@@ -389,9 +434,21 @@ const HelperProfile = () => {
                   </div>
                 )}
               </div>
-              <button className="absolute -bottom-1 -right-1 bg-card text-foreground rounded-full p-1.5 shadow-soft">
-                <Camera size={12} />
-              </button>
+              <label className="absolute -bottom-1 -right-1 bg-card text-foreground rounded-full p-1.5 shadow-soft cursor-pointer">
+                {avatarUploading ? (
+                  <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                ) : (
+                  <Camera size={12} />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                  disabled={avatarUploading}
+                />
+              </label>
             </div>
             <div className="flex-1 text-primary-foreground">
               <h1 className="text-xl font-bold">{helper.full_name}</h1>
