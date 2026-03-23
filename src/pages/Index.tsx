@@ -149,6 +149,28 @@ const Index = () => {
     fetchApplicants();
   }, [user, userRole]);
 
+  // Fetch profile view count (how many employers unlocked helper's profile, or for helpers how many employers viewed theirs)
+  useEffect(() => {
+    if (!user || !userRole) return;
+    const fetchProfileViews = async () => {
+      if (userRole === "helper") {
+        // Count how many employers unlocked this helper's profile
+        const { data: helperData } = await supabase
+          .from("helpers")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (!helperData) { setProfileViewCount(0); return; }
+        const { count } = await supabase
+          .from("profile_unlocks")
+          .select("id", { count: "exact", head: true })
+          .eq("helper_id", helperData.id);
+        setProfileViewCount(count || 0);
+      }
+    };
+    fetchProfileViews();
+  }, [user, userRole]);
+
   // Fetch helpers from database
   useEffect(() => {
     if (!user) return;
