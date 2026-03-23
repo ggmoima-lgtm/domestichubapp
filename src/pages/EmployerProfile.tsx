@@ -107,8 +107,17 @@ const EmployerProfile = () => {
       .maybeSingle();
 
     if (data) {
-      setEmployer(data as EmployerData);
-      setEditData(data as EmployerData);
+      const normalizedData = {
+        ...data,
+        email: data.email || user.email || null,
+      } as EmployerData;
+      setEmployer(normalizedData);
+      setEditData(normalizedData);
+    } else {
+      setEditData({
+        email: user.email || "",
+        availability: [],
+      });
     }
 
     const { count: unlocks } = await supabase
