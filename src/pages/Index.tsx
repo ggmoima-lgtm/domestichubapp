@@ -561,9 +561,12 @@ const Index = () => {
                 </p>
               )}
               {newApplicantCount === 0 && profileViewCount === 0 && (
-                <p className="flex items-center gap-2 text-sm text-foreground font-medium">
-                  <span>👋 Welcome! Complete your profile to get started</span>
-                </p>
+                <button
+                  onClick={() => handleTabChange("profile")}
+                  className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
+                >
+                  <span>👋 Welcome! Complete your profile to get started →</span>
+                </button>
               )}
             </div>
           </div>
