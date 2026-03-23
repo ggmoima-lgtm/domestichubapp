@@ -325,12 +325,9 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             Once you're comfortable, you can continue the conversation outside the app.
           </div>
 
-          {/* Safety Warning Banner */}
-          <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs leading-relaxed">
-            <span className="shrink-0 mt-0.5">⚠️</span>
-            <span>
-              Domestic Hub monitors conversations for safety. Inappropriate, abusive, discriminatory, or illegal content may result in account suspension.
-            </span>
+          {/* Disclaimer */}
+          <div className="p-3 rounded-xl bg-muted/50 border border-border text-[10px] text-muted-foreground leading-relaxed text-center">
+            Domestic Hub is a connection platform. All communication and agreements outside the app are at your own discretion. Domestic Hub is not liable for interactions outside the platform.
           </div>
 
           {messages.length === 0 && (
