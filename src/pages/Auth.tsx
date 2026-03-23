@@ -252,7 +252,7 @@ const Auth = () => {
   const renderDetailsStep = () => (
     <motion.div {...fadeSlide} className="space-y-4">
       <div className="flex items-center gap-2 mb-1">
-        <button type="button" onClick={() => { setSignupStep("role"); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
+        <button type="button" onClick={() => { navigate("/"); }} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>
         <h2 className="text-sm font-bold text-foreground">
