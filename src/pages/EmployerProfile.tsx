@@ -532,7 +532,11 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{unlock.helpers?.full_name || "Unknown"}</p>
-                      <p className="text-xs text-muted-foreground">{unlock.helpers?.category || "Helper"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {unlock.helpers?.service_type === "gardening" ? "🌱 Gardener" 
+                          : unlock.helpers?.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
+                          : `🏠 ${unlock.helpers?.category || "Helper"}`}
+                      </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
                       {unlock.helpers?.availability_status === "available" ? "🟢 Available" 
