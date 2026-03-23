@@ -317,7 +317,8 @@ const Index = () => {
     (filters.nearMe ? 1 : 0) +
     (filters.unlockedOnly ? 1 : 0) +
     (filters.verifiedOnly ? 1 : 0) +
-    (filters.minRating > 0 ? 1 : 0);
+    (filters.minRating > 0 ? 1 : 0) +
+    (filters.serviceType && filters.serviceType !== "all" ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
