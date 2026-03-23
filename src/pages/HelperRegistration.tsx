@@ -301,6 +301,7 @@ const HelperRegistration = () => {
         skills_domestic: selectedDomesticSkills,
         skills_gardening: selectedGardeningSkills,
         has_tools: hasTools,
+        location: [formData.area, formData.city].filter(Boolean).join(", ") || null,
       } as any);
 
       if (profileError) {
