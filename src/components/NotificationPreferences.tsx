@@ -55,7 +55,6 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
           if (data) {
             setPrefs({
               messages: data.messages,
-              interviews: data.interviews,
               profile_unlocks: data.profile_unlocks,
               hire_updates: data.hire_updates,
               reviews: data.reviews,
