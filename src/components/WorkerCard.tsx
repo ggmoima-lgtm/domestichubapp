@@ -143,7 +143,7 @@ const WorkerCard = ({
         <div className="flex gap-4 items-start">
           {/* Photo */}
           <div className="relative flex-shrink-0">
-            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted">
+            <div className="w-28 h-28 rounded-2xl overflow-hidden bg-muted">
               <img
                 src={avatar}
                 alt={name}
@@ -170,7 +170,7 @@ const WorkerCard = ({
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-foreground text-base truncate">{getPreviewName(name)}</h3>
               {isUnlocked && (
-                <Badge variant="success" className="text-[10px] shrink-0">
+                <Badge variant="success" className="text-xs px-2.5 py-0.5 shrink-0">
                   Unlocked
                 </Badge>
               )}
@@ -181,17 +181,17 @@ const WorkerCard = ({
               {serviceType === "both" ? "🏠🌱 Domestic + Gardening" : isGardener ? "🌱 Gardener" : `🏠 ${role}`}
             </p>
 
-            <span className={`text-xs font-medium ${status.className} mt-1 block`}>
+            <span className={`text-sm font-bold ${status.className} mt-1 block`}>
               {status.emoji} {status.label}
             </span>
 
             {verified && (
-              <span className="text-xs text-primary font-medium block mt-0.5">
+              <span className="text-sm text-primary font-semibold block mt-0.5">
                 ✅ ID Verified
               </span>
             )}
 
-            <span className="text-xs text-primary font-medium block mt-0.5">
+            <span className="text-sm text-primary font-semibold block mt-0.5">
               📱 Phone Verified
             </span>
 
