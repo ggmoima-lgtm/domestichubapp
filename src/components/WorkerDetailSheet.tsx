@@ -788,9 +788,6 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                   <li className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Eye size={14} className="text-primary shrink-0" /> View full details
                   </li>
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar size={14} className="text-primary shrink-0" /> Schedule interview
-                  </li>
                 </ul>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
                   <Unlock size={18} />
