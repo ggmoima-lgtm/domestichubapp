@@ -73,7 +73,7 @@ const Index = () => {
     const fetchRoleAndProfile = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, full_name")
         .eq("user_id", user.id)
         .maybeSingle();
 
