@@ -328,6 +328,7 @@ export type Database = {
           is_verified: boolean | null
           languages: string[] | null
           living_arrangement: string | null
+          location: string | null
           nationality: string | null
           phone: string
           service_type: string
@@ -364,6 +365,7 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
+          location?: string | null
           nationality?: string | null
           phone: string
           service_type?: string
@@ -400,6 +402,7 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
+          location?: string | null
           nationality?: string | null
           phone?: string
           service_type?: string
