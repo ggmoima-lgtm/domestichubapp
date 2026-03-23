@@ -1,0 +1,1 @@
+ALTER TABLE public.helpers ADD COLUMN location text;

@@ -231,6 +231,7 @@ const HelperRegistration = () => {
     if (calculatedAge < 18) { toast.error("You must be at least 18 years old to register"); return; }
     if (!formData.gender) { toast.error("Please select your gender"); return; }
     if (!formData.nationality) { toast.error("Please select your nationality"); return; }
+    if (!formData.city && !formData.area) { toast.error("Please select your location"); return; }
     if (!formData.availability) { toast.error("Please select your availability"); return; }
     if (!formData.bio) { toast.error("Please write something about yourself"); return; }
     if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
@@ -300,6 +301,7 @@ const HelperRegistration = () => {
         skills_domestic: selectedDomesticSkills,
         skills_gardening: selectedGardeningSkills,
         has_tools: hasTools,
+        location: [formData.area, formData.city].filter(Boolean).join(", ") || null,
       } as any);
 
       if (profileError) {
