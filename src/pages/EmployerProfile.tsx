@@ -190,7 +190,7 @@ const EmployerProfile = () => {
       const jobIds = jobPosts.map(j => j.id);
       const { data: apps, count: appCount } = await supabase
         .from("job_applications")
-        .select("*, helpers(id, full_name, avatar_url, category, phone, bio, languages, availability, intro_video_url, availability_status, available_from, skills, experience_years, hourly_rate, is_verified)", { count: "exact" })
+        .select("*, helpers(id, user_id, full_name, avatar_url, category, phone, bio, languages, availability, intro_video_url, availability_status, available_from, skills, experience_years, hourly_rate, is_verified, email)", { count: "exact" })
         .in("job_id", jobIds)
         .order("created_at", { ascending: false });
 
