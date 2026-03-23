@@ -125,7 +125,7 @@ const EmployerProfile = () => {
 
     const { data: dbSaved } = await supabase
       .from("saved_helpers")
-      .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status)")
+      .select("helper_id, created_at, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -154,7 +154,7 @@ const EmployerProfile = () => {
     // Fetch unlocked profiles with helper details
     const { data: unlocksData } = await supabase
       .from("profile_unlocks")
-      .select("*, helpers(id, full_name, avatar_url, category, availability_status)")
+      .select("*, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
@@ -532,10 +532,17 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{unlock.helpers?.full_name || "Unknown"}</p>
-                      <p className="text-xs text-muted-foreground">{unlock.helpers?.category || "Helper"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {unlock.helpers?.service_type === "gardening" ? "🌱 Gardener" 
+                          : unlock.helpers?.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
+                          : `🏠 ${unlock.helpers?.category || "Helper"}`}
+                      </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
-                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" : "🔴 Unavailable"}
+                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" 
+                        : unlock.helpers?.availability_status === "interviewing" ? "🔵 In Conversation"
+                        : unlock.helpers?.availability_status === "hired_platform" || unlock.helpers?.availability_status === "hired_external" ? "🟡 Hired"
+                        : "🔴 Unavailable"}
                     </Badge>
                   </div>
                 ))
@@ -572,10 +579,17 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{getPreviewName(helper.full_name)}</p>
-                      <p className="text-xs text-muted-foreground">{helper.category}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {helper.service_type === "gardening" ? "🌱 Gardener" 
+                          : helper.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
+                          : `🏠 ${helper.category || "Helper"}`}
+                      </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
-                      {helper.availability_status === "available" ? "🟢 Available" : "🔴 Unavailable"}
+                      {helper.availability_status === "available" ? "🟢 Available" 
+                        : helper.availability_status === "interviewing" ? "🔵 In Conversation"
+                        : helper.availability_status === "hired_platform" || helper.availability_status === "hired_external" ? "🟡 Hired"
+                        : "🔴 Unavailable"}
                     </Badge>
                   </div>
                 ))
