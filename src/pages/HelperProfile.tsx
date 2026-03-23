@@ -434,9 +434,21 @@ const HelperProfile = () => {
                   </div>
                 )}
               </div>
-              <button className="absolute -bottom-1 -right-1 bg-card text-foreground rounded-full p-1.5 shadow-soft">
-                <Camera size={12} />
-              </button>
+              <label className="absolute -bottom-1 -right-1 bg-card text-foreground rounded-full p-1.5 shadow-soft cursor-pointer">
+                {avatarUploading ? (
+                  <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                ) : (
+                  <Camera size={12} />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                  disabled={avatarUploading}
+                />
+              </label>
             </div>
             <div className="flex-1 text-primary-foreground">
               <h1 className="text-xl font-bold">{helper.full_name}</h1>
