@@ -779,26 +779,24 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               </div>
 
               {/* Unlock CTA */}
-              <div className="mb-4 p-4 bg-primary/5 border border-primary/20 rounded-2xl text-center">
-                <Lock size={20} className="text-primary mx-auto mb-2" />
-                <p className="text-sm font-bold text-foreground mb-1">Unlock Full Profile</p>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Use 1 credit to unlock full profile, intro video, work history, reviews, and direct messaging.
-                </p>
+              <div className="mb-4 p-4 bg-muted/40 rounded-2xl">
+                <p className="text-sm font-semibold text-foreground mb-2">Unlock this profile to:</p>
+                <ul className="space-y-1.5 mb-4">
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MessageCircle size={14} className="text-primary shrink-0" /> Chat directly
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye size={14} className="text-primary shrink-0" /> View full details
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar size={14} className="text-primary shrink-0" /> Schedule interview
+                  </li>
+                </ul>
                 <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
-                  <Eye size={18} />
-                  View Full Profile
+                  <Unlock size={18} />
+                  Unlock Profile — 1 Credit
                 </Button>
               </div>
-
-              {/* Message button - triggers unlock flow */}
-              {!isNotAvailable && (
-                <Button size="lg" className="w-full" onClick={() => setShowBundleSheet(true)}>
-                  <Lock size={16} />
-                  <MessageCircle size={18} />
-                  Message — Unlock to chat
-                </Button>
-              )}
             </>
           )}
         </div>
