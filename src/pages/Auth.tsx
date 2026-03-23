@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,14 @@ const fadeSlide = {
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { session, loading } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [signupStep, setSignupStep] = useState<SignupStep>("role");
+  const urlMode = searchParams.get("mode");
+  const urlRole = searchParams.get("role");
+  const [mode, setMode] = useState<"login" | "signup">(urlMode === "signup" ? "signup" : "login");
+  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "role");
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(urlRole === "employer" || urlRole === "helper" ? urlRole : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Login
@@ -42,7 +46,6 @@ const Auth = () => {
   const [signupCountryCode, setSignupCountryCode] = useState("+27");
 
   // Signup
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [fullName, setFullName] = useState("");
   const [surname, setSurname] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
@@ -498,21 +501,23 @@ const Auth = () => {
 
       <div className="flex-1 px-5 min-h-0 overflow-hidden">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="bg-card rounded-2xl shadow-card border border-border/40 p-4 max-w-sm mx-auto h-full flex flex-col">
-          {/* Tab toggle */}
-          <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
-            <button
-              onClick={() => { setMode("login"); setSignupStep("role"); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => setMode("signup")}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Sign Up
-            </button>
-          </div>
+          {/* Tab toggle - only show when in signup mode (coming from landing page) */}
+          {mode === "signup" && (
+            <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
+              <button
+                onClick={() => { setMode("login"); setSignupStep("role"); }}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-muted-foreground hover:text-foreground"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => setMode("signup")}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-card shadow-soft text-foreground"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
 
           <div className="flex-1 min-h-0 overflow-y-auto">
             <AnimatePresence mode="wait">
