@@ -16,6 +16,7 @@ export interface FilterState {
   languages: string[];
   verifiedOnly: boolean;
   minRating: number;
+  serviceType: string;
 }
 
 export const defaultFilters: FilterState = {
@@ -29,6 +30,7 @@ export const defaultFilters: FilterState = {
   languages: [],
   verifiedOnly: false,
   minRating: 0,
+  serviceType: "all",
 };
 
 interface FilterSheetProps {
