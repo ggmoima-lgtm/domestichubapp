@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
 
     await supabase
       .from("otp_codes")
-      .update({ verified: true })
+      .update({ verified: true, expires_at: new Date().toISOString() })
       .eq("id", otpRecord.id);
 
     // For phone_change/phone_verify, update profile phone
