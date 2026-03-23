@@ -341,7 +341,7 @@ const HelperHomeView = () => {
                   {new Date(job.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
                 </span>
               </div>
-              {helperProfile ? (
+              {helperProfile && percent >= 80 ? (
                 <Button
                   size="sm"
                   variant={appliedJobIds.has(job.id) ? "secondary" : "outline"}
@@ -357,11 +357,16 @@ const HelperHomeView = () => {
                   variant="outline"
                   className="w-full mt-3 rounded-xl"
                   onClick={() => {
-                    toast.error("Complete your profile first to apply for jobs.");
-                    navigate("/register/helper");
+                    if (!helperProfile) {
+                      toast.error("Complete your profile first to apply for jobs.");
+                      navigate("/register/helper");
+                    } else {
+                      toast.error("Your profile must be at least 80% complete to apply.");
+                      navigate("/home?tab=profile");
+                    }
                   }}
                 >
-                  Complete Profile to Apply
+                  {!helperProfile ? "Complete Profile to Apply" : `Complete Profile (${percent}%) to Apply`}
                 </Button>
               )}
             </div>
