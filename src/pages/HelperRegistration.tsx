@@ -496,65 +496,126 @@ const HelperRegistration = () => {
           </div>
         </section>
 
-        {/* Professional Details */}
+        {/* Service Type Selection (Mandatory) */}
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Briefcase size={18} className="text-primary" /> Professional Details
+            <Briefcase size={18} className="text-primary" /> What type of work do you do? *
           </h2>
-          <div className="space-y-3">
-            <div>
-              <Label>Category * <span className="text-xs text-muted-foreground">(select all that apply)</span></Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {categories.map((cat) => {
-                  const isChecked = formData.category.includes(cat.id);
-                  return (
-                    <label
-                      key={cat.id}
-                      className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
-                        isChecked
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border bg-card text-foreground hover:border-primary/40"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {
-                          const updated = isChecked
-                            ? formData.category.filter((c: string) => c !== cat.id)
-                            : [...formData.category, cat.id];
-                          handleInputChange("category", updated);
-                        }}
-                        className="sr-only"
-                      />
-                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
-                        isChecked ? "border-primary bg-primary" : "border-muted-foreground"
-                      }`}>
-                        {isChecked && <span className="text-primary-foreground text-xs">✓</span>}
-                      </div>
-                      <span className="text-sm font-medium">{cat.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="experience">Years of Experience *</Label>
-              <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
-            </div>
-            <div>
-              <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
-              <div className="relative mt-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
-                <Input id="monthlyRate" type="number" placeholder="e.g., 3500" value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-2">
+            {serviceTypeOptions.map((opt) => (
+              <label
+                key={opt.id}
+                className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
+                  serviceType === opt.id
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-card text-foreground hover:border-primary/40"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="service_type"
+                  checked={serviceType === opt.id}
+                  onChange={() => setServiceType(opt.id)}
+                  className="sr-only"
+                />
+                <span className="text-2xl">{opt.icon}</span>
+                <span className="text-sm font-bold">{opt.label}</span>
+              </label>
+            ))}
           </div>
         </section>
 
-        {/* Skills */}
+        {/* Domestic category selection */}
+        {(serviceType === "domestic" || serviceType === "both") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Category</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {categories.map((cat) => {
+                const isChecked = formData.category.includes(cat.id);
+                return (
+                  <label
+                    key={cat.id}
+                    className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
+                      isChecked
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border bg-card text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {
+                        const updated = isChecked
+                          ? formData.category.filter((c: string) => c !== cat.id)
+                          : [...formData.category, cat.id];
+                        handleInputChange("category", updated);
+                      }}
+                      className="sr-only"
+                    />
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
+                      isChecked ? "border-primary bg-primary" : "border-muted-foreground"
+                    }`}>
+                      {isChecked && <span className="text-primary-foreground text-xs">✓</span>}
+                    </div>
+                    <span className="text-sm font-medium">{cat.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Domestic Skills */}
+        {(serviceType === "domestic" || serviceType === "both") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Skills *</h2>
+            <div className="flex flex-wrap gap-2">
+              {domesticSkillOptions.map((skill) => (
+                <Badge
+                  key={skill}
+                  variant={selectedDomesticSkills.includes(skill) ? "default" : "outline"}
+                  className="cursor-pointer transition-all"
+                  onClick={() => setSelectedDomesticSkills(prev => 
+                    prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+                  )}
+                >
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Gardening Skills */}
+        {(serviceType === "gardening" || serviceType === "both") && (
+          <section className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">🌱 Gardening Services *</h2>
+            <div className="flex flex-wrap gap-2">
+              {gardeningSkillOptions.map((skill) => (
+                <Badge
+                  key={skill}
+                  variant={selectedGardeningSkills.includes(skill) ? "default" : "outline"}
+                  className="cursor-pointer transition-all"
+                  onClick={() => setSelectedGardeningSkills(prev => 
+                    prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+                  )}
+                >
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+            <div className="mt-3 bg-muted/50 rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Do you have your own tools?</Label>
+                <Switch checked={hasTools} onCheckedChange={setHasTools} />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Additional Skills */}
         <section className="space-y-3">
-          <h2 className="text-base font-semibold text-foreground">Skills *</h2>
+          <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
           <div className="flex flex-wrap gap-2">
             {skillOptions.map((skill) => (
               <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
@@ -564,51 +625,20 @@ const HelperRegistration = () => {
           </div>
         </section>
 
-        {/* Gardener Services — only shown when gardener category is selected */}
-        {formData.category.includes("gardener") && (
-          <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">🌱 Gardening Services</h2>
-            <div className="flex flex-wrap gap-2">
-              {gardenerServiceOptions.map((service) => (
-                <Badge
-                  key={service}
-                  variant={selectedSkills.includes(service) ? "default" : "outline"}
-                  className="cursor-pointer transition-all"
-                  onClick={() => toggleSkill(service)}
-                >
-                  {service}
-                </Badge>
-              ))}
+        {/* Experience & Rate */}
+        <section className="space-y-3">
+          <div>
+            <Label htmlFor="experience">Years of Experience *</Label>
+            <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
+          </div>
+          <div>
+            <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
+            <div className="relative mt-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
+              <Input id="monthlyRate" type="number" placeholder="e.g., 3500" value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
             </div>
-            <div className="mt-3 bg-muted/50 rounded-2xl p-4 space-y-3">
-              <Label className="text-sm font-semibold">Do you have your own tools/equipment?</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {["Yes — own equipment", "No — need tools provided"].map((opt) => (
-                  <label
-                    key={opt}
-                    className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
-                      selectedSkills.includes(opt)
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="gardener_tools"
-                      checked={selectedSkills.includes(opt)}
-                      onChange={() => {
-                        const cleaned = selectedSkills.filter(s => !s.startsWith("Yes —") && !s.startsWith("No —"));
-                        toggleSkill(opt);
-                      }}
-                      className="sr-only"
-                    />
-                    <span className="text-sm">{opt.startsWith("Yes") ? "🧰 Yes" : "❌ No"}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* Languages */}
         <section className="space-y-3">
