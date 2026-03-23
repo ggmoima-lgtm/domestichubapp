@@ -320,9 +320,14 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[200px] max-h-[50vh]">
+          {/* Guidance Message */}
+          <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 text-xs text-muted-foreground leading-relaxed text-center">
+            Once you're comfortable, you can continue the conversation outside the app.
+          </div>
+
           {/* Safety Warning Banner */}
           <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs leading-relaxed">
-            <ShieldAlert size={16} className="shrink-0 mt-0.5" />
+            <span className="shrink-0 mt-0.5">⚠️</span>
             <span>
               Domestic Hub monitors conversations for safety. Inappropriate, abusive, discriminatory, or illegal content may result in account suspension.
             </span>
