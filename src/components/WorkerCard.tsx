@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, Heart, Unlock, Eye, Lock, CheckCircle, Phone, Briefcase, Zap, Activity } from "lucide-react";
+import { Heart, Unlock, Lock } from "lucide-react";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
