@@ -29,10 +29,14 @@ const fadeSlide = {
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { session, loading } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [signupStep, setSignupStep] = useState<SignupStep>("role");
+  const urlMode = searchParams.get("mode");
+  const urlRole = searchParams.get("role");
+  const [mode, setMode] = useState<"login" | "signup">(urlMode === "signup" ? "signup" : "login");
+  const [signupStep, setSignupStep] = useState<SignupStep>(urlRole ? "details" : "role");
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(urlRole === "employer" || urlRole === "helper" ? urlRole : null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Login
