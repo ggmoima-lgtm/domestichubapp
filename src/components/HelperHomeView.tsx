@@ -189,7 +189,7 @@ const HelperHomeView = () => {
             size="sm"
             variant="outline"
             className="flex-1 rounded-xl gap-1.5"
-            onClick={() => navigate("/helper-profile")}
+            onClick={() => navigate("/home?tab=profile")}
           >
             <Pencil size={14} /> Edit Profile
           </Button>
@@ -213,7 +213,7 @@ const HelperHomeView = () => {
           <Button
             size="sm"
             className="mt-3 rounded-xl w-full"
-            onClick={() => navigate("/helper-profile")}
+            onClick={() => navigate("/home?tab=profile")}
           >
             Complete Profile
           </Button>
