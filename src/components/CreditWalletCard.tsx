@@ -17,7 +17,7 @@ interface CreditBundle {
 }
 
 const creditBundles: CreditBundle[] = [
-  { id: "credits_3", credits: 3, price: 150, label: "3 Credits", description: "Perfect to get started" },
+  { id: "credits_3", credits: 3, price: 150, label: "3 Credits", description: "Good to start" },
   { id: "credits_5", credits: 5, price: 225, label: "5 Credits", popular: true, description: "Most popular" },
   { id: "credits_10", credits: 10, price: 400, label: "10 Credits", description: "Best value" },
 ];

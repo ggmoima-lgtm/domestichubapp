@@ -199,6 +199,16 @@ const WorkerCard = ({
                 <span className="font-semibold text-foreground">{expYears} Year{expYears !== 1 ? "s" : ""} Experience</span>
               </p>
             )}
+
+            {/* Activity indicators */}
+            <div className="flex items-center gap-3 mt-1.5">
+              <span className="flex items-center gap-1 text-[11px] text-green-600 font-medium">
+                <Activity size={10} /> Active this week
+              </span>
+              <span className="flex items-center gap-1 text-[11px] text-primary font-medium">
+                <Zap size={10} /> Responds quickly
+              </span>
+            </div>
           </div>
         </div>
 
