@@ -99,6 +99,26 @@ const Index = () => {
     fetchRoleAndProfile();
   }, [user]);
 
+  // Fetch new applicant count for employer
+  useEffect(() => {
+    if (!user || userRole !== "employer") return;
+    const fetchApplicants = async () => {
+      const { data: jobs } = await supabase
+        .from("job_posts")
+        .select("id")
+        .eq("employer_id", user.id);
+      if (!jobs || jobs.length === 0) { setNewApplicantCount(0); return; }
+      const jobIds = jobs.map(j => j.id);
+      const { count } = await supabase
+        .from("job_applications")
+        .select("id", { count: "exact", head: true })
+        .in("job_id", jobIds)
+        .eq("status", "pending");
+      setNewApplicantCount(count || 0);
+    };
+    fetchApplicants();
+  }, [user, userRole]);
+
   // Fetch helpers from database
   useEffect(() => {
     if (!user) return;
