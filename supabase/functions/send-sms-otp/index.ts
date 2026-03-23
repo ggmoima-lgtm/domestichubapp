@@ -64,12 +64,22 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Rate limit: max 3 OTPs per phone per hour
+    // Cleanup expired OTPs, then rate limit only active pending codes for this phone + purpose
+    const nowIso = new Date().toISOString();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    await supabase
+      .from("otp_codes")
+      .delete()
+      .lt("expires_at", nowIso);
+
     const { count } = await supabase
       .from("otp_codes")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("phone", sanitizedPhone)
+      .eq("purpose", purpose)
+      .eq("verified", false)
+      .gt("expires_at", nowIso)
       .gte("created_at", oneHourAgo);
 
     if (count && count >= 3) {
