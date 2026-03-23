@@ -622,6 +622,9 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      {/* Push Notification Permission Dialog */}
+      <PushNotificationDialog open={showPushDialog} onOpenChange={setShowPushDialog} />
     </div>
   );
 };
