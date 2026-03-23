@@ -200,9 +200,9 @@ const WorkerCard = ({
         </div>
 
         {/* Service highlights for gardeners */}
-        {isGardener && skills.length > 0 && (
+        {isGardener && skillsGardening.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-            {skills.slice(0, 3).map((skill) => (
+            {skillsGardening.slice(0, 3).map((skill) => (
               <span key={skill} className="text-xs text-foreground">✔ {skill}</span>
             ))}
           </div>
@@ -211,7 +211,7 @@ const WorkerCard = ({
         {/* Gardener tools badge */}
         {isGardener && (
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">🧰 Own Tools</span>
+            <span className="text-xs text-muted-foreground">{hasTools ? "🧰 Own Tools" : "🧰 No Tools"}</span>
             <span className="text-xs text-muted-foreground">📍 Works in your area</span>
           </div>
         )}
