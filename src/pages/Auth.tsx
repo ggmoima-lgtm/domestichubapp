@@ -203,8 +203,8 @@ const Auth = () => {
         }
       }
 
-      toast({ title: "Account created!", description: "You are now logged in." });
-      navigate("/splash", { replace: true });
+      toast({ title: "Account created!", description: "You can now log in." });
+      navigate("/", { replace: true });
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
