@@ -110,11 +110,28 @@ const Index = () => {
     }
 
     const fetchRoleAndProfile = async () => {
-      const { data } = await supabase
+      let { data } = await supabase
         .from("profiles")
         .select("role, full_name")
         .eq("user_id", user.id)
         .maybeSingle();
+
+      // Auto-create profile for OAuth users who don't have one yet
+      if (!data) {
+        const pendingRole = localStorage.getItem("pending_oauth_role");
+        const fallbackRole = pendingRole === "helper" || pendingRole === "employer" ? pendingRole : "employer";
+        localStorage.removeItem("pending_oauth_role");
+        const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+        const phone = user.user_metadata?.phone || user.phone || "";
+        await supabase.from("profiles").insert({
+          user_id: user.id,
+          full_name: fullName,
+          phone,
+          role: fallbackRole,
+          onboarding_completed: true,
+        });
+        data = { role: fallbackRole, full_name: fullName };
+      }
 
       const metadataRole = user.user_metadata?.role;
       const fallbackRole = metadataRole === "helper" || metadataRole === "employer" ? metadataRole : "employer";
