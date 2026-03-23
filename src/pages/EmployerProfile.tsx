@@ -205,26 +205,35 @@ const EmployerProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!employer) return;
+    if (!user) return;
     if (!editData.email || !editData.email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
-    const { error } = await supabase
-      .from("employer_profiles")
-      .update({
-        full_name: editData.full_name,
-        email: editData.email,
-        location: editData.location,
-        type_of_need: editData.type_of_need,
-        category: editData.category,
-        availability: editData.availability || [],
-        custom_notes: editData.custom_notes,
-      })
-      .eq("id", employer.id);
+    const payload = {
+      full_name: editData.full_name || null,
+      email: editData.email,
+      location: editData.location || null,
+      type_of_need: editData.type_of_need || null,
+      category: editData.category || null,
+      availability: editData.availability || [],
+      custom_notes: editData.custom_notes || null,
+    };
+
+    let error;
+    if (employer) {
+      ({ error } = await supabase
+        .from("employer_profiles")
+        .update(payload)
+        .eq("id", employer.id));
+    } else {
+      ({ error } = await supabase
+        .from("employer_profiles")
+        .insert({ ...payload, user_id: user.id }));
+    }
 
     if (error) {
-      toast.error("Failed to update profile");
+      toast.error("Failed to update profile: " + error.message);
     } else {
       toast.success("Profile updated!");
       setIsEditing(false);
