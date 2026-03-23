@@ -38,6 +38,7 @@ const CATEGORIES = [
   { value: "housekeeper", label: "Housekeeper" },
   { value: "caregiver", label: "Caregiver" },
   { value: "all-around", label: "All-around Helper" },
+  { value: "gardener", label: "Gardener" },
 ];
 
 const AVAILABILITY_OPTIONS = [
