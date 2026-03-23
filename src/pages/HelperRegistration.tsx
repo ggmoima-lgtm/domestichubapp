@@ -220,8 +220,12 @@ const HelperRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.surname || !formData.phone || formData.category.length === 0) {
+    if (!serviceType) {
+      toast.error("Please select your service type"); return;
+    }
+    if (!formData.fullName || !formData.surname || !formData.phone) {
       toast.error("Please fill in all required fields"); return;
+    }
     }
     if (!dateOfBirth) { toast.error("Please select your date of birth"); return; }
     const calculatedAge = differenceInYears(new Date(), dateOfBirth);
