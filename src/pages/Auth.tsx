@@ -506,13 +506,13 @@ const Auth = () => {
             <div className="flex bg-muted/60 rounded-xl p-1 mb-3 shrink-0">
               <button
                 onClick={() => { setMode("login"); setSignupStep("role"); }}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "login" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-muted-foreground hover:text-foreground"
               >
                 Log In
               </button>
               <button
                 onClick={() => setMode("signup")}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === "signup" ? "bg-card shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-card shadow-soft text-foreground"
               >
                 Sign Up
               </button>
