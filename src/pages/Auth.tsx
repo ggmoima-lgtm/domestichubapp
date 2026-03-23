@@ -75,7 +75,7 @@ const Auth = () => {
   }
 
   if (session) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/splash" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -99,7 +99,7 @@ const Auth = () => {
       }
       const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
       if (error) throw error;
-      navigate("/");
+      navigate("/splash");
     } catch (error: any) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } finally {

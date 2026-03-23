@@ -36,7 +36,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/welcome" element={<LandingPage />} />
+              <Route path="/splash" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
               <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -45,7 +47,6 @@ const App = () => (
               <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
               <Route path="/popia" element={<POPIACompliance />} />
               <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
-              <Route path="/welcome" element={<LandingPage />} />
               <Route path="/architecture" element={<ArchitectureFlowchart />} />
               <Route path="/components" element={<ComponentSummary />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
