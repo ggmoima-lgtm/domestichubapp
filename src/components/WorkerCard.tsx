@@ -59,6 +59,7 @@ const WorkerCard = ({
   const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
   const expYears = parseInt(experience) || 0;
+  const isGardener = role.toLowerCase().includes("gardener");
 
   useEffect(() => {
     if (!user) return;

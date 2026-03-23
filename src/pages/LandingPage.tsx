@@ -34,15 +34,15 @@ const LandingPage = () => {
           />
 
           <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-3">
-            Find Trusted Domestic Help
+            Find Trusted Domestic Helpers & Gardeners
           </h1>
 
           <p className="text-lg md:text-xl font-semibold text-primary mb-4">
-            Get Hired Faster
+            Near You
           </p>
 
           <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-10">
-            Verified helpers. Safe hiring. Simple process.
+            Verified helpers. Safe connections. Simple process.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
