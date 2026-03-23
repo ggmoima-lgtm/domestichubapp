@@ -299,7 +299,12 @@ const Index = () => {
 
     const matchesVerified = !filters.verifiedOnly || worker.verified;
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified;
+    const matchesServiceType =
+      !filters.serviceType || filters.serviceType === "all" ||
+      worker.serviceType === filters.serviceType ||
+      worker.serviceType === "both";
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified && matchesServiceType;
   });
 
   const activeFilterCount =
