@@ -43,7 +43,8 @@ const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("home");
+  const initialTab = searchParams.get("tab") || "home";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
