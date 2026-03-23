@@ -516,9 +516,9 @@ const HelperProfile = () => {
                 <p className="text-sm font-semibold text-foreground">Verify Your Identity</p>
                 <p className="text-xs text-muted-foreground">Get the ID Verified badge</p>
               </div>
-              <Button size="sm" onClick={handleVerifyClick} disabled={verifyLoading}>
+              <Button size="sm" onClick={handleVerifyClick} disabled={verifyLoading} className="gap-1.5">
                 <ShieldCheck size={14} />
-                {verifyLoading ? "Starting..." : "Verify"}
+                {verifyLoading ? "Starting..." : "Verify Now"}
               </Button>
             </div>
           )}
