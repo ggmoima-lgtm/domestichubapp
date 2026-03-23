@@ -544,26 +544,29 @@ const Index = () => {
           })()}
 
           {/* Your Activity + Urgency */}
-          {(newApplicantCount > 0 || profileViewCount > 0) && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/50">
-              <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
-              <div className="space-y-2">
-                {newApplicantCount > 0 && (
-                  <button
-                    onClick={() => handleTabChange("hub")}
-                    className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
-                  >
-                    <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
-                  </button>
-                )}
-                {profileViewCount > 0 && (
-                  <p className="flex items-center gap-2 text-sm text-foreground font-medium">
-                    <span>👀 {profileViewCount} employer{profileViewCount !== 1 ? "s" : ""} viewed your profile</span>
-                  </p>
-                )}
-              </div>
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/50">
+            <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
+            <div className="space-y-2">
+              {newApplicantCount > 0 && (
+                <button
+                  onClick={() => handleTabChange("hub")}
+                  className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
+                >
+                  <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
+                </button>
+              )}
+              {profileViewCount > 0 && (
+                <p className="flex items-center gap-2 text-sm text-foreground font-medium">
+                  <span>👀 {profileViewCount} employer{profileViewCount !== 1 ? "s" : ""} viewed your profile</span>
+                </p>
+              )}
+              {newApplicantCount === 0 && profileViewCount === 0 && (
+                <p className="flex items-center gap-2 text-sm text-foreground font-medium">
+                  <span>👋 Welcome! Complete your profile to get started</span>
+                </p>
+              )}
             </div>
-          )}
+          </div>
 
           {/* All Helpers */}
           <div>
