@@ -415,9 +415,19 @@ const EmployerProfile = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin size={14} className="shrink-0" /> <span>{employer?.location || "Not set"}</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Briefcase size={14} className="shrink-0" />
-                <span>{CATEGORIES.find((c) => c.value === employer?.category)?.label || employer?.category || "Not set"}</span>
+              <div className="flex items-start gap-2 text-muted-foreground">
+                <Briefcase size={14} className="shrink-0 mt-0.5" />
+                <div className="flex flex-wrap gap-1.5">
+                  {employer?.category ? (
+                    employer.category.split(",").filter(Boolean).map((c) => (
+                      <Badge key={c} variant="outline" className="text-[10px]">
+                        {CATEGORIES.find((cat) => cat.value === c)?.label || c}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span>Not set</span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Briefcase size={14} className="shrink-0" /> <span>{employer?.type_of_need || "Not set"}</span>
