@@ -340,7 +340,7 @@ const HelperRegistration = () => {
             <button onClick={() => navigate("/")} className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
               <ArrowLeft size={20} className="text-foreground" />
             </button>
-            <h1 className="text-lg font-bold text-foreground">Helper Registration</h1>
+            <h1 className="text-lg font-bold text-foreground">Registration</h1>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={saveDraft} className="gap-1.5 text-xs">
             <Save size={14} />
