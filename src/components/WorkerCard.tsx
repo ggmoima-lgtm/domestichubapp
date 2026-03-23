@@ -143,7 +143,7 @@ const WorkerCard = ({
         <div className="flex gap-4 items-start">
           {/* Photo */}
           <div className="relative flex-shrink-0">
-            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted">
+            <div className="w-28 h-28 rounded-2xl overflow-hidden bg-muted">
               <img
                 src={avatar}
                 alt={name}
