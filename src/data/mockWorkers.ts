@@ -18,6 +18,10 @@ export interface Worker {
   availableFrom?: string | null;
   phone?: string;
   email?: string;
+  serviceType?: string;
+  skillsDomestic?: string[];
+  skillsGardening?: string[];
+  hasTools?: boolean;
 }
 
 export const mockWorkers: Worker[] = [
