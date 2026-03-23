@@ -475,7 +475,7 @@ const HelperProfile = () => {
                 <Award size={12} /> Highly Rated
               </Badge>
             )}
-            {helper.bio && helper.skills && helper.skills.length > 0 && (
+            {helper.is_verified && helper.bio && helper.skills && helper.skills.length > 0 && (
               <Badge variant="secondary" className="gap-1 shadow-soft">
                 <ShieldCheck size={12} /> Profile Complete
               </Badge>
