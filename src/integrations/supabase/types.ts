@@ -320,6 +320,7 @@ export type Database = {
           experience_years: number | null
           full_name: string
           gender: string | null
+          has_tools: boolean | null
           has_work_permit: boolean | null
           hourly_rate: number | null
           id: string
@@ -329,7 +330,10 @@ export type Database = {
           living_arrangement: string | null
           nationality: string | null
           phone: string
+          service_type: string
           skills: string[] | null
+          skills_domestic: string[] | null
+          skills_gardening: string[] | null
           updated_at: string
           user_id: string | null
           verification_date: string | null
@@ -352,6 +356,7 @@ export type Database = {
           experience_years?: number | null
           full_name: string
           gender?: string | null
+          has_tools?: boolean | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
@@ -361,7 +366,10 @@ export type Database = {
           living_arrangement?: string | null
           nationality?: string | null
           phone: string
+          service_type?: string
           skills?: string[] | null
+          skills_domestic?: string[] | null
+          skills_gardening?: string[] | null
           updated_at?: string
           user_id?: string | null
           verification_date?: string | null
@@ -384,6 +392,7 @@ export type Database = {
           experience_years?: number | null
           full_name?: string
           gender?: string | null
+          has_tools?: boolean | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string
@@ -393,7 +402,10 @@ export type Database = {
           living_arrangement?: string | null
           nationality?: string | null
           phone?: string
+          service_type?: string
           skills?: string[] | null
+          skills_domestic?: string[] | null
+          skills_gardening?: string[] | null
           updated_at?: string
           user_id?: string | null
           verification_date?: string | null
