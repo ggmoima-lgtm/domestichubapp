@@ -129,11 +129,12 @@ const WorkerCard = ({
         </div>
       )}
 
-      <div className="p-4">
-        <div className="flex gap-4">
+      <div className="p-5">
+        {/* Top row: Photo + Name/Status */}
+        <div className="flex gap-4 items-start">
           {/* Photo */}
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-muted">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted">
               <img
                 src={avatar}
                 alt={name}
@@ -146,7 +147,7 @@ const WorkerCard = ({
             {/* Save button */}
             <button
               onClick={toggleSave}
-              className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-card shadow-sm border border-border"
+              className="absolute -top-2 -right-2 p-1.5 rounded-full bg-card shadow-sm border border-border"
             >
               <Heart
                 size={14}
@@ -155,8 +156,8 @@ const WorkerCard = ({
             </button>
           </div>
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
+          {/* Name + Status */}
+          <div className="flex-1 min-w-0 pt-0.5">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-foreground text-base truncate">{getPreviewName(name)}</h3>
               {isUnlocked && (
@@ -166,54 +167,39 @@ const WorkerCard = ({
               )}
             </div>
 
-            {/* Location + Status */}
-            <div className="flex items-center gap-3 mt-1">
-              {location && (
-                <span className="text-xs text-muted-foreground">
-                  📍 {location}
-                </span>
-              )}
-              <span className={`text-xs font-medium ${status.className}`}>
-                {status.emoji} {status.label}
-              </span>
-            </div>
+            <span className={`text-xs font-medium ${status.className} mt-1 block`}>
+              {status.emoji} {status.label}
+            </span>
 
-            {/* Verification badges */}
-            <div className="flex items-center gap-3 mt-2">
-              {verified && (
-                <span className="text-xs text-primary font-medium">
-                  ✅ ID Verified
-                </span>
-              )}
-              <span className="text-xs text-primary font-medium">
+            {verified && (
+              <span className="text-xs text-primary font-medium block mt-1">
                 📱 Phone Verified
               </span>
-            </div>
-
-            {/* Experience */}
-            {expYears > 0 && (
-              <p className="text-xs text-muted-foreground mt-1.5">
-                <span className="font-semibold text-foreground">⭐ {expYears} Year{expYears !== 1 ? "s" : ""} Experience</span>
-              </p>
             )}
 
-            {/* Activity indicators */}
-            <div className="flex items-center gap-3 mt-1.5">
-              <span className="text-[11px] text-green-600 font-medium">
-                🟢 Active this week
-              </span>
-              <span className="text-[11px] text-primary font-medium">
-                ⚡ Responds quickly
-              </span>
-            </div>
+            {expYears > 0 && (
+              <p className="text-sm font-semibold text-foreground mt-1.5">
+                ⭐ {expYears} Year{expYears !== 1 ? "s" : ""} Experience
+              </p>
+            )}
           </div>
+        </div>
+
+        {/* Activity row */}
+        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
+          <span className="text-xs text-green-600 font-medium">
+            🟢 Active this week
+          </span>
+          <span className="text-xs text-primary font-medium">
+            ⚡ Responds quickly
+          </span>
         </div>
 
         {/* View Profile Button */}
         <Button
-          size="sm"
+          size="default"
           variant={isUnlocked ? "outline" : "default"}
-          className="w-full mt-4 rounded-xl gap-1.5"
+          className="w-full mt-4 rounded-xl"
           onClick={(e) => {
             e.stopPropagation();
             onClick?.();
