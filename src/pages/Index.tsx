@@ -148,6 +148,10 @@ const Index = () => {
         availableFrom: h.available_from || null,
         phone: h.phone || undefined,
         email: h.email || undefined,
+        serviceType: (h as any).service_type || "domestic",
+        skillsDomestic: (h as any).skills_domestic || [],
+        skillsGardening: (h as any).skills_gardening || [],
+        hasTools: (h as any).has_tools || false,
       }));
       setDbHelpers(mapped);
     };
@@ -192,6 +196,10 @@ const Index = () => {
           availableFrom: h.available_from || null,
           phone: h.phone || undefined,
           email: h.email || undefined,
+          serviceType: (h as any).service_type || "domestic",
+          skillsDomestic: (h as any).skills_domestic || [],
+          skillsGardening: (h as any).skills_gardening || [],
+          hasTools: (h as any).has_tools || false,
         }));
         setUnlockedHelpers(mapped);
       } else {
@@ -252,7 +260,9 @@ const Index = () => {
 
     const matchesCategory =
       activeCategory === "all" ||
-      worker.role.toLowerCase().includes(activeCategory.toLowerCase());
+      (activeCategory === "gardener" 
+        ? (worker.serviceType === "gardening" || worker.serviceType === "both" || worker.role.toLowerCase().includes("gardener"))
+        : (worker.serviceType !== "gardening" && (activeCategory === "all" || worker.role.toLowerCase().includes(activeCategory.toLowerCase()))));
 
     const matchesLocation =
       filters.locations.length === 0 ||
@@ -289,7 +299,12 @@ const Index = () => {
 
     const matchesVerified = !filters.verifiedOnly || worker.verified;
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified;
+    const matchesServiceType =
+      !filters.serviceType || filters.serviceType === "all" ||
+      worker.serviceType === filters.serviceType ||
+      worker.serviceType === "both";
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified && matchesServiceType;
   });
 
   const activeFilterCount =
@@ -302,7 +317,8 @@ const Index = () => {
     (filters.nearMe ? 1 : 0) +
     (filters.unlockedOnly ? 1 : 0) +
     (filters.verifiedOnly ? 1 : 0) +
-    (filters.minRating > 0 ? 1 : 0);
+    (filters.minRating > 0 ? 1 : 0) +
+    (filters.serviceType && filters.serviceType !== "all" ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);

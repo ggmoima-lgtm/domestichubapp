@@ -34,6 +34,10 @@ interface WorkerCardProps {
   availabilityStatus?: HelperStatus;
   isUnlocked?: boolean;
   onClick?: () => void;
+  serviceType?: string;
+  hasTools?: boolean;
+  skillsDomestic?: string[];
+  skillsGardening?: string[];
 }
 
 const WorkerCard = ({
@@ -51,6 +55,10 @@ const WorkerCard = ({
   availabilityStatus = "available",
   isUnlocked = false,
   onClick,
+  serviceType = "domestic",
+  hasTools = false,
+  skillsDomestic = [],
+  skillsGardening = [],
 }: WorkerCardProps) => {
   const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
@@ -59,7 +67,7 @@ const WorkerCard = ({
   const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
   const expYears = parseInt(experience) || 0;
-  const isGardener = role.toLowerCase().includes("gardener");
+  const isGardener = serviceType === "gardening" || serviceType === "both" || role.toLowerCase().includes("gardener");
 
   useEffect(() => {
     if (!user) return;
@@ -170,7 +178,7 @@ const WorkerCard = ({
 
             {/* Service type */}
             <p className="text-xs font-medium text-muted-foreground mt-0.5">
-              {isGardener ? "🌱 Gardener" : `🏠 ${role}`}
+              {serviceType === "both" ? "🏠🌱 Domestic + Gardening" : isGardener ? "🌱 Gardener" : `🏠 ${role}`}
             </p>
 
             <span className={`text-xs font-medium ${status.className} mt-1 block`}>
@@ -192,9 +200,9 @@ const WorkerCard = ({
         </div>
 
         {/* Service highlights for gardeners */}
-        {isGardener && skills.length > 0 && (
+        {isGardener && skillsGardening.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-            {skills.slice(0, 3).map((skill) => (
+            {skillsGardening.slice(0, 3).map((skill) => (
               <span key={skill} className="text-xs text-foreground">✔ {skill}</span>
             ))}
           </div>
@@ -203,7 +211,7 @@ const WorkerCard = ({
         {/* Gardener tools badge */}
         {isGardener && (
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">🧰 Own Tools</span>
+            <span className="text-xs text-muted-foreground">{hasTools ? "🧰 Own Tools" : "🧰 No Tools"}</span>
             <span className="text-xs text-muted-foreground">📍 Works in your area</span>
           </div>
         )}
