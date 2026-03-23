@@ -108,27 +108,36 @@ const HelperProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!helper) return;
-    const { error } = await supabase
-      .from("helpers")
-      .update({
-        full_name: editData.full_name,
-        bio: editData.bio,
-        skills: editData.skills,
-        languages: editData.languages,
-        experience_years: editData.experience_years,
-        hourly_rate: editData.hourly_rate,
-        availability: editData.availability,
-        has_work_permit: editData.has_work_permit,
-      })
-      .eq("id", helper.id);
+    if (!helper) {
+      toast.error("No helper profile found");
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from("helpers")
+        .update({
+          full_name: editData.full_name,
+          bio: editData.bio,
+          skills: editData.skills,
+          languages: editData.languages,
+          experience_years: editData.experience_years,
+          hourly_rate: editData.hourly_rate,
+          availability: editData.availability,
+          has_work_permit: editData.has_work_permit,
+        })
+        .eq("id", helper.id);
 
-    if (error) {
-      toast.error("Failed to update profile");
-    } else {
-      toast.success("Profile updated!");
-      setIsEditing(false);
-      fetchHelperData();
+      if (error) {
+        console.error("Helper save error:", error);
+        toast.error("Failed to update profile: " + error.message);
+      } else {
+        toast.success("Profile updated!");
+        setIsEditing(false);
+        fetchHelperData();
+      }
+    } catch (err: any) {
+      console.error("Helper save exception:", err);
+      toast.error("Failed to update: " + err.message);
     }
   };
 
