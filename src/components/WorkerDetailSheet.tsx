@@ -546,10 +546,17 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               <p className="text-lg font-bold text-secondary-foreground">{worker.experience}</p>
               <p className="text-xs text-muted-foreground">experience</p>
             </div>
-            <div className="bg-accent rounded-2xl p-3 text-center">
-              <div className="flex justify-center"><MapPin size={18} className="text-accent-foreground" /></div>
-              <p className="text-xs text-muted-foreground mt-1">{worker.location}</p>
-            </div>
+            {worker.location ? (
+              <div className="bg-accent rounded-2xl p-3 text-center">
+                <div className="flex justify-center"><MapPin size={18} className="text-accent-foreground" /></div>
+                <p className="text-xs text-muted-foreground mt-1">{worker.location}</p>
+              </div>
+            ) : (
+              <div className="bg-accent rounded-2xl p-3 text-center">
+                <div className="flex justify-center"><MapPin size={18} className="text-accent-foreground" /></div>
+                <p className="text-xs text-muted-foreground mt-1">Location not set</p>
+              </div>
+            )}
           </div>
 
           {/* Badges - FREE */}
