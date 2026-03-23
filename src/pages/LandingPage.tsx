@@ -3,17 +3,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
-const NAV_LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
-  { label: "About", href: "#about" },
-];
-
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.domestichub.app";
-const APP_STORE_URL = "https://apps.apple.com/app/domestic-hub/id000000000";
-
 const LandingPage = () => {
   const navigate = useNavigate();
 
