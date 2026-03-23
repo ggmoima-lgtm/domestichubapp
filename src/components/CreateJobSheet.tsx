@@ -87,6 +87,18 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       });
       if (error) throw error;
       toast.success("Job posted successfully!");
+
+      // Notify matching helpers about the new job
+      supabase.functions.invoke("notify-helpers-new-job", {
+        body: {
+          job_id: "new",
+          category,
+          location: locationData?.formatted_address || null,
+          title,
+          employer_id: user.id,
+        },
+      }).catch(() => {});
+
       onCreated();
       onClose();
       // Reset
