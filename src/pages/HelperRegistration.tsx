@@ -631,10 +631,10 @@ const HelperRegistration = () => {
             <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
           </div>
           <div>
-            <Label htmlFor="monthlyRate">Monthly Rate (ZAR)</Label>
+            <Label htmlFor="monthlyRate">{serviceType === "gardening" ? "Rate (ZAR)" : "Monthly Rate (ZAR)"}</Label>
             <div className="relative mt-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
-              <Input id="monthlyRate" type="number" placeholder="e.g., 3500" value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
+              <Input id="monthlyRate" type="number" placeholder={serviceType === "gardening" ? "e.g., 250" : "e.g., 3500"} value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
             </div>
           </div>
         </section>
