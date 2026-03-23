@@ -34,15 +34,14 @@ const LandingPage = () => {
           />
 
           <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-3">
-            Find Trusted Domestic Helpers & Gardeners
+            Find Trusted Domestic Help and Gardeners
           </h1>
 
-          <p className="text-lg md:text-xl font-semibold text-primary mb-4">
-            Near You
+          <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-2">
+            Verified helpers and gardeners near you.
           </p>
-
           <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-10">
-            Verified helpers. Safe connections. Simple process.
+            Safe, simple, and reliable.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto mb-6 w-full">
@@ -51,7 +50,7 @@ const LandingPage = () => {
               className="flex-1 w-full"
               onClick={() => navigate("/auth?role=employer&mode=signup")}
             >
-              Continue as Employer
+              Find Help
             </Button>
             <Button
               size="lg"
@@ -59,7 +58,7 @@ const LandingPage = () => {
               className="flex-1 w-full"
               onClick={() => navigate("/auth?role=helper&mode=signup")}
             >
-              Continue as Helper
+              Find Work
             </Button>
           </div>
 
@@ -74,16 +73,13 @@ const LandingPage = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              ✔ Cleaners
-            </span>
-            <span className="flex items-center gap-1.5">
-              ✔ Nannies
+              ✔ Domestic Helpers
             </span>
             <span className="flex items-center gap-1.5">
               ✔ Gardeners
             </span>
             <span className="flex items-center gap-1.5">
-              ✔ Caregivers
+              ✔ Verified Profiles
             </span>
           </div>
         </div>
