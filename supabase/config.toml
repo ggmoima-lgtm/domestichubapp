@@ -32,3 +32,9 @@ verify_jwt = false
 
 [functions.reset-password-otp]
 verify_jwt = false
+
+[functions.notify-helpers-new-job]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
