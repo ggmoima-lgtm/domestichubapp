@@ -234,7 +234,7 @@ const EmployerProfile = () => {
       toast.error("Please enter a valid email address");
       return;
     }
-    const payload = {
+    const payload: any = {
       full_name: editData.full_name || null,
       email: resolvedEmail,
       location: editData.location || null,
@@ -242,6 +242,14 @@ const EmployerProfile = () => {
       category: editData.category || null,
       availability: editData.availability || [],
       custom_notes: editData.custom_notes || null,
+      formatted_address: editData.formatted_address || null,
+      suburb: editData.suburb || null,
+      city: editData.city || null,
+      province: editData.province || null,
+      country: editData.country || null,
+      latitude: editData.latitude || null,
+      longitude: editData.longitude || null,
+      place_id: editData.place_id || null,
     };
 
     let error;
