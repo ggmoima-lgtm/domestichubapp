@@ -791,15 +791,17 @@ const HelperProfile = () => {
             <LogOut size={16} /> Log Out
           </button>
           <button
-            onClick={async () => {
-              if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
-              await signOut();
-              toast.success("Account deletion requested. We're sorry to see you go.");
-              navigate("/auth");
+            onClick={() => {
+              if (!confirm("This will send a deletion request to our support team. Your account and all associated data will be permanently removed within 30 days. Continue?")) return;
+              const email = user?.email || helper?.email || "";
+              const subject = encodeURIComponent("Account & Data Deletion Request");
+              const body = encodeURIComponent(`Hi Domestic Hub Support,\n\nI would like to request the deletion of my account and all associated personal data.\n\nRegistered email: ${email}\n\nPlease confirm once this has been processed.\n\nThank you.`);
+              window.open(`mailto:info@domestichub.co.za?subject=${subject}&body=${body}`, "_self");
+              toast.info("Opening your email client to send the deletion request.");
             }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
           >
-            <Trash2 size={16} /> Delete Account
+            <Trash2 size={16} /> Request Account Deletion
           </button>
         </CardContent>
       </Card>

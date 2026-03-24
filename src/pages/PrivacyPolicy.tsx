@@ -127,11 +127,17 @@ const PrivacyPolicy = () => {
             <li>Opt out of notifications</li>
           </ul>
           <p className="text-muted-foreground">
-            To request deletion, contact:
+            To request deletion of your account and all associated data, use the button below or contact us directly:
           </p>
-          <a href="mailto:info@domestichub.co.za" className="inline-flex items-center gap-1.5 text-primary font-medium">
-            <Mail size={14} /> info@domestichub.co.za
+          <a
+            href="mailto:info@domestichub.co.za?subject=Account%20%26%20Data%20Deletion%20Request&body=Hi%20Domestic%20Hub%20Support%2C%0A%0AI%20would%20like%20to%20request%20the%20deletion%20of%20my%20account%20and%20all%20associated%20personal%20data.%0A%0APlease%20confirm%20once%20this%20has%20been%20processed.%0A%0AThank%20you."
+            className="inline-flex items-center gap-2 bg-destructive/10 text-destructive font-medium px-4 py-2.5 rounded-xl hover:bg-destructive/20 transition-colors"
+          >
+            <Mail size={14} /> Request Account & Data Deletion
           </a>
+          <p className="text-muted-foreground text-xs">
+            Or email us directly at <a href="mailto:info@domestichub.co.za" className="text-primary font-medium">info@domestichub.co.za</a>. Deletion requests are processed within 30 days.
+          </p>
         </section>
 
         <section className="space-y-3">
