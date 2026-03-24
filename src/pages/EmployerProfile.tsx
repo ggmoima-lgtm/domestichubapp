@@ -467,10 +467,24 @@ const EmployerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area</Label>
-                <Input
-                  value={editData.location || ""}
-                  onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area <span className="text-destructive">*</span></Label>
+                <LocationAutocomplete
+                  value={editLocationData}
+                  onChange={(loc) => {
+                    setEditLocationData(loc);
+                    setEditData({
+                      ...editData,
+                      location: loc.formatted_address,
+                      formatted_address: loc.formatted_address,
+                      suburb: loc.suburb,
+                      city: loc.city,
+                      province: loc.province,
+                      country: loc.country,
+                      latitude: loc.latitude,
+                      longitude: loc.longitude,
+                      place_id: loc.place_id,
+                    });
+                  }}
                   placeholder="e.g. Sandton, Johannesburg"
                 />
               </div>
