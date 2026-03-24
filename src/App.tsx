@@ -49,6 +49,7 @@ const App = () => (
               <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
               <Route path="/popia" element={<POPIACompliance />} />
               <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
+              <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/architecture" element={<ArchitectureFlowchart />} />
               <Route path="/components" element={<ComponentSummary />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
