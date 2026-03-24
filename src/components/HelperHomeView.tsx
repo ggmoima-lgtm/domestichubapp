@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import PlatformStatsTicker from "@/components/PlatformStatsTicker";
 
 interface JobPost {
   id: string;
