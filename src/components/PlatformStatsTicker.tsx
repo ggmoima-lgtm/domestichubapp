@@ -46,7 +46,7 @@ const PlatformStatsTicker = () => {
   if (stats.length === 0) return null;
 
   return (
-    <div className="h-8 overflow-hidden relative rounded-xl bg-primary/10 px-3 flex items-center">
+    <div className="h-8 overflow-hidden relative rounded-xl bg-primary/10 px-3 flex items-center justify-center">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeIndex}
