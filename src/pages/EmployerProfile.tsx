@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ import {
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard, AlertTriangle,
-  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell, Camera
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
 import EditJobSheet from "@/components/EditJobSheet";
@@ -30,6 +30,7 @@ import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
+import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
