@@ -460,8 +460,11 @@ const Index = () => {
         <main className="px-4 py-4 space-y-5">
           {/* Welcome */}
           <div>
-            <p className="text-lg font-bold text-foreground">👋 Welcome back, {employerName || "there"}</p>
+           <p className="text-lg font-bold text-foreground">👋 Welcome back, {employerName || "there"}</p>
             <p className="text-sm text-muted-foreground mt-0.5">Find trusted domestic helpers and gardeners near you</p>
+            <div className="mt-2">
+              <PlatformStatsTicker />
+            </div>
           </div>
 
           
