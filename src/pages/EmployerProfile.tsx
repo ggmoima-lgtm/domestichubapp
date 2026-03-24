@@ -452,7 +452,7 @@ const EmployerProfile = () => {
       </Card>
 
       {/* Household Info */}
-      <Card>
+      <Card id="household-info">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">Household Info</CardTitle>
           {isEditing ? (
