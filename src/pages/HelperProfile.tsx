@@ -126,6 +126,7 @@ const HelperProfile = () => {
           hourly_rate: editData.hourly_rate,
           availability: editData.availability,
           has_work_permit: editData.has_work_permit,
+          location: editData.location,
         })
         .eq("id", helper.id);
 
