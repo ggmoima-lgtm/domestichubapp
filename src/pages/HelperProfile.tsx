@@ -465,7 +465,7 @@ const HelperProfile = () => {
             <div className="flex-1 text-primary-foreground">
               <h1 className="text-xl font-bold">{helper.full_name}</h1>
               <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
-                <MapPin size={14} /> {helper.category}
+                <MapPin size={14} /> {helper.location || helper.category}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Star size={14} className="fill-current" />
