@@ -21,6 +21,7 @@ import POPIACompliance from "./pages/POPIACompliance";
 import OffPlatformLiability from "./pages/OffPlatformLiability";
 import LandingPage from "./pages/LandingPage";
 import ArchitectureFlowchart from "./pages/ArchitectureFlowchart";
+import DeleteAccount from "./pages/DeleteAccount";
 import ComponentSummary from "./pages/ComponentSummary";
 
 const queryClient = new QueryClient();
