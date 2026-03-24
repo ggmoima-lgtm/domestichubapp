@@ -612,6 +612,17 @@ const HelperProfile = () => {
                 <Label>Has Work Permit</Label>
                 <Switch checked={editData.has_work_permit || false} onCheckedChange={(v) => setEditData({ ...editData, has_work_permit: v })} />
               </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location</Label>
+                <LocationAutocomplete
+                  value={null}
+                  onChange={(loc) => setEditData({ ...editData, location: loc.formatted_address } as any)}
+                  placeholder={editData.location || "e.g. Sandton, Johannesburg"}
+                />
+                {editData.location && (
+                  <p className="text-xs text-muted-foreground">Current: {editData.location}</p>
+                )}
+              </div>
               {/* Video Upload */}
               <div className="space-y-2">
                 <Label>Intro Video</Label>
