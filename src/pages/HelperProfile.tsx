@@ -56,6 +56,7 @@ interface HelperData {
   living_arrangement: string | null;
   verification_status?: string;
   verification_date?: string | null;
+  location?: string | null;
 }
 
 interface ReviewData {
