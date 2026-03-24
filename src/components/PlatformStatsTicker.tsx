@@ -46,20 +46,20 @@ const PlatformStatsTicker = () => {
   if (stats.length === 0) return null;
 
   return (
-    <div className="h-6 overflow-hidden relative">
+    <div className="h-8 overflow-hidden relative rounded-xl bg-primary/10 px-3 flex items-center">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeIndex}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -20, opacity: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          initial={{ x: 80, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -80, opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="flex items-center gap-2 text-sm"
         >
           {stats[activeIndex].icon}
           <span>
-            <span className="font-semibold text-foreground">{stats[activeIndex].value}</span>{" "}
-            {stats[activeIndex].label}
+            <span className="font-bold text-primary">{stats[activeIndex].value}</span>{" "}
+            <span className="text-foreground font-medium">{stats[activeIndex].label}</span>
           </span>
         </motion.div>
       </AnimatePresence>
