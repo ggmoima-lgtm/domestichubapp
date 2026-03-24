@@ -3,17 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  MapPin, Briefcase, Clock, Users, Search, DollarSign, Home,
-  AlertTriangle, Pencil, FileText, CheckCircle, AlertCircle,
+  MapPin, Clock, Search, Home, X, Briefcase,
+  Settings2, ListChecks, PenSquare, Zap, Globe, Wrench, MoreHorizontal,
+  ChevronRight, CheckCircle, AlertCircle, Pencil, FileText,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import PlatformStatsTicker from "@/components/PlatformStatsTicker";
 
 interface JobPost {
   id: string;
@@ -55,25 +53,25 @@ const categoryIcons: Record<string, string> = {
   gardener: "🌿",
 };
 
-const statusConfig: Record<string, { label: string; emoji: string; color: string }> = {
-  available: { label: "Available", emoji: "🟢", color: "text-primary" },
-  interviewing: { label: "In Conversation", emoji: "🟡", color: "text-secondary" },
-  hired: { label: "Hired", emoji: "🔴", color: "text-destructive" },
-};
-
-function computeProfileStrength(helper: HelperProfile | null): { percent: number; checks: { label: string; done: boolean }[] } {
-  if (!helper) return { percent: 0, checks: [] };
-
+function computeProfileStrength(helper: HelperProfile | null) {
+  if (!helper) return { percent: 0, checks: [] as { label: string; done: boolean }[] };
   const checks = [
     { label: "Photo uploaded", done: Boolean(helper.avatar_url) },
     { label: "Verified", done: Boolean(helper.is_verified) },
     { label: "Add bio", done: Boolean(helper.bio && helper.bio.length > 10) },
-    { label: "Add more experience", done: Boolean(helper.experience_years && helper.experience_years > 0) },
+    { label: "Add experience", done: Boolean(helper.experience_years && helper.experience_years > 0) },
     { label: "Add skills", done: Boolean(helper.skills && helper.skills.length > 0) },
   ];
   const done = checks.filter((c) => c.done).length;
   return { percent: Math.round((done / checks.length) * 100), checks };
 }
+
+const jobCollections = [
+  { icon: Zap, label: "Quick Apply", color: "text-amber-600 bg-amber-100" },
+  { icon: Globe, label: "Live-Out", color: "text-sky-600 bg-sky-100" },
+  { icon: Wrench, label: "Full-Time", color: "text-emerald-600 bg-emerald-100" },
+  { icon: MoreHorizontal, label: "More", color: "text-muted-foreground bg-muted" },
+];
 
 const HelperHomeView = () => {
   const navigate = useNavigate();
@@ -83,6 +81,7 @@ const HelperHomeView = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [helperProfile, setHelperProfile] = useState<HelperProfile | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchJobs();
@@ -122,8 +121,8 @@ const HelperHomeView = () => {
       toast.error("Please complete your helper profile first.");
       return;
     }
-    const { percent: currentStrength } = computeProfileStrength(helperProfile);
-    if (currentStrength < 80) {
+    const { percent } = computeProfileStrength(helperProfile);
+    if (percent < 80) {
       toast.error("Your profile must be at least 80% complete to apply for jobs.");
       return;
     }
@@ -156,6 +155,7 @@ const HelperHomeView = () => {
   };
 
   const filteredJobs = jobs.filter((job) => {
+    if (dismissedIds.has(job.id)) return false;
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -167,7 +167,6 @@ const HelperHomeView = () => {
   });
 
   const { percent, checks } = computeProfileStrength(helperProfile);
-  const status = statusConfig[helperProfile?.availability_status || "available"] || statusConfig.available;
   const firstName = helperProfile?.full_name?.split(" ")[0] || "there";
 
   if (loading) {
@@ -179,203 +178,199 @@ const HelperHomeView = () => {
   }
 
   return (
-    <div className="space-y-5">
-      {/* ─── Welcome Card ─── */}
-      <Card className="p-5">
-        <p className="text-lg font-bold text-foreground">
-          👋 Welcome, {firstName}
-        </p>
-        <p className="text-sm text-muted-foreground mt-1">
-          Status: {status.emoji}{" "}
-          <span className={status.color + " font-semibold"}>{status.label}</span>
-        </p>
-        <div className="mt-2">
-          <PlatformStatsTicker />
+    <div className="space-y-0">
+      {/* ─── LinkedIn-style Search Bar ─── */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
+          {helperProfile?.avatar_url ? (
+            <img src={helperProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm font-bold text-muted-foreground">{firstName[0]}</span>
+          )}
         </div>
-
-        <div className="flex gap-2 mt-4">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 rounded-xl gap-1.5"
-            onClick={() => navigate("/home?tab=profile")}
-          >
-            <Pencil size={14} /> Edit Profile
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 rounded-xl gap-1.5"
-            onClick={() => navigate("/home?tab=hub")}
-          >
-            <FileText size={14} /> View Applications
-          </Button>
+        <div className="flex-1 relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search jobs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-9 pl-9 pr-3 rounded-md border border-border bg-muted/50 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          />
         </div>
-      </Card>
+      </div>
 
-      {/* ─── Profile Live Banner ─── */}
+      {/* ─── Filter Pills (LinkedIn-style) ─── */}
+      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none">
+        <button
+          onClick={() => navigate("/home?tab=profile")}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
+        >
+          <Settings2 size={14} /> Preferences
+        </button>
+        <button
+          onClick={() => navigate("/home?tab=hub")}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
+        >
+          <ListChecks size={14} /> Job tracker
+        </button>
+        <button
+          onClick={() => navigate("/home?tab=profile")}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
+        >
+          <Pencil size={14} /> Edit Profile
+        </button>
+      </div>
+
+      {/* ─── Profile Strength (compact LinkedIn-style) ─── */}
       {helperProfile && percent < 100 && (
-        <Card className="p-5 border-primary/30 bg-primary/5">
-          <p className="text-base font-bold text-foreground">🎉 Your profile is live!</p>
-          <p className="text-sm text-muted-foreground mt-1">Employers can now find you.</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Complete your profile to increase your chances.</p>
-          <Button
-            size="sm"
-            className="mt-3 rounded-xl w-full"
-            onClick={() => navigate("/home?tab=profile")}
-          >
-            Complete Profile
-          </Button>
-        </Card>
-      )}
-
-      {/* ─── Incomplete profile banner ─── */}
-      {!helperProfile && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 flex items-center gap-3">
-          <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
-            <p className="text-xs text-muted-foreground">You need a complete profile to apply for jobs</p>
+        <div className="bg-card border border-border rounded-lg p-4 mb-1">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-foreground">
+              Profile strength: {percent}%
+            </p>
+            <Button
+              size="sm"
+              variant="link"
+              className="text-primary text-xs h-auto p-0"
+              onClick={() => navigate("/home?tab=profile")}
+            >
+              Complete <ChevronRight size={12} />
+            </Button>
           </div>
-          <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0" onClick={() => navigate("/register/helper")}>
-            Complete
-          </Button>
-        </div>
-      )}
-
-      {/* ─── Profile Strength ─── */}
-      {helperProfile && (
-        <Card className="p-5">
-          <p className="text-sm font-bold text-foreground mb-2">
-            📊 Your Profile Strength: {percent}%
-          </p>
-          <Progress value={percent} className="h-2 mb-3" />
-          <div className="space-y-1.5">
+          <Progress value={percent} className="h-1.5 mb-2" />
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
             {checks.map((c) => (
-              <div key={c.label} className="flex items-center gap-2 text-xs">
+              <div key={c.label} className="flex items-center gap-1 text-xs">
                 {c.done ? (
-                  <CheckCircle size={14} className="text-primary flex-shrink-0" />
+                  <CheckCircle size={12} className="text-primary" />
                 ) : (
-                  <AlertCircle size={14} className="text-secondary flex-shrink-0" />
+                  <AlertCircle size={12} className="text-muted-foreground" />
                 )}
-                <span className={c.done ? "text-muted-foreground" : "text-foreground font-medium"}>
-                  {c.label}
-                </span>
+                <span className={c.done ? "text-muted-foreground" : "text-foreground"}>{c.label}</span>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
-      <Separator />
+      {/* ─── Divider ─── */}
+      <div className="h-2 bg-muted/50 -mx-4" />
 
-      {/* ─── Job Opportunities ─── */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-bold text-foreground text-sm">
-            📩 New Job Opportunities
-            <span className="text-muted-foreground font-normal ml-1">({filteredJobs.length})</span>
-          </h3>
-        </div>
+      {/* ─── Top Job Picks Section ─── */}
+      <div className="pt-4">
+        <h2 className="text-lg font-bold text-foreground">Top job picks for you</h2>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-4">
+          Based on your profile, preferences, and activity like applies, searches, and saves
+        </p>
 
-        <div className="relative mb-4">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search jobs by title, location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 rounded-2xl h-11 bg-muted/50 border-0"
-          />
-        </div>
+        <div className="divide-y divide-border">
+          {filteredJobs.map((job) => {
+            const isApplied = appliedJobIds.has(job.id);
+            const daysSincePosted = Math.floor(
+              (Date.now() - new Date(job.created_at).getTime()) / (1000 * 60 * 60 * 24)
+            );
 
-        <div className="space-y-3">
-          {filteredJobs.map((job, index) => (
-            <div
-              key={job.id}
-              className="bg-card rounded-2xl p-4 shadow-soft border border-border animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">{categoryIcons[job.category] || "💼"}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-foreground text-sm">{job.title}</h4>
-                  {job.description && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{job.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {job.location && (
-                      <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <MapPin size={10} /> {job.location}
-                      </Badge>
-                    )}
-                    {job.job_type && (
-                      <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <Clock size={10} /> {job.job_type}
-                      </Badge>
-                    )}
-                    {job.live_in_out && (
-                      <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <Home size={10} /> {job.live_in_out}
-                      </Badge>
-                    )}
-                    {(job.salary_min || job.salary_max) && (
-                      <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <DollarSign size={10} />
-                        R{job.salary_min || 0} - R{job.salary_max || "?"}
-                        {job.negotiable && " (neg.)"}
-                      </Badge>
-                    )}
+            return (
+              <div key={job.id} className="py-3 first:pt-0">
+                <div className="flex items-start gap-3">
+                  {/* Company/Category Icon */}
+                  <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border">
+                    <span className="text-xl">{categoryIcons[job.category] || "💼"}</span>
                   </div>
-                  {job.duties && job.duties.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {job.duties.slice(0, 3).map((d) => (
-                        <span key={d} className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                          {d}
+
+                  {/* Job Details */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-foreground leading-tight">
+                      {job.title}
+                      {isApplied && (
+                        <span className="ml-1.5 inline-flex items-center text-[10px] text-primary font-medium">✓ Applied</span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{job.category}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {job.location || "South Africa"}
+                      {job.job_type && ` (${job.job_type})`}
+                    </p>
+
+                    {/* Salary & Meta */}
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      {(job.salary_min || job.salary_max) && (
+                        <span className="text-[11px] text-muted-foreground">
+                          R{job.salary_min || 0} – R{job.salary_max || "?"}
+                          {job.negotiable && " (neg.)"}
                         </span>
-                      ))}
-                      {job.duties.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground">+{job.duties.length - 3}</span>
+                      )}
+                      {job.live_in_out && (
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                          <Home size={10} /> {job.live_in_out}
+                        </span>
                       )}
                     </div>
-                  )}
+
+                    {/* Actively reviewing / Posted date */}
+                    {daysSincePosted <= 3 && (
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Zap size={10} className="text-primary" />
+                        </div>
+                        <span className="text-[11px] text-primary font-medium">Actively reviewing applicants</span>
+                      </div>
+                    )}
+
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {daysSincePosted === 0 ? "Today" : daysSincePosted === 1 ? "1 day ago" : `${daysSincePosted} days ago`}
+                    </p>
+
+                    {/* Apply Button */}
+                    {helperProfile && percent >= 80 ? (
+                      <Button
+                        size="sm"
+                        variant={isApplied ? "outline" : "default"}
+                        className="mt-2 rounded-full h-8 text-xs px-5"
+                        onClick={() => handleApply(job.id)}
+                        disabled={isApplied}
+                      >
+                        {isApplied ? "Applied" : "Easy Apply"}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 rounded-full h-8 text-xs px-5"
+                        onClick={() => {
+                          if (!helperProfile) {
+                            toast.error("Complete your profile first.");
+                            navigate("/register/helper");
+                          } else {
+                            toast.error("Profile must be ≥80% to apply.");
+                            navigate("/home?tab=profile");
+                          }
+                        }}
+                      >
+                        Complete Profile to Apply
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Dismiss Button */}
+                  <button
+                    className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                    onClick={() => setDismissedIds((prev) => new Set(prev).add(job.id))}
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                  {new Date(job.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
-                </span>
               </div>
-              {helperProfile && percent >= 80 ? (
-                <Button
-                  size="sm"
-                  variant={appliedJobIds.has(job.id) ? "secondary" : "outline"}
-                  className="w-full mt-3 rounded-xl"
-                  onClick={() => handleApply(job.id)}
-                  disabled={appliedJobIds.has(job.id)}
-                >
-                  {appliedJobIds.has(job.id) ? "Already Applied ✓" : "Apply Now"}
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full mt-3 rounded-xl"
-                  onClick={() => {
-                    if (!helperProfile) {
-                      toast.error("Complete your profile first to apply for jobs.");
-                      navigate("/register/helper");
-                    } else {
-                      toast.error("Your profile must be at least 80% complete to apply.");
-                      navigate("/home?tab=profile");
-                    }
-                  }}
-                >
-                  {!helperProfile ? "Complete Profile to Apply" : `Complete Profile (${percent}%) to Apply`}
-                </Button>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {filteredJobs.length > 0 && (
+          <button className="flex items-center justify-center gap-1 w-full py-3 text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors border-t border-border mt-1">
+            Show all <ChevronRight size={16} />
+          </button>
+        )}
 
         {filteredJobs.length === 0 && (
           <div className="text-center py-12">
@@ -384,6 +379,34 @@ const HelperHomeView = () => {
             <p className="text-sm text-muted-foreground/70 mt-1">Check back soon for new opportunities</p>
           </div>
         )}
+      </div>
+
+      {/* ─── Divider ─── */}
+      <div className="h-2 bg-muted/50 -mx-4" />
+
+      {/* ─── Explore with Job Collections (LinkedIn-style) ─── */}
+      <div className="pt-4 pb-2">
+        <h2 className="text-lg font-bold text-foreground mb-4">Explore with job collections</h2>
+        <div className="grid grid-cols-4 gap-3">
+          {jobCollections.map((col) => (
+            <button
+              key={col.label}
+              className="flex flex-col items-center gap-2 group"
+              onClick={() => {
+                if (col.label === "More") {
+                  // no-op or show all
+                } else {
+                  setSearchQuery(col.label === "Quick Apply" ? "" : col.label.toLowerCase());
+                }
+              }}
+            >
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${col.color} transition-transform group-hover:scale-105`}>
+                <col.icon size={22} />
+              </div>
+              <span className="text-[11px] font-medium text-foreground text-center leading-tight">{col.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
