@@ -388,7 +388,10 @@ const EmployerProfile = () => {
              <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
             <p className="text-xs text-muted-foreground">Add a profile photo, verified location, name, and category to post jobs</p>
           </div>
-          <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0 border-primary text-primary" onClick={() => setIsEditing(true)}>
+          <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0 border-primary text-primary" onClick={() => {
+            setIsEditing(true);
+            setTimeout(() => document.getElementById("household-info")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+          }}>
             Complete
           </Button>
         </div>
