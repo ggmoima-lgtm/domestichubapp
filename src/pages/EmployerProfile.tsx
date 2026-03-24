@@ -61,6 +61,15 @@ interface EmployerData {
   category: string | null;
   availability: string[] | null;
   custom_notes: string | null;
+  avatar_url: string | null;
+  formatted_address: string | null;
+  suburb: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  place_id: string | null;
 }
 
 const EmployerProfile = () => {
