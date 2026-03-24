@@ -189,6 +189,9 @@ const HelperHomeView = () => {
           Status: {status.emoji}{" "}
           <span className={status.color + " font-semibold"}>{status.label}</span>
         </p>
+        <div className="mt-2">
+          <PlatformStatsTicker />
+        </div>
 
         <div className="flex gap-2 mt-4">
           <Button
