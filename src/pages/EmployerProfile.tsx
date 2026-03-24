@@ -390,15 +390,47 @@ const EmployerProfile = () => {
       <Card variant="gradient" className="overflow-hidden">
         <div className="gradient-primary p-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-primary-foreground text-xl font-bold">
-              {(employer?.full_name || user?.email)?.charAt(0).toUpperCase() || "E"}
+            <div className="relative">
+              {employer?.avatar_url ? (
+                <img
+                  src={employer.avatar_url}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-primary-foreground/30"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-primary-foreground text-xl font-bold">
+                  {(employer?.full_name || user?.email)?.charAt(0).toUpperCase() || "E"}
+                </div>
+              )}
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-card border-2 border-primary flex items-center justify-center shadow-soft"
+              >
+                {avatarUploading ? (
+                  <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera size={12} className="text-primary" />
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
             </div>
             <div className="text-primary-foreground">
               <h1 className="text-xl font-bold">{employer?.full_name || user?.email?.split("@")[0] || "Employer"}</h1>
               {employer?.location && (
                 <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
-                  <MapPin size={14} /> {employer.location}
+                  <MapPin size={14} /> {employer.formatted_address || employer.location}
                 </p>
+              )}
+              {!employer?.avatar_url && (
+                <p className="text-primary-foreground/60 text-xs mt-1">📷 Tap camera to add photo</p>
               )}
               <Badge variant="secondary" className="gap-1 mt-2 shadow-soft">
                 <ShieldCheck size={12} /> Contact Verified
