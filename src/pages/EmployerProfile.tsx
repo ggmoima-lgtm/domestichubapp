@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ import {
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard, AlertTriangle,
-  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell, Camera
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
 import EditJobSheet from "@/components/EditJobSheet";
@@ -30,6 +30,7 @@ import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
+import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 import { mockWorkers } from "@/data/mockWorkers";
 import { getPreviewName } from "@/lib/contactMasking";
 
@@ -60,6 +61,15 @@ interface EmployerData {
   category: string | null;
   availability: string[] | null;
   custom_notes: string | null;
+  avatar_url: string | null;
+  formatted_address: string | null;
+  suburb: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  place_id: string | null;
 }
 
 const EmployerProfile = () => {
@@ -91,6 +101,9 @@ const EmployerProfile = () => {
   const [editingJob, setEditingJob] = useState<any>(null);
   const [showEditJob, setShowEditJob] = useState(false);
   const [showUnlockedProfiles, setShowUnlockedProfiles] = useState(false);
+  const [editLocationData, setEditLocationData] = useState<LocationData | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
 
   useEffect(() => {
@@ -221,7 +234,7 @@ const EmployerProfile = () => {
       toast.error("Please enter a valid email address");
       return;
     }
-    const payload = {
+    const payload: any = {
       full_name: editData.full_name || null,
       email: resolvedEmail,
       location: editData.location || null,
@@ -229,6 +242,14 @@ const EmployerProfile = () => {
       category: editData.category || null,
       availability: editData.availability || [],
       custom_notes: editData.custom_notes || null,
+      formatted_address: editData.formatted_address || null,
+      suburb: editData.suburb || null,
+      city: editData.city || null,
+      province: editData.province || null,
+      country: editData.country || null,
+      latitude: editData.latitude || null,
+      longitude: editData.longitude || null,
+      place_id: editData.place_id || null,
     };
 
     let error;
@@ -258,6 +279,52 @@ const EmployerProfile = () => {
       setEditData({ ...editData, availability: current.filter((a) => a !== option) });
     } else {
       setEditData({ ...editData, availability: [...current, option] });
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `employer-${user.id}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+
+      const { error: updateError } = await supabase
+        .from("employer_profiles")
+        .update({ avatar_url: avatarUrl } as any)
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Profile picture updated!");
+      fetchData();
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setAvatarUploading(false);
     }
   };
 
@@ -309,7 +376,7 @@ const EmployerProfile = () => {
     );
   }
 
-  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category;
+  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category || !employer?.avatar_url;
 
   return (
     <div className="pb-28 space-y-4">
@@ -318,8 +385,8 @@ const EmployerProfile = () => {
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-4 flex items-center gap-3">
           <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
-            <p className="text-xs text-muted-foreground">You need a complete profile to post jobs and hire helpers</p>
+             <p className="text-sm font-semibold text-foreground">Complete your profile first</p>
+            <p className="text-xs text-muted-foreground">Add a profile photo, verified location, name, and category to post jobs</p>
           </div>
           <Button size="sm" variant="outline" className="rounded-xl flex-shrink-0 border-primary text-primary" onClick={() => setIsEditing(true)}>
             Complete
@@ -331,15 +398,47 @@ const EmployerProfile = () => {
       <Card variant="gradient" className="overflow-hidden">
         <div className="gradient-primary p-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-primary-foreground text-xl font-bold">
-              {(employer?.full_name || user?.email)?.charAt(0).toUpperCase() || "E"}
+            <div className="relative">
+              {employer?.avatar_url ? (
+                <img
+                  src={employer.avatar_url}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-primary-foreground/30"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-primary-foreground text-xl font-bold">
+                  {(employer?.full_name || user?.email)?.charAt(0).toUpperCase() || "E"}
+                </div>
+              )}
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-card border-2 border-primary flex items-center justify-center shadow-soft"
+              >
+                {avatarUploading ? (
+                  <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera size={12} className="text-primary" />
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
             </div>
             <div className="text-primary-foreground">
               <h1 className="text-xl font-bold">{employer?.full_name || user?.email?.split("@")[0] || "Employer"}</h1>
               {employer?.location && (
                 <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
-                  <MapPin size={14} /> {employer.location}
+                  <MapPin size={14} /> {employer.formatted_address || employer.location}
                 </p>
+              )}
+              {!employer?.avatar_url && (
+                <p className="text-primary-foreground/60 text-xs mt-1">📷 Tap camera to add photo</p>
               )}
               <Badge variant="secondary" className="gap-1 mt-2 shadow-soft">
                 <ShieldCheck size={12} /> Contact Verified
@@ -376,10 +475,24 @@ const EmployerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area</Label>
-                <Input
-                  value={editData.location || ""}
-                  onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area <span className="text-destructive">*</span></Label>
+                <LocationAutocomplete
+                  value={editLocationData}
+                  onChange={(loc) => {
+                    setEditLocationData(loc);
+                    setEditData({
+                      ...editData,
+                      location: loc.formatted_address,
+                      formatted_address: loc.formatted_address,
+                      suburb: loc.suburb,
+                      city: loc.city,
+                      province: loc.province,
+                      country: loc.country,
+                      latitude: loc.latitude,
+                      longitude: loc.longitude,
+                      place_id: loc.place_id,
+                    });
+                  }}
                   placeholder="e.g. Sandton, Johannesburg"
                 />
               </div>
