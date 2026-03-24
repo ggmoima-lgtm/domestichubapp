@@ -274,6 +274,52 @@ const EmployerProfile = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `employer-${user.id}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+
+      const { error: updateError } = await supabase
+        .from("employer_profiles")
+        .update({ avatar_url: avatarUrl } as any)
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Profile picture updated!");
+      fetchData();
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     toast.success("Logged out successfully");
