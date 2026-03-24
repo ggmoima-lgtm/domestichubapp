@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import NotificationPreferences from "@/components/NotificationPreferences";
+import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 
 const startShuftiVerification = async (userId: string, helperId: string) => {
   const { data, error } = await supabase.functions.invoke("shufti-verify", {
@@ -55,6 +56,7 @@ interface HelperData {
   living_arrangement: string | null;
   verification_status?: string;
   verification_date?: string | null;
+  location?: string | null;
 }
 
 interface ReviewData {
@@ -124,6 +126,7 @@ const HelperProfile = () => {
           hourly_rate: editData.hourly_rate,
           availability: editData.availability,
           has_work_permit: editData.has_work_permit,
+          location: editData.location,
         })
         .eq("id", helper.id);
 
@@ -462,7 +465,7 @@ const HelperProfile = () => {
             <div className="flex-1 text-primary-foreground">
               <h1 className="text-xl font-bold">{helper.full_name}</h1>
               <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
-                <MapPin size={14} /> {helper.category}
+                <MapPin size={14} /> {helper.location || helper.category}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Star size={14} className="fill-current" />
@@ -610,6 +613,17 @@ const HelperProfile = () => {
               <div className="flex items-center justify-between">
                 <Label>Has Work Permit</Label>
                 <Switch checked={editData.has_work_permit || false} onCheckedChange={(v) => setEditData({ ...editData, has_work_permit: v })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location</Label>
+                <LocationAutocomplete
+                  value={null}
+                  onChange={(loc) => setEditData({ ...editData, location: loc.formatted_address } as any)}
+                  placeholder={editData.location || "e.g. Sandton, Johannesburg"}
+                />
+                {editData.location && (
+                  <p className="text-xs text-muted-foreground">Current: {editData.location}</p>
+                )}
               </div>
               {/* Video Upload */}
               <div className="space-y-2">

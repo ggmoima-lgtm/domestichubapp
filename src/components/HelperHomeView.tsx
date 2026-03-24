@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import PlatformStatsTicker from "@/components/PlatformStatsTicker";
 
 interface JobPost {
   id: string;
@@ -188,6 +189,9 @@ const HelperHomeView = () => {
           Status: {status.emoji}{" "}
           <span className={status.color + " font-semibold"}>{status.label}</span>
         </p>
+        <div className="mt-2">
+          <PlatformStatsTicker />
+        </div>
 
         <div className="flex gap-2 mt-4">
           <Button
