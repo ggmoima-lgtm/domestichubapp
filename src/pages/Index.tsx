@@ -20,6 +20,7 @@ import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import PlatformStatsTicker from "@/components/PlatformStatsTicker";
 
 const categoryIcons = {
   all: Grid3X3,
