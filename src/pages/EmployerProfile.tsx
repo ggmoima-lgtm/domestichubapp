@@ -321,7 +321,7 @@ const EmployerProfile = () => {
     );
   }
 
-  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category;
+  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category || !employer?.avatar_url;
 
   return (
     <div className="pb-28 space-y-4">
