@@ -100,7 +100,9 @@ const EmployerProfile = () => {
   const [activeJobs, setActiveJobs] = useState<any[]>([]);
   const [editingJob, setEditingJob] = useState<any>(null);
   const [showEditJob, setShowEditJob] = useState(false);
-  const [showUnlockedProfiles, setShowUnlockedProfiles] = useState(false);
+  const [editLocationData, setEditLocationData] = useState<LocationData | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
 
   useEffect(() => {
