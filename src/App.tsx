@@ -21,6 +21,7 @@ import POPIACompliance from "./pages/POPIACompliance";
 import OffPlatformLiability from "./pages/OffPlatformLiability";
 import LandingPage from "./pages/LandingPage";
 import ArchitectureFlowchart from "./pages/ArchitectureFlowchart";
+import DeleteAccount from "./pages/DeleteAccount";
 import ComponentSummary from "./pages/ComponentSummary";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
               <Route path="/popia" element={<POPIACompliance />} />
               <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
+              <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/architecture" element={<ArchitectureFlowchart />} />
               <Route path="/components" element={<ComponentSummary />} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
