@@ -38,6 +38,20 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
+    const userPhone = user.phone || null;
+
+    // Retrieve phone from profile before deletion
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    let smsPhone: string | null = userPhone;
+    if (!smsPhone) {
+      const { data: profile } = await adminClient
+        .from("profiles")
+        .select("phone")
+        .eq("user_id", userId)
+        .maybeSingle();
+      smsPhone = profile?.phone || null;
+    }
 
     // Use service role for deletions
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
