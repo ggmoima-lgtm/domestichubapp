@@ -305,7 +305,7 @@ const EmployerProfile = () => {
     setAvatarUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const filePath = `employer-${user.id}.${ext}`;
+      const filePath = `${user.id}/employer-avatar.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
