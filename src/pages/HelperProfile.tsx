@@ -126,6 +126,7 @@ const HelperProfile = () => {
       toast.error("About Me is required. Please write something about yourself.");
       return;
     }
+    try {
       const { error } = await supabase
         .from("helpers")
         .update({
