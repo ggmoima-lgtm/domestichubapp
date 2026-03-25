@@ -239,6 +239,16 @@ const Auth = () => {
           role: selectedRole!,
           onboarding_completed: true,
         } as any);
+
+        // Pre-populate role-specific profile with signup data
+        if (selectedRole === "employer") {
+          await supabase.from("employer_profiles").insert({
+            user_id: data.user.id,
+            full_name: `${fullName} ${surname}`.trim(),
+            email: signupEmail.trim() || null,
+          });
+        }
+
         if (termsAccepted) {
           await supabase.from("terms_acceptances").insert({
             user_id: data.user.id,
