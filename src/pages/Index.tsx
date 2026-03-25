@@ -490,13 +490,6 @@ const Index = () => {
 
 
 
-      {/* Filter Sheet */}
-      <FilterSheet
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filters={filters}
-        onApply={setFilters}
-      />
 
       {/* Worker Detail Sheet */}
       <WorkerDetailSheet
