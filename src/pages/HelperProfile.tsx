@@ -89,6 +89,18 @@ const HelperProfile = () => {
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const editLocationValue = editData.location
+    ? {
+        latitude: 0,
+        longitude: 0,
+        suburb: "",
+        city: "",
+        province: "",
+        country: "",
+        formatted_address: editData.location,
+        place_id: "",
+      }
+    : null;
 
   useEffect(() => {
     if (user) fetchHelperData();
@@ -651,7 +663,7 @@ const HelperProfile = () => {
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location</Label>
                 <LocationAutocomplete
-                  value={null}
+                  value={editLocationValue}
                   onChange={(loc) => setEditData({ ...editData, location: loc.formatted_address } as any)}
                   placeholder={editData.location || "e.g. Sandton, Johannesburg"}
                 />
