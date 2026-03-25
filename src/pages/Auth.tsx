@@ -843,6 +843,34 @@ const Auth = () => {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Welcome Popup after Registration */}
+      <AlertDialog open={showWelcomePopup} onOpenChange={() => {}}>
+        <AlertDialogContent className="max-w-sm rounded-2xl text-center">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">
+              {selectedRole === "employer"
+                ? "Your next hire awaits you"
+                : "Your next opportunity awaits"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground">
+              {selectedRole === "employer"
+                ? "Complete your profile to begin posting jobs and finding helpers."
+                : "Complete your profile to start applying for jobs and getting hired."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button
+            size="lg"
+            className="w-full h-12 rounded-full font-semibold text-base mt-2"
+            onClick={() => {
+              setShowWelcomePopup(false);
+              navigate("/home?tab=profile", { replace: true });
+            }}
+          >
+            Complete Profile
+          </Button>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
