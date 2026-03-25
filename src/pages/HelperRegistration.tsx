@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, differenceInYears } from "date-fns";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle, CalendarIcon, Sprout } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Users, Save, CheckCircle, CalendarIcon, Sprout } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -44,11 +44,7 @@ const gardeningSkillOptions = [
   "Lawn Mowing", "Hedge Trimming", "Garden Cleaning", "Landscaping"
 ];
 
-const skillOptions = [
-  "Childcare", "Cooking", "Cleaning", "Laundry", "First Aid", 
-  "Tutoring", "Elder Care", "Pet Care", "Driving", "Organizing",
-  "Medication Management", "Physical Therapy", "Arts & Crafts"
-];
+// Additional skills removed per user request
 
 const languageOptions = [
   "English", "Afrikaans", "isiZulu", "isiXhosa", "Sesotho", 
@@ -252,7 +248,7 @@ const HelperRegistration = () => {
     if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
     if (selectedLanguages.length === 0) { toast.error("Please select at least one language"); return; }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
-    const allSkillsSelected = [...selectedSkills, ...selectedDomesticSkills, ...selectedGardeningSkills];
+    const allSkillsSelected = [...selectedDomesticSkills, ...selectedGardeningSkills];
     if (allSkillsSelected.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!videoFile) { toast.error("Please upload an intro video"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
@@ -291,7 +287,7 @@ const HelperRegistration = () => {
         : formData.category.join(", ") || "all-around";
 
       // Merge all skills
-      const allSkills = [...selectedSkills, ...selectedDomesticSkills, ...selectedGardeningSkills];
+      const allSkills = [...selectedDomesticSkills, ...selectedGardeningSkills];
 
       // Create helper profile
       const { error: profileError } = await supabase.from('helpers').insert({
@@ -375,11 +371,8 @@ const HelperRegistration = () => {
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <Camera size={32} className="text-muted-foreground" />
+                <span className="text-2xl font-bold text-muted-foreground">+</span>
               )}
-            </div>
-            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow-soft">
-              <Camera size={12} />
             </div>
             <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
           </label>
@@ -624,19 +617,7 @@ const HelperRegistration = () => {
           </section>
         )}
 
-        {/* Additional Skills — shown for "both" only (not pure gardening) */}
-        {serviceType === "both" && (
-          <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {skillOptions.map((skill) => (
-                <Badge key={skill} variant={selectedSkills.includes(skill) ? "default" : "outline"} className="cursor-pointer transition-all" onClick={() => toggleSkill(skill)}>
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Additional Skills section removed */}
 
         {/* Experience & Rate */}
         <section className="space-y-3">
