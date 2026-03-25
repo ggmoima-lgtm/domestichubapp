@@ -122,7 +122,10 @@ const HelperProfile = () => {
       toast.error("No helper profile found");
       return;
     }
-    try {
+    if (!editData.bio?.trim()) {
+      toast.error("About Me is required. Please write something about yourself.");
+      return;
+    }
       const { error } = await supabase
         .from("helpers")
         .update({
