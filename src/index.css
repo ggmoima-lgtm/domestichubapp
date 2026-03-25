@@ -164,6 +164,47 @@
   }
 }
 
+/* Calendar dropdown styling */
+.rdp-caption_dropdowns {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rdp-dropdown_month,
+.rdp-dropdown_year {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.rdp-dropdown_month > span,
+.rdp-dropdown_year > span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  cursor: pointer;
+}
+
+.rdp-dropdown_month > span:hover,
+.rdp-dropdown_year > span:hover {
+  background: hsl(var(--muted));
+}
+
+.rdp-dropdown {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+  appearance: none;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
