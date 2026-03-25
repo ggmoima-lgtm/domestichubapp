@@ -221,19 +221,6 @@ const EmployerHomeView = ({
         </button>
       </div>
 
-      {/* ─── New Applicants Alert ─── */}
-      {newApplicantCount > 0 && (
-        <div className="bg-card border border-border rounded-lg p-4 mb-1">
-          <button
-            onClick={() => onTabChange("profile")}
-            className="flex items-center gap-2 text-sm text-primary font-medium"
-          >
-            <Zap size={14} />
-            {newApplicantCount} new applicant{newApplicantCount !== 1 ? "s" : ""} — review now
-            <ChevronRight size={14} />
-          </button>
-        </div>
-      )}
 
       {/* ─── Divider ─── */}
       <div className="h-2 bg-muted/50 -mx-4" />
