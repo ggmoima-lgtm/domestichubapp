@@ -85,12 +85,11 @@ Deno.serve(async (req) => {
     }
 
     // Map Shufti events to our status
-    // Verification is NOT auto-approved. Accepted results go to "pending_review"
-    // for admin manual approval.
+    // Auto-approve: accepted results go directly to "verified"
     let verificationStatus: string;
     switch (event) {
       case "verification.accepted":
-        verificationStatus = "pending_review";
+        verificationStatus = "verified";
         break;
       case "verification.declined":
         verificationStatus = "failed";
@@ -125,14 +124,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update verification status — DO NOT auto-set is_verified
-    // Admin must manually approve via the admin dashboard
+    // Update verification status — auto-approve on accepted
+    const updatePayload: Record<string, unknown> = {
+      verification_status: verificationStatus,
+    };
+    if (verificationStatus === "verified") {
+      updatePayload.is_verified = true;
+      updatePayload.verification_date = new Date().toISOString();
+    }
     const { error: updateError } = await supabase
       .from("helpers")
-      .update({
-        verification_status: verificationStatus,
-        verification_date: verificationStatus === "pending_review" ? new Date().toISOString() : null,
-      })
+      .update(updatePayload)
       .eq("id", helper.id);
 
     if (updateError) {
