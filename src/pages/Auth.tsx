@@ -67,6 +67,15 @@ const Auth = () => {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
+  // Real-time validation
+  const [phoneExists, setPhoneExists] = useState<boolean | null>(null);
+  const [emailExists, setEmailExists] = useState<boolean | null>(null);
+  const [checkingPhone, setCheckingPhone] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
+  // Welcome popup
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+
   // Forgot password (phone OTP flow)
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotPhone, setForgotPhone] = useState("");
