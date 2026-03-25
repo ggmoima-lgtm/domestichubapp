@@ -187,11 +187,7 @@ const HelperRegistration = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleSkill = (skill: string) => {
-    setSelectedSkills(prev => 
-      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
-    );
-  };
+  // toggleSkill removed — additional skills section removed
 
   const toggleLanguage = (language: string) => {
     setSelectedLanguages(prev => 
@@ -677,7 +673,7 @@ const HelperRegistration = () => {
         </section>
 
         {/* Living Arrangement */}
-        {formData.availability === "Full-time" && (
+        {formData.availability.includes("Full-time") && (
           <section className="space-y-3">
             <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
               <Home size={18} className="text-primary" /> Living Arrangement
