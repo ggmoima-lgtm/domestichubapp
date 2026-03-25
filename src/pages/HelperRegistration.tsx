@@ -99,6 +99,7 @@ const HelperRegistration = () => {
   const [isPlaceholderEmail, setIsPlaceholderEmail] = useState(false);
   
   const [hasWorkPermit, setHasWorkPermit] = useState(false);
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -141,6 +142,7 @@ const HelperRegistration = () => {
       if (saved) {
         const draft = JSON.parse(saved);
         if (draft.formData) setFormData(prev => ({ ...prev, ...draft.formData, email: prev.email }));
+        if (draft.locationData) setLocationData(draft.locationData);
         if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
         if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
         if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
@@ -161,14 +163,14 @@ const HelperRegistration = () => {
       saveDraft(false);
     }, 30000);
     return () => clearInterval(timer);
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms]);
+  }, [formData, hasWorkPermit, locationData, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms]);
 
   // No longer needed — phone verified at signup
 
   const saveDraft = useCallback((navigateBack = false) => {
     try {
       const draft = {
-        formData, hasWorkPermit, selectedSkills, selectedLanguages, references,
+        formData, hasWorkPermit, locationData, selectedSkills, selectedLanguages, references,
         dateOfBirth: dateOfBirth?.toISOString() || null,
         serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms,
         savedAt: new Date().toISOString(),
@@ -248,7 +250,7 @@ const HelperRegistration = () => {
     if (calculatedAge < 18) { toast.error("You must be at least 18 years old to register"); return; }
     if (!formData.gender) { toast.error("Please select your gender"); return; }
     if (!formData.nationality) { toast.error("Please select your nationality"); return; }
-    if (!formData.city && !formData.area) { toast.error("Please select your location"); return; }
+    if (!locationData && !formData.city && !formData.area) { toast.error("Please select your location"); return; }
     if (!formData.availability) { toast.error("Please select your availability"); return; }
     if (!formData.bio) { toast.error("Please write something about yourself"); return; }
     if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
@@ -320,7 +322,7 @@ const HelperRegistration = () => {
         skills_domestic: selectedDomesticSkills,
         skills_gardening: selectedGardeningSkills,
         has_tools: hasTools,
-        location: [formData.area, formData.city].filter(Boolean).join(", ") || null,
+        location: locationData?.formatted_address || [formData.area, formData.city].filter(Boolean).join(", ") || null,
       } as any);
 
       if (profileError) {
@@ -494,8 +496,9 @@ const HelperRegistration = () => {
             <Label>Location *</Label>
             <div className="mt-1">
               <LocationAutocomplete
-                value={null}
+                value={locationData}
                 onChange={(loc: LocationData) => {
+                  setLocationData(loc);
                   handleInputChange("city", loc.city || loc.suburb || "");
                   handleInputChange("area", loc.suburb || loc.city || "");
                 }}
