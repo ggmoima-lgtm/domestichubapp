@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Search, X, Briefcase, Settings2, ListChecks, Pencil,
   ChevronRight, Users, Coins, SlidersHorizontal, MapPin, Eye, Zap,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -162,7 +163,7 @@ const EmployerHomeView = ({
             )}
           </div>
           <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-card bg-primary flex items-center justify-center">
-            <Pencil size={8} className="text-primary-foreground" />
+            <Camera size={8} className="text-primary-foreground" />
           </div>
         </button>
         <div className="flex-1 relative">
