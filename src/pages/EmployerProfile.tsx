@@ -20,7 +20,7 @@ import {
 import {
   MapPin, ShieldCheck, Edit3, Save, X, ChevronRight, ChevronDown,
   LogOut, Trash2, Lock, Mail, Users, CreditCard, AlertTriangle,
-  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell, Camera
+  Briefcase, Heart, Unlock, Star, User, Clock, FileText, Plus, Phone, Bell
 } from "lucide-react";
 import CreateJobSheet from "@/components/CreateJobSheet";
 import EditJobSheet from "@/components/EditJobSheet";
@@ -422,7 +422,7 @@ const EmployerProfile = () => {
                 {avatarUploading ? (
                   <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 ) : (
-                  <Camera size={14} />
+                  <Edit3 size={14} />
                 )}
                 <input
                   ref={avatarInputRef}

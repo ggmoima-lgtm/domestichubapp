@@ -15,7 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Star, Phone, ShieldCheck, Award, Edit3, Save, X, Camera,
+  Star, Phone, ShieldCheck, Award, Edit3, Save, X,
   Video, MapPin, Briefcase, Clock, Globe, MessageCircle,
   Heart, ChevronRight, LogOut, Trash2, Bell, Lock, Mail,
   FileText, Calendar, DollarSign, Users, Shield
@@ -120,6 +120,10 @@ const HelperProfile = () => {
   const handleSave = async () => {
     if (!helper) {
       toast.error("No helper profile found");
+      return;
+    }
+    if (!editData.bio?.trim()) {
+      toast.error("About Me is required. Please write something about yourself.");
       return;
     }
     try {
@@ -408,7 +412,7 @@ const HelperProfile = () => {
             <div className="space-y-2">
               {[
                 { icon: <Briefcase size={14} />, label: "Skills & experience" },
-                { icon: <Camera size={14} />, label: "Profile photo" },
+                { icon: <Users size={14} />, label: "Profile photo" },
                 { icon: <Video size={14} />, label: "Intro video" },
                 { icon: <Globe size={14} />, label: "Languages & availability" },
               ].map((item, i) => (
@@ -481,7 +485,7 @@ const HelperProfile = () => {
                 {avatarUploading ? (
                   <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 ) : (
-                  <Camera size={14} />
+                  <Edit3 size={14} />
                 )}
                 <input
                    type="file"
