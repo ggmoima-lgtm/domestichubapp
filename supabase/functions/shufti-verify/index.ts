@@ -49,12 +49,9 @@ Deno.serve(async (req) => {
 
     const reference = `DH-${user_id}-${Date.now()}`;
 
-    // Build Shufti Pro verification request
-    const webhookUrl = `${supabaseUrl}/functions/v1/shufti-webhook`;
-
+    // Build Shufti Pro verification request (no callback_url — we poll instead)
     const payload = {
       reference,
-      callback_url: webhookUrl,
       email: helper.email,
       country: "ZA",
       verification_mode: "any",
