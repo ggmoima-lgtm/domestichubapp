@@ -417,28 +417,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-40 glass border-b border-border">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <img src={logo} alt="Domestic Hub" className="w-14 h-14 rounded-full object-contain bg-white shadow-soft" />
-              <div>
-                <h2 className="text-lg font-bold text-foreground">Domestic Hub</h2>
-              </div>
-            </div>
-            {userRole !== "helper" && (
-              <button
-                onClick={() => setShowCreditStore(true)}
-                className="flex items-center gap-1.5 bg-primary/10 px-4 py-2.5 rounded-full hover:bg-primary/20 active:scale-95 transition-all cursor-pointer relative z-10"
-              >
-                <Coins size={14} className="text-primary" />
-                <span className="text-sm font-bold text-primary">{creditBalance}</span>
-                <span className="text-xs text-muted-foreground">credits</span>
-              </button>
-            )}
+      {userRole !== "helper" && (
+        <header className="sticky top-0 z-40 glass border-b border-border">
+          <div className="px-4 py-3 flex items-center justify-end">
+            <button
+              onClick={() => setShowCreditStore(true)}
+              className="flex items-center gap-1.5 bg-primary/10 px-4 py-2.5 rounded-full hover:bg-primary/20 active:scale-95 transition-all cursor-pointer relative z-10"
+            >
+              <Coins size={14} className="text-primary" />
+              <span className="text-sm font-bold text-primary">{creditBalance}</span>
+              <span className="text-xs text-muted-foreground">credits</span>
+            </button>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Show loading state while role is being determined */}
       {userRole === null && user && (

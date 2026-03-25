@@ -181,13 +181,27 @@ const HelperHomeView = () => {
     <div className="space-y-0">
       {/* ─── LinkedIn-style Search Bar ─── */}
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
-          {helperProfile?.avatar_url ? (
-            <img src={helperProfile.avatar_url} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-sm font-bold text-muted-foreground">{firstName[0]}</span>
-          )}
-        </div>
+        <button
+          onClick={() => navigate("/home?tab=profile")}
+          className="relative flex-shrink-0"
+        >
+          <div className={`w-14 h-14 rounded-full overflow-hidden bg-muted border-[3px] ${
+            helperProfile?.availability_status === "available" 
+              ? "border-green-500" 
+              : "border-destructive"
+          }`}>
+            {helperProfile?.avatar_url ? (
+              <img src={helperProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-lg font-bold text-muted-foreground">{firstName[0]}</span>
+              </div>
+            )}
+          </div>
+          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-card ${
+            helperProfile?.availability_status === "available" ? "bg-green-500" : "bg-destructive"
+          }`} />
+        </button>
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
