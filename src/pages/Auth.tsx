@@ -289,31 +289,15 @@ const Auth = () => {
       toast({ title: "Please enter a valid email", variant: "destructive" });
       return;
     }
-
-    // Check for existing accounts
-    setIsSubmitting(true);
-    try {
-      const phoneDigits = phone.replace(/\D/g, "");
-      const { data: existingEmail } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
-      if (existingEmail) {
-        toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
-        setIsSubmitting(false);
-        return;
-      }
-      if (signupEmail) {
-        const { data: emailCheck } = await supabase.from("profiles").select("id").eq("email", signupEmail.trim()).maybeSingle();
-        if (emailCheck) {
-          toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      setSignupStep("password");
-    } catch {
-      setSignupStep("password");
-    } finally {
-      setIsSubmitting(false);
+    if (phoneExists) {
+      toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
+      return;
     }
+    if (emailExists) {
+      toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
+      return;
+    }
+    setSignupStep("password");
   };
 
   const handleNextFromPassword = () => {
