@@ -182,16 +182,51 @@ const HelperHomeView = () => {
     <div className="space-y-0">
       {/* ─── LinkedIn-style Search Bar ─── */}
       <div className="flex items-center gap-3 mb-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          className="hidden"
+          onChange={async (e) => {
+            if (!user || !helperProfile || !e.target.files?.[0]) return;
+            const file = e.target.files[0];
+            if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+            if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+            setAvatarUploading(true);
+            try {
+              const ext = file.name.split(".").pop() || "jpg";
+              const filePath = `${user.id}/${Date.now()}.${ext}`;
+              const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+              if (uploadError) throw uploadError;
+              const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+              const { error: updateError } = await supabase.from("helpers").update({ avatar_url: urlData.publicUrl }).eq("id", helperProfile.id);
+              if (updateError) throw updateError;
+              setHelperProfile({ ...helperProfile, avatar_url: urlData.publicUrl });
+              toast.success("Profile photo updated!");
+            } catch (err: any) {
+              toast.error("Failed to upload photo: " + (err.message || "Unknown error"));
+            } finally {
+              setAvatarUploading(false);
+              e.target.value = "";
+            }
+          }}
+        />
         <button
-          onClick={() => navigate("/home?tab=profile")}
+          onClick={() => fileInputRef.current?.click()}
           className="relative flex-shrink-0"
+          disabled={avatarUploading}
         >
           <div className={`w-14 h-14 rounded-full overflow-hidden bg-muted border-[3px] ${
             helperProfile?.availability_status === "available" 
               ? "border-green-500" 
               : "border-destructive"
           }`}>
-            {helperProfile?.avatar_url ? (
+            {avatarUploading ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+              </div>
+            ) : helperProfile?.avatar_url ? (
               <img src={helperProfile.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
