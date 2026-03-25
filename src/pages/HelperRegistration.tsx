@@ -323,7 +323,7 @@ const HelperRegistration = () => {
       supabase.from('terms_acceptances').insert({
         user_id: userId,
         terms_version: '1.0',
-      }).catch(() => {});
+      }).then(() => {});
 
       // Trigger video moderation
       if (videoUrl) {
