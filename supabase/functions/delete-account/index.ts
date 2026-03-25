@@ -53,9 +53,6 @@ Deno.serve(async (req) => {
       smsPhone = profile?.phone || null;
     }
 
-    // Use service role for deletions
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
     // Get helper IDs for this user
     const { data: helpers } = await adminClient
       .from("helpers")
