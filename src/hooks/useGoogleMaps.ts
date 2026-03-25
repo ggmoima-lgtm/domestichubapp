@@ -29,6 +29,10 @@ export const useGoogleMaps = () => {
       callbacks.forEach((cb) => cb());
       callbacks.length = 0;
     };
+    script.onerror = (err) => {
+      console.error("[useGoogleMaps] Failed to load Google Maps script:", err);
+      isLoading = false;
+    };
     document.head.appendChild(script);
   }, []);
 
