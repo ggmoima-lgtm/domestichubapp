@@ -1,18 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf } from "lucide-react";
+import { X, Coins } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
-import TrustBanner from "@/components/TrustBanner";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
-import LowCreditBanner from "@/components/LowCreditBanner";
 import BottomNav from "@/components/BottomNav";
-import SearchBar from "@/components/SearchBar";
-import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
-import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
 import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
@@ -21,7 +15,6 @@ import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import PlatformStatsTicker from "@/components/PlatformStatsTicker";
 
 const categoryIcons = {
   all: Grid3X3,
