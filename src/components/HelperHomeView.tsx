@@ -401,33 +401,6 @@ const HelperHomeView = () => {
         )}
       </div>
 
-      {/* ─── Divider ─── */}
-      <div className="h-2 bg-muted/50 -mx-4" />
-
-      {/* ─── Explore with Job Collections (LinkedIn-style) ─── */}
-      <div className="pt-4 pb-2">
-        <h2 className="text-lg font-bold text-foreground mb-4">Explore with job collections</h2>
-        <div className="grid grid-cols-4 gap-3">
-          {jobCollections.map((col) => (
-            <button
-              key={col.label}
-              className="flex flex-col items-center gap-2 group"
-              onClick={() => {
-                if (col.label === "More") {
-                  // no-op or show all
-                } else {
-                  setSearchQuery(col.label === "Quick Apply" ? "" : col.label.toLowerCase());
-                }
-              }}
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${col.color} transition-transform group-hover:scale-105`}>
-                <col.icon size={22} />
-              </div>
-              <span className="text-[11px] font-medium text-foreground text-center leading-tight">{col.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
