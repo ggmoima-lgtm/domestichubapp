@@ -85,6 +85,39 @@ const Auth = () => {
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
 
+  // Debounced phone existence check
+  const phoneTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!phone || phone.length < 6) { setPhoneExists(null); return; }
+    setCheckingPhone(true);
+    clearTimeout(phoneTimerRef.current);
+    phoneTimerRef.current = setTimeout(async () => {
+      try {
+        const phoneDigits = phone.replace(/\D/g, "");
+        const { data } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
+        setPhoneExists(!!data);
+      } catch { setPhoneExists(null); }
+      setCheckingPhone(false);
+    }, 600);
+    return () => clearTimeout(phoneTimerRef.current);
+  }, [phone]);
+
+  // Debounced email existence check
+  const emailTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!signupEmail || !signupEmail.includes("@")) { setEmailExists(null); return; }
+    setCheckingEmail(true);
+    clearTimeout(emailTimerRef.current);
+    emailTimerRef.current = setTimeout(async () => {
+      try {
+        const { data } = await supabase.from("profiles").select("id").eq("email", signupEmail.trim()).maybeSingle();
+        setEmailExists(!!data);
+      } catch { setEmailExists(null); }
+      setCheckingEmail(false);
+    }, 600);
+    return () => clearTimeout(emailTimerRef.current);
+  }, [signupEmail]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
