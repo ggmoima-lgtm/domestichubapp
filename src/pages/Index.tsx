@@ -444,7 +444,7 @@ const Index = () => {
             onTabChange={handleTabChange}
           />
         </main>
-      )
+      )}
 
       {activeTab === "messages" && (
         <main className="px-4 py-4 pb-24">
