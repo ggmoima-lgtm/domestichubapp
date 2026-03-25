@@ -320,16 +320,6 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[200px] max-h-[50vh]">
-          {/* Guidance Message */}
-          <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 text-xs text-muted-foreground leading-relaxed text-center">
-            Once you're comfortable, you can continue the conversation outside the app.
-          </div>
-
-          {/* Disclaimer */}
-          <div className="p-3 rounded-xl bg-muted/50 border border-border text-[10px] text-muted-foreground leading-relaxed text-center">
-            Domestic Hub is a connection platform. All communication and agreements outside the app are at your own discretion. Domestic Hub is not liable for interactions outside the platform.
-          </div>
-
           {messages.length === 0 && (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">No messages yet. Say hello!</p>
@@ -355,18 +345,6 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             );
           })}
           <div ref={messagesEndRef} />
-        </div>
-
-        {/* WhatsApp CTA */}
-        <div className="px-5 py-2 bg-card">
-          <a
-            href={`https://wa.me/?text=Hi%2C%20I%20found%20your%20profile%20on%20Domestic%20Hub%20and%20would%20like%20to%20connect.`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold transition-colors"
-          >
-            Continue on WhatsApp
-          </a>
         </div>
 
         {/* Input */}
