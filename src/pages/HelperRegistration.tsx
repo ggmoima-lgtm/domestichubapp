@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, differenceInYears } from "date-fns";
 import LocationAutocomplete, { LocationData } from "@/components/LocationAutocomplete";
-import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Upload, User, Phone, Mail, Briefcase, Clock, Globe, DollarSign, Home, Camera, Users, Save, CheckCircle, CalendarIcon, Sprout } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -24,9 +24,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const serviceTypeOptions = [
-  { id: "domestic", label: "Domestic Work", icon: "🏠" },
-  { id: "gardening", label: "Gardening", icon: "🌱" },
-  { id: "both", label: "Both", icon: "🏠🌱" },
+  { id: "domestic", label: "Domestic Work", icon: "domestic" },
+  { id: "gardening", label: "Gardening", icon: "gardening" },
+  { id: "both", label: "Both", icon: "both" },
 ];
 
 const categories = [
@@ -535,8 +535,19 @@ const HelperRegistration = () => {
                   onChange={() => setServiceType(opt.id)}
                   className="sr-only"
                 />
-                <span className="text-2xl">{opt.icon}</span>
-                <span className="text-sm font-bold">{opt.label}</span>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                  serviceType === opt.id ? "bg-primary/10" : "bg-muted"
+                }`}>
+                  {opt.icon === "domestic" && <Home size={20} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />}
+                  {opt.icon === "gardening" && <Sprout size={20} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />}
+                  {opt.icon === "both" && (
+                    <div className="flex gap-0.5">
+                      <Home size={16} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />
+                      <Sprout size={16} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />
+                    </div>
+                  )}
+                </div>
+                <span className="text-sm font-semibold">{opt.label}</span>
               </label>
             ))}
           </div>
