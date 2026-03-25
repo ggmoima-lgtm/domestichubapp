@@ -126,7 +126,7 @@ const Auth = () => {
     );
   }
 
-  if (session) {
+  if (session && !showWelcomePopup) {
     return <Navigate to="/splash" replace />;
   }
 
