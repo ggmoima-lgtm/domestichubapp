@@ -212,9 +212,7 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
         .eq("id", placement.id);
 
       await supabase
-        .from("helpers")
-        .update({ availability_status: "available" })
-        .eq("id", helperId);
+        .rpc("update_helper_availability", { p_helper_id: helperId, p_status: "available" });
 
       toast.success(`${helperName} has been unhired.`);
       onHired?.();
@@ -249,12 +247,11 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
       });
       if (placementError) throw placementError;
 
-      // Update helper status
-      const { error: updateError } = await supabase
-        .from("helpers")
-        .update({ availability_status: "unavailable" })
-        .eq("id", helperId);
+      // Update helper status via security definer function
+      const { data: updated, error: updateError } = await supabase
+        .rpc("update_helper_availability", { p_helper_id: helperId, p_status: "unavailable" });
       if (updateError) throw updateError;
+      if (!updated) throw new Error("Failed to update helper status");
 
       // Send hired notification message
       await supabase.from("messages").insert({
