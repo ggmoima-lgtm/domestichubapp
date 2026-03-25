@@ -591,7 +591,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                   </a>
                 </div>
               )}
-              {worker.email && (
+              {worker.email && !worker.email.endsWith("@helper.domestichub.app") && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Email</p>
                   <a href={`mailto:${worker.email}`} className="text-sm font-semibold text-primary hover:underline">
