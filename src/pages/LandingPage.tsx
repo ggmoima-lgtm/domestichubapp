@@ -91,7 +91,7 @@ const LandingPage = () => {
           onClick={() => navigate("/auth")}
         >
           <Mail size={18} className="mr-2.5" />
-          Sign in with Email
+          Sign in
         </Button>
 
         {/* Divider */}
