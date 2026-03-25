@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -67,6 +67,15 @@ const Auth = () => {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
+  // Real-time validation
+  const [phoneExists, setPhoneExists] = useState<boolean | null>(null);
+  const [emailExists, setEmailExists] = useState<boolean | null>(null);
+  const [checkingPhone, setCheckingPhone] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
+  // Welcome popup
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+
   // Forgot password (phone OTP flow)
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotPhone, setForgotPhone] = useState("");
@@ -75,6 +84,39 @@ const Auth = () => {
   const [forgotNewPassword, setForgotNewPassword] = useState("");
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
+
+  // Debounced phone existence check
+  const phoneTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!phone || phone.length < 6) { setPhoneExists(null); return; }
+    setCheckingPhone(true);
+    clearTimeout(phoneTimerRef.current);
+    phoneTimerRef.current = setTimeout(async () => {
+      try {
+        const phoneDigits = phone.replace(/\D/g, "");
+        const { data } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
+        setPhoneExists(!!data);
+      } catch { setPhoneExists(null); }
+      setCheckingPhone(false);
+    }, 600);
+    return () => clearTimeout(phoneTimerRef.current);
+  }, [phone]);
+
+  // Debounced email existence check
+  const emailTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!signupEmail || !signupEmail.includes("@")) { setEmailExists(null); return; }
+    setCheckingEmail(true);
+    clearTimeout(emailTimerRef.current);
+    emailTimerRef.current = setTimeout(async () => {
+      try {
+        const { data } = await supabase.from("profiles").select("id").eq("email", signupEmail.trim()).maybeSingle();
+        setEmailExists(!!data);
+      } catch { setEmailExists(null); }
+      setCheckingEmail(false);
+    }, 600);
+    return () => clearTimeout(emailTimerRef.current);
+  }, [signupEmail]);
 
   if (loading) {
     return (
@@ -202,8 +244,7 @@ const Auth = () => {
         }
       }
 
-      toast({ title: "Welcome to Domestic Hub!", description: "Your account has been created." });
-      navigate("/", { replace: true });
+      setShowWelcomePopup(true);
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
@@ -247,31 +288,15 @@ const Auth = () => {
       toast({ title: "Please enter a valid email", variant: "destructive" });
       return;
     }
-
-    // Check for existing accounts
-    setIsSubmitting(true);
-    try {
-      const phoneDigits = phone.replace(/\D/g, "");
-      const { data: existingEmail } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
-      if (existingEmail) {
-        toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
-        setIsSubmitting(false);
-        return;
-      }
-      if (signupEmail) {
-        const { data: emailCheck } = await supabase.from("profiles").select("id").eq("email", signupEmail.trim()).maybeSingle();
-        if (emailCheck) {
-          toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      setSignupStep("password");
-    } catch {
-      setSignupStep("password");
-    } finally {
-      setIsSubmitting(false);
+    if (phoneExists) {
+      toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
+      return;
     }
+    if (emailExists) {
+      toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
+      return;
+    }
+    setSignupStep("password");
   };
 
   const handleNextFromPassword = () => {
@@ -338,10 +363,12 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className="border-0 border-b border-border rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary"
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
-            <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>
+            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
+            {!emailExists && !checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>}
           </div>
         ) : (
           <div>
@@ -351,15 +378,17 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className="border-0 border-b border-border rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary"
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
+            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
           </div>
         )}
 
         <div>
           <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number*</Label>
-          <div className="flex border-b border-border">
+          <div className={`flex border-b ${phoneExists ? 'border-destructive' : 'border-border'}`}>
             <CountryCodeSelect value={signupCountryCode} onChange={setSignupCountryCode} />
             <Input
               type="tel"
@@ -369,6 +398,8 @@ const Auth = () => {
               className="border-0 rounded-none px-0 h-11 text-base focus-visible:ring-0 flex-1"
             />
           </div>
+          {checkingPhone && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+          {phoneExists && <p className="text-xs text-destructive mt-1.5">This phone number is already registered. Please log in instead.</p>}
         </div>
       </div>
 
@@ -377,7 +408,7 @@ const Auth = () => {
         size="lg"
         className="w-full h-12 rounded-full font-semibold text-base"
         onClick={handleNextFromContact}
-        disabled={isSubmitting}
+        disabled={isSubmitting || phoneExists === true || emailExists === true || checkingPhone || checkingEmail}
       >
         {isSubmitting ? "Checking..." : "Continue"}
       </Button>
@@ -810,6 +841,34 @@ const Auth = () => {
               </>
             )}
           </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Welcome Popup after Registration */}
+      <AlertDialog open={showWelcomePopup} onOpenChange={() => {}}>
+        <AlertDialogContent className="max-w-sm rounded-2xl text-center">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">
+              {selectedRole === "employer"
+                ? "Your next hire awaits you"
+                : "Your next opportunity awaits"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground">
+              {selectedRole === "employer"
+                ? "Complete your profile to begin posting jobs and finding helpers."
+                : "Complete your profile to start applying for jobs and getting hired."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button
+            size="lg"
+            className="w-full h-12 rounded-full font-semibold text-base mt-2"
+            onClick={() => {
+              setShowWelcomePopup(false);
+              navigate("/home?tab=profile", { replace: true });
+            }}
+          >
+            Complete Profile
+          </Button>
         </AlertDialogContent>
       </AlertDialog>
     </div>
