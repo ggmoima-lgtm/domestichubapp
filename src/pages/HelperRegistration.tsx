@@ -536,14 +536,14 @@ const HelperRegistration = () => {
                   className="sr-only"
                 />
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                  serviceType === opt.id ? "bg-primary/10" : "bg-muted"
+                  serviceType === opt.id ? "bg-primary/15" : "bg-primary/5"
                 }`}>
-                  {opt.icon === "domestic" && <Home size={20} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />}
-                  {opt.icon === "gardening" && <Sprout size={20} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />}
+                  {opt.icon === "domestic" && <Home size={20} className="text-primary" />}
+                  {opt.icon === "gardening" && <Sprout size={20} className="text-primary" />}
                   {opt.icon === "both" && (
                     <div className="flex gap-0.5">
-                      <Home size={16} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />
-                      <Sprout size={16} className={serviceType === opt.id ? "text-primary" : "text-muted-foreground"} />
+                      <Home size={16} className="text-primary" />
+                      <Sprout size={16} className="text-primary" />
                     </div>
                   )}
                 </div>
