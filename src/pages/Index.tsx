@@ -14,6 +14,7 @@ import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
+import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import PushNotificationDialog from "@/components/PushNotificationDialog";
 import { Worker } from "@/data/mockWorkers";
