@@ -518,37 +518,20 @@ const HelperRegistration = () => {
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Briefcase size={18} className="text-primary" /> What type of work do you do? *
           </h2>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="flex gap-2">
             {serviceTypeOptions.map((opt) => (
-              <label
+              <button
                 key={opt.id}
-                className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
+                type="button"
+                onClick={() => setServiceType(opt.id)}
+                className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-colors ${
                   serviceType === opt.id
                     ? "border-primary bg-primary/5 text-primary"
                     : "border-border bg-card text-foreground hover:border-primary/40"
                 }`}
               >
-                <input
-                  type="radio"
-                  name="service_type"
-                  checked={serviceType === opt.id}
-                  onChange={() => setServiceType(opt.id)}
-                  className="sr-only"
-                />
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                  serviceType === opt.id ? "bg-primary/15" : "bg-primary/5"
-                }`}>
-                  {opt.icon === "domestic" && <Home size={20} className="text-primary" />}
-                  {opt.icon === "gardening" && <Sprout size={20} className="text-primary" />}
-                  {opt.icon === "both" && (
-                    <div className="flex gap-0.5">
-                      <Home size={16} className="text-primary" />
-                      <Sprout size={16} className="text-primary" />
-                    </div>
-                  )}
-                </div>
-                <span className="text-sm font-semibold">{opt.label}</span>
-              </label>
+                {opt.label}
+              </button>
             ))}
           </div>
         </section>
