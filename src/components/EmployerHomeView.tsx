@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import WorkerCard from "@/components/WorkerCard";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
-import PlatformStatsTicker from "@/components/PlatformStatsTicker";
+
 import { Worker } from "@/data/mockWorkers";
 
 interface Props {
