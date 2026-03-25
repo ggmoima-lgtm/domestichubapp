@@ -139,10 +139,9 @@ const EmployerHomeView = ({
       <div className="flex items-center gap-3 mb-3">
         <input
           ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="user"
-          className="hidden"
+           type="file"
+           accept="image/*"
+           className="hidden"
           onChange={handleAvatarUpload}
         />
         <button
