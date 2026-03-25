@@ -363,10 +363,12 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className="border-0 border-b border-border rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary"
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
-            <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>
+            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
+            {!emailExists && !checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>}
           </div>
         ) : (
           <div>
@@ -376,15 +378,17 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className="border-0 border-b border-border rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary"
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
+            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
           </div>
         )}
 
         <div>
           <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number*</Label>
-          <div className="flex border-b border-border">
+          <div className={`flex border-b ${phoneExists ? 'border-destructive' : 'border-border'}`}>
             <CountryCodeSelect value={signupCountryCode} onChange={setSignupCountryCode} />
             <Input
               type="tel"
@@ -394,6 +398,8 @@ const Auth = () => {
               className="border-0 rounded-none px-0 h-11 text-base focus-visible:ring-0 flex-1"
             />
           </div>
+          {checkingPhone && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+          {phoneExists && <p className="text-xs text-destructive mt-1.5">This phone number is already registered. Please log in instead.</p>}
         </div>
       </div>
 
@@ -402,7 +408,7 @@ const Auth = () => {
         size="lg"
         className="w-full h-12 rounded-full font-semibold text-base"
         onClick={handleNextFromContact}
-        disabled={isSubmitting}
+        disabled={isSubmitting || phoneExists === true || emailExists === true || checkingPhone || checkingEmail}
       >
         {isSubmitting ? "Checking..." : "Continue"}
       </Button>
