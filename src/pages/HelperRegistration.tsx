@@ -524,7 +524,7 @@ const HelperRegistration = () => {
                 key={opt.id}
                 type="button"
                 onClick={() => setServiceType(opt.id)}
-                className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-colors ${
+                className={`flex-1 py-3 px-2 rounded-xl border-2 text-center text-xs sm:text-sm font-semibold transition-colors ${
                   serviceType === opt.id
                     ? "border-primary bg-primary/5 text-primary"
                     : "border-border bg-card text-foreground hover:border-primary/40"
@@ -624,8 +624,8 @@ const HelperRegistration = () => {
           </section>
         )}
 
-        {/* Additional Skills — shown for gardening/both only */}
-        {(serviceType === "gardening" || serviceType === "both") && (
+        {/* Additional Skills — shown for "both" only (not pure gardening) */}
+        {serviceType === "both" && (
           <section className="space-y-3">
             <h2 className="text-base font-semibold text-foreground">Additional Skills</h2>
             <div className="flex flex-wrap gap-2">
@@ -667,17 +667,32 @@ const HelperRegistration = () => {
           </div>
         </section>
 
-        {/* Availability */}
+        {/* Availability — multi-select */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Clock size={18} className="text-primary" /> Availability
+            <Clock size={18} className="text-primary" /> Availability *
           </h2>
-          <Select value={formData.availability} onValueChange={(value) => handleInputChange("availability", value)}>
-            <SelectTrigger><SelectValue placeholder="Select your availability" /></SelectTrigger>
-            <SelectContent>
-              {availabilityOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap gap-2">
+            {availabilityOptions.map((option) => {
+              const selected = formData.availability.split(", ").filter(Boolean).includes(option);
+              return (
+                <Badge
+                  key={option}
+                  variant={selected ? "default" : "outline"}
+                  className="cursor-pointer transition-all text-sm py-1.5 px-3"
+                  onClick={() => {
+                    const current = formData.availability.split(", ").filter(Boolean);
+                    const updated = selected
+                      ? current.filter(a => a !== option)
+                      : [...current, option];
+                    handleInputChange("availability", updated.join(", "));
+                  }}
+                >
+                  {option}
+                </Badge>
+              );
+            })}
+          </div>
         </section>
 
         {/* Living Arrangement */}
