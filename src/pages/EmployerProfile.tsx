@@ -456,8 +456,8 @@ const EmployerProfile = () => {
           <CardTitle className="text-base">Household Info</CardTitle>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }}><X size={16} /></Button>
-              <Button size="sm" onClick={handleSave}><Save size={16} /> Save</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}><X size={16} /></Button>
+              <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
