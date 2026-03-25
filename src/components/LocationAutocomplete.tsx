@@ -25,6 +25,7 @@ interface SuggestionItem {
   placeId: string;
   mainText: string;
   secondaryText: string;
+  prediction?: any;
 }
 
 const extractComponent = (
@@ -98,6 +99,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
             placeId: s.placePrediction.placeId,
             mainText: s.placePrediction.mainText?.text || s.placePrediction.text?.text || "",
             secondaryText: s.placePrediction.secondaryText?.text || "",
+            prediction: s.placePrediction,
           }));
 
         console.log("[LocationAutocomplete] Got", mapped.length, "suggestions");
@@ -118,7 +120,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
 
       try {
         const { Place, AutocompleteSessionToken } = placesLibRef.current;
-        const place = new Place({ id: suggestion.placeId });
+        const place = suggestion.prediction?.toPlace?.() || new Place({ id: suggestion.placeId });
         
         await place.fetchFields({
           fields: ["location", "addressComponents", "formattedAddress", "id"],
@@ -141,11 +143,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
         };
 
         onChange(locationData);
-        setDisplayValue(
-          locationData.suburb && locationData.city
-            ? `${locationData.suburb}, ${locationData.city}`
-            : locationData.formatted_address
-        );
+        setDisplayValue(locationData.formatted_address);
 
         // Reset session token
         sessionTokenRef.current = new AutocompleteSessionToken();
