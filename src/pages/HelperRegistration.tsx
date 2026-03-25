@@ -144,6 +144,12 @@ const HelperRegistration = () => {
         if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
         if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
         if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
+        if (draft.dateOfBirth) setDateOfBirth(new Date(draft.dateOfBirth));
+        if (draft.serviceType) setServiceType(draft.serviceType);
+        if (draft.selectedDomesticSkills) setSelectedDomesticSkills(draft.selectedDomesticSkills);
+        if (draft.selectedGardeningSkills) setSelectedGardeningSkills(draft.selectedGardeningSkills);
+        if (draft.hasTools) setHasTools(draft.hasTools);
+        if (draft.acceptedTerms) setAcceptedTerms(draft.acceptedTerms);
         toast.info("Draft restored from your last session");
       }
     } catch {}
@@ -152,21 +158,30 @@ const HelperRegistration = () => {
   // Auto-save draft every 30 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      saveDraft();
+      saveDraft(false);
     }, 30000);
     return () => clearInterval(timer);
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms]);
 
   // No longer needed — phone verified at signup
 
-  const saveDraft = useCallback(() => {
+  const saveDraft = useCallback((navigateBack = false) => {
     try {
-      const draft = { formData, hasWorkPermit, selectedSkills, selectedLanguages, references, savedAt: new Date().toISOString() };
+      const draft = {
+        formData, hasWorkPermit, selectedSkills, selectedLanguages, references,
+        dateOfBirth: dateOfBirth?.toISOString() || null,
+        serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms,
+        savedAt: new Date().toISOString(),
+      };
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
       setDraftSaved(true);
       setTimeout(() => setDraftSaved(false), 2000);
+      if (navigateBack) {
+        toast.success("Draft saved successfully");
+        navigate("/home?tab=profile");
+      }
     } catch {}
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms, navigate]);
 
   const clearDraft = () => {
     localStorage.removeItem(DRAFT_KEY);
