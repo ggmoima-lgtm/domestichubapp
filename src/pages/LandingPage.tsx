@@ -67,7 +67,7 @@ const LandingPage = () => {
         {/* Continue with Google */}
         <Button
           size="lg"
-          className="w-full h-13 rounded-full font-semibold text-sm shadow-sm"
+          className="w-full h-14 rounded-full font-semibold text-base shadow-sm"
           onClick={() => {
             lovable.auth.signInWithOAuth("google", {
               redirect_uri: window.location.origin,
@@ -87,7 +87,7 @@ const LandingPage = () => {
         <Button
           variant="outline"
           size="lg"
-          className="w-full h-13 rounded-full font-semibold text-sm border-border hover:border-primary/40 hover:bg-primary/5"
+          className="w-full h-14 rounded-full font-semibold text-base border-border hover:border-primary/40 hover:bg-primary/5"
           onClick={() => navigate("/auth")}
         >
           <Mail size={18} className="mr-2.5" />
