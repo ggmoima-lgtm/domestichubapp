@@ -381,7 +381,13 @@ const HelperHomeView = () => {
         </div>
 
         {filteredJobs.length > 0 && (
-          <button className="flex items-center justify-center gap-1 w-full py-3 text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors border-t border-border mt-1">
+          <button
+            className="flex items-center justify-center gap-1 w-full py-3 text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors border-t border-border mt-1"
+            onClick={() => {
+              setDismissedIds(new Set());
+              setSearchQuery("");
+            }}
+          >
             Show all <ChevronRight size={16} />
           </button>
         )}
