@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,24 +6,31 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import HelperRegistration from "./pages/HelperRegistration";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import SplashScreen from "./pages/SplashScreen";
 
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsConditions from "./pages/TermsConditions";
-import AdminDashboard from "./pages/AdminDashboard";
-import RefundPolicy from "./pages/RefundPolicy";
-import UnlockDisclaimer from "./pages/UnlockDisclaimer";
-import POPIACompliance from "./pages/POPIACompliance";
-import OffPlatformLiability from "./pages/OffPlatformLiability";
-import LandingPage from "./pages/LandingPage";
-import ArchitectureFlowchart from "./pages/ArchitectureFlowchart";
-import DeleteAccount from "./pages/DeleteAccount";
-import ComponentSummary from "./pages/ComponentSummary";
+// Lazy-loaded pages for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const HelperRegistration = lazy(() => import("./pages/HelperRegistration"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const SplashScreen = lazy(() => import("./pages/SplashScreen"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const UnlockDisclaimer = lazy(() => import("./pages/UnlockDisclaimer"));
+const POPIACompliance = lazy(() => import("./pages/POPIACompliance"));
+const OffPlatformLiability = lazy(() => import("./pages/OffPlatformLiability"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
