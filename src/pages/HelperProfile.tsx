@@ -32,6 +32,14 @@ const startShuftiVerification = async (userId: string, helperId: string) => {
   return data;
 };
 
+const pollShuftiStatus = async (helperId: string): Promise<string> => {
+  const { data, error } = await supabase.functions.invoke("shufti-check-status", {
+    body: { helper_id: helperId },
+  });
+  if (error) throw error;
+  return data?.status || "pending";
+};
+
 interface HelperData {
   id: string;
   full_name: string;
@@ -324,8 +332,31 @@ const HelperProfile = () => {
       const data = await startShuftiVerification(user.id, helper.id);
       if (data?.verification_url) {
         window.open(data.verification_url, "_blank");
-        toast.success("Verification started! Complete it in the new tab.");
-        fetchHelperData();
+        toast.success("Verification started! Complete it in the new tab. We'll check your status automatically.");
+        
+        // Poll for status every 10 seconds for up to 5 minutes
+        let attempts = 0;
+        const maxAttempts = 30;
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const status = await pollShuftiStatus(helper.id);
+            if (status === "verified") {
+              clearInterval(pollInterval);
+              toast.success("🎉 Identity verified successfully!");
+              fetchHelperData();
+            } else if (status === "failed") {
+              clearInterval(pollInterval);
+              toast.error("Verification was declined. Please contact support.");
+              fetchHelperData();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(pollInterval);
+              toast.info("Still waiting for verification results. Refresh your profile later to check.");
+            }
+          } catch {
+            // Silently continue polling
+          }
+        }, 10000);
       } else {
         toast.error("Could not start verification. Please try again.");
       }
