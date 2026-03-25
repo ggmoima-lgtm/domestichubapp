@@ -144,6 +144,12 @@ const HelperRegistration = () => {
         if (draft.hasWorkPermit) setHasWorkPermit(draft.hasWorkPermit);
         if (draft.selectedSkills) setSelectedSkills(draft.selectedSkills);
         if (draft.selectedLanguages) setSelectedLanguages(draft.selectedLanguages);
+        if (draft.dateOfBirth) setDateOfBirth(new Date(draft.dateOfBirth));
+        if (draft.serviceType) setServiceType(draft.serviceType);
+        if (draft.selectedDomesticSkills) setSelectedDomesticSkills(draft.selectedDomesticSkills);
+        if (draft.selectedGardeningSkills) setSelectedGardeningSkills(draft.selectedGardeningSkills);
+        if (draft.hasTools) setHasTools(draft.hasTools);
+        if (draft.acceptedTerms) setAcceptedTerms(draft.acceptedTerms);
         toast.info("Draft restored from your last session");
       }
     } catch {}
@@ -152,21 +158,30 @@ const HelperRegistration = () => {
   // Auto-save draft every 30 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      saveDraft();
+      saveDraft(false);
     }, 30000);
     return () => clearInterval(timer);
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms]);
 
   // No longer needed — phone verified at signup
 
-  const saveDraft = useCallback(() => {
+  const saveDraft = useCallback((navigateBack = false) => {
     try {
-      const draft = { formData, hasWorkPermit, selectedSkills, selectedLanguages, references, savedAt: new Date().toISOString() };
+      const draft = {
+        formData, hasWorkPermit, selectedSkills, selectedLanguages, references,
+        dateOfBirth: dateOfBirth?.toISOString() || null,
+        serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms,
+        savedAt: new Date().toISOString(),
+      };
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
       setDraftSaved(true);
       setTimeout(() => setDraftSaved(false), 2000);
+      if (navigateBack) {
+        toast.success("Draft saved successfully");
+        navigate("/home?tab=profile");
+      }
     } catch {}
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references]);
+  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms, navigate]);
 
   const clearDraft = () => {
     localStorage.removeItem(DRAFT_KEY);
@@ -237,7 +252,8 @@ const HelperRegistration = () => {
     if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
     if (selectedLanguages.length === 0) { toast.error("Please select at least one language"); return; }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
-    if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
+    const allSkillsSelected = [...selectedSkills, ...selectedDomesticSkills, ...selectedGardeningSkills];
+    if (allSkillsSelected.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!videoFile) { toast.error("Please upload an intro video"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
 
@@ -344,7 +360,7 @@ const HelperRegistration = () => {
             </button>
             <h1 className="text-lg font-bold text-foreground">Registration</h1>
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={saveDraft} className="gap-1.5 text-xs">
+          <Button type="button" variant="outline" size="sm" onClick={() => saveDraft(true)} className="gap-1.5 text-xs">
             <Save size={14} />
             {draftSaved ? "Saved!" : "Save Draft"}
           </Button>
