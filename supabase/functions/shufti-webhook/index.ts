@@ -124,14 +124,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update verification status — DO NOT auto-set is_verified
-    // Admin must manually approve via the admin dashboard
+    // Update verification status — auto-approve on accepted
+    const updatePayload: Record<string, unknown> = {
+      verification_status: verificationStatus,
+    };
+    if (verificationStatus === "verified") {
+      updatePayload.is_verified = true;
+      updatePayload.verification_date = new Date().toISOString();
+    }
     const { error: updateError } = await supabase
       .from("helpers")
-      .update({
-        verification_status: verificationStatus,
-        verification_date: verificationStatus === "pending_review" ? new Date().toISOString() : null,
-      })
+      .update(updatePayload)
       .eq("id", helper.id);
 
     if (updateError) {
