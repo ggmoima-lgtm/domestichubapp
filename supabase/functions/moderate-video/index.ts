@@ -12,7 +12,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate the caller
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -27,18 +26,16 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await userSupabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: userError } = await userSupabase.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
 
-    // Use service role for admin operations
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -54,7 +51,6 @@ serve(async (req) => {
 
     // Verify the caller owns this helper profile or is admin
     const isOwner = helperId === userId;
-
     if (!isOwner) {
       const { data: roleData } = await supabaseAdmin
         .from("user_roles")
@@ -73,10 +69,10 @@ serve(async (req) => {
 
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
 
-    // Get helper's video URL (helperId here is user_id)
+    // Get helper's video URL
     const { data: helper, error: helperError } = await supabaseAdmin
       .from("helpers")
-      .select("id, intro_video_url, full_name")
+      .select("id, intro_video_url, full_name, bio")
       .eq("user_id", helperId)
       .single();
 
@@ -97,7 +93,28 @@ serve(async (req) => {
       .update({ video_moderation_status: "reviewing" })
       .eq("id", helper.id);
 
-    // Use Lovable AI to analyze the video for contact info
+    // Also scan the bio text for contact info
+    const bioText = helper.bio || "";
+    const contactPatterns = [
+      /(\+?\d{1,4}[\s\-.]?)?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g,
+      /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,
+      /(?:https?:\/\/)?(?:wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\/[^\s]+/gi,
+      /@[a-zA-Z0-9_]{3,30}/g,
+      /(?:https?:\/\/)?(?:www\.)?(?:facebook|fb|instagram|twitter|x|tiktok|linkedin)\.com\/[^\s]+/gi,
+      /(?:call|whatsapp|text|sms|message)\s*(?:me\s*)?(?:at|on|@)?\s*[\d\s\-+().]{7,}/gi,
+    ];
+
+    let bioHasContact = false;
+    let bioContactDetails = "";
+    for (const pattern of contactPatterns) {
+      const matches = bioText.match(pattern);
+      if (matches) {
+        bioHasContact = true;
+        bioContactDetails += matches.join(", ") + "; ";
+      }
+    }
+
+    // Use AI to analyze the video — pass as video content for Gemini
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -109,21 +126,26 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a video content moderator. Your job is to analyze video content and detect if the speaker shares any personal contact information. 
+            content: `You are a strict video content moderator for a domestic worker platform. Your job is to detect if a helper shares personal contact information in their introduction video.
 
-Look for:
-- Phone numbers (spoken or shown on screen)
+STRICTLY look for ANY of these:
+- Phone numbers (spoken, shown on screen, or written on paper/cards)
 - Email addresses
-- WhatsApp numbers or mentions
-- Social media handles (Instagram, Facebook, TikTok, etc.)
-- Any instructions like "call me at", "message me on", "find me on"
-- Spelled-out phone numbers
+- WhatsApp numbers or mentions of "WhatsApp me"  
+- Social media handles or usernames (Instagram, Facebook, TikTok, etc.)
+- Any instructions like "call me at", "message me on", "find me on", "reach me at"
+- Numbers spelled out letter by letter or digit by digit
+- Any URL or website mentioned
 
-Respond with a JSON object only:
+Also check if the person shows any written text (on paper, phone screen, whiteboard, etc.) that contains contact info.
+
+Be VERY strict — if in doubt, flag it.
+
+Respond ONLY with this JSON:
 {
   "has_contact_info": true/false,
   "confidence": "high"/"medium"/"low",
-  "details": "description of what was found or 'No contact information detected'"
+  "details": "what was found or 'No contact information detected'"
 }`
           },
           {
@@ -131,7 +153,7 @@ Respond with a JSON object only:
             content: [
               {
                 type: "text",
-                text: "Analyze this helper introduction video. Does the speaker share any personal contact information (phone numbers, email, WhatsApp, social media handles)? Check both spoken words and any text shown on screen."
+                text: `Analyze this helper introduction video for ANY personal contact information. The video URL is provided below. Check both the audio/speech AND any visible text on screen. Be strict — any phone number, email, social handle, or contact instruction should be flagged.\n\nHelper's bio text for context: "${bioText}"`
               },
               {
                 type: "image_url",
@@ -158,12 +180,21 @@ Respond with a JSON object only:
       } catch {
         console.error("Failed to parse AI response:", content);
       }
+    } else {
+      console.error("AI response error:", aiResponse.status, await aiResponse.text());
     }
 
-    const status = moderationResult.has_contact_info ? "rejected" : "approved";
-    const notes = moderationResult.has_contact_info
-      ? `Auto-rejected: ${moderationResult.details} (confidence: ${moderationResult.confidence})`
-      : `Auto-approved: ${moderationResult.details}`;
+    // Combine AI result with bio text scan
+    const hasContactInfo = moderationResult.has_contact_info || bioHasContact;
+    const combinedDetails = [
+      moderationResult.details,
+      bioHasContact ? `Bio text contains contact info: ${bioContactDetails}` : null,
+    ].filter(Boolean).join(" | ");
+
+    const status = hasContactInfo ? "rejected" : "approved";
+    const notes = hasContactInfo
+      ? `Auto-rejected: ${combinedDetails} (AI confidence: ${moderationResult.confidence})`
+      : `Auto-approved: ${combinedDetails}`;
 
     await supabaseAdmin
       .from("helpers")
@@ -174,7 +205,7 @@ Respond with a JSON object only:
       .eq("id", helper.id);
 
     return new Response(
-      JSON.stringify({ status, details: moderationResult }),
+      JSON.stringify({ status, details: { ...moderationResult, bioHasContact, combinedDetails } }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

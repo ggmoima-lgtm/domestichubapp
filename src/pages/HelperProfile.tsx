@@ -15,7 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Star, Phone, ShieldCheck, Award, Edit3, Save, X,
+  Star, Phone, ShieldCheck, Award, Edit3, Save, X, Camera,
   Video, MapPin, Briefcase, Clock, Globe, MessageCircle,
   Heart, ChevronRight, LogOut, Trash2, Bell, Lock, Mail,
   FileText, Calendar, DollarSign, Users, Shield
@@ -485,7 +485,7 @@ const HelperProfile = () => {
                 {avatarUploading ? (
                   <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 ) : (
-                  <Edit3 size={14} />
+                  <Camera size={14} />
                 )}
                 <input
                    type="file"
