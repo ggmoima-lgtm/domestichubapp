@@ -453,11 +453,10 @@ const HelperProfile = () => {
                   <Camera size={14} />
                 )}
                 <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleAvatarChange}
+                   type="file"
+                   accept="image/*"
+                   className="hidden"
+                   onChange={handleAvatarChange}
                   disabled={avatarUploading}
                 />
               </label>

@@ -426,11 +426,10 @@ const EmployerProfile = () => {
                 )}
                 <input
                   ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="user"
-                  className="hidden"
-                  onChange={handleAvatarUpload}
+                   type="file"
+                   accept="image/*"
+                   className="hidden"
+                   onChange={handleAvatarUpload}
                   disabled={avatarUploading}
                 />
               </label>
