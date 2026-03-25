@@ -1,44 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import logo from "@/assets/logo.jpg";
-import { Baby, Home, Heart, Grid3X3, Coins, Users, X, Leaf } from "lucide-react";
+import { X, Coins, Users } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
-import TrustBanner from "@/components/TrustBanner";
 import ProfileTab from "./ProfileTab";
 import MessagesList from "@/components/MessagesList";
-import LowCreditBanner from "@/components/LowCreditBanner";
 import BottomNav from "@/components/BottomNav";
-import SearchBar from "@/components/SearchBar";
-import CategoryPill from "@/components/CategoryPill";
 import WorkerCard from "@/components/WorkerCard";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
-import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
 import HelperHomeView from "@/components/HelperHomeView";
+import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import PushNotificationDialog from "@/components/PushNotificationDialog";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import PlatformStatsTicker from "@/components/PlatformStatsTicker";
-
-const categoryIcons = {
-  all: Grid3X3,
-  nanny: Baby,
-  housekeeper: Home,
-  caregiver: Heart,
-  "all-around": Users,
-  gardener: Leaf,
-};
-
-const categories = [
-  { id: "all", label: "All" },
-  { id: "nanny", label: "Nannies" },
-  { id: "housekeeper", label: "Housekeepers" },
-  { id: "caregiver", label: "Caregivers" },
-  { id: "all-around", label: "All-Around" },
-  { id: "gardener", label: "Gardeners" },
-];
 
 const Index = () => {
   const navigate = useNavigate();
@@ -46,14 +22,8 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "home";
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
-  const [showUnavailable, setShowUnavailable] = useState(false);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockedHelpers, setUnlockedHelpers] = useState<Worker[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
@@ -311,94 +281,6 @@ const Index = () => {
     }, 3000);
   }, [user, searchParams]);
 
-  const filteredWorkers = dbHelpers.filter((worker) => {
-    // Hide helpers with less than 80% profile completeness from search
-    const profileChecks = [
-      Boolean(worker.avatar && !worker.avatar.includes("unsplash")),
-      Boolean(worker.verified),
-      Boolean(worker.bio && worker.bio.length > 10),
-      Boolean(parseInt(worker.experience) > 0),
-      Boolean(worker.skills && worker.skills.length > 0),
-    ];
-    const profilePercent = Math.round((profileChecks.filter(Boolean).length / profileChecks.length) * 100);
-    const isUnlockedByEmployer = unlockedIds.includes(worker.id);
-    if (profilePercent < 80 && !isUnlockedByEmployer) return false;
-
-    // Always show unlocked helpers regardless of status; hide non-available unless toggled
-    const helperStatus = worker.availabilityStatus || "available";
-    const isAvailable = helperStatus === "available" || helperStatus === "interviewing";
-    if (!showUnavailable && !isAvailable && !isUnlockedByEmployer) return false;
-
-    // Text search
-    const matchesSearch =
-      !searchQuery ||
-      worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      worker.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      worker.skills.some((skill) =>
-        skill.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
-    const matchesCategory =
-      activeCategory === "all" ||
-      (activeCategory === "gardener" 
-        ? (worker.serviceType === "gardening" || worker.serviceType === "both" || worker.role.toLowerCase().includes("gardener"))
-        : (worker.serviceType !== "gardening" && (activeCategory === "all" || worker.role.toLowerCase().includes(activeCategory.toLowerCase()))));
-
-    const matchesLocation =
-      filters.locations.length === 0 ||
-      filters.locations.some((loc) =>
-        worker.location.toLowerCase().includes(loc.toLowerCase())
-      );
-
-    const matchesJobType =
-      filters.jobTypes.length === 0 ||
-      filters.jobTypes.some((type) =>
-        (worker.availability || "").toLowerCase().includes(type.toLowerCase())
-      );
-
-    const matchesSkills =
-      filters.skills.length === 0 ||
-      filters.skills.some((skill) =>
-        worker.skills.some((ws) => ws.toLowerCase().includes(skill.toLowerCase()))
-      );
-
-    const workerYears = parseInt(worker.experience) || 0;
-    const matchesExperience = workerYears >= filters.experienceMin;
-
-    const workerRate = parseFloat(worker.monthlyRate.replace(/[^0-9.]/g, "")) || 0;
-    const matchesSalary =
-      workerRate >= filters.salaryRange[0] && workerRate <= filters.salaryRange[1];
-
-    const matchesUnlocked = !filters.unlockedOnly || unlockedIds.includes(worker.id);
-
-    const matchesLanguages =
-      filters.languages.length === 0 ||
-      filters.languages.some((lang) =>
-        (worker.languages || []).some((wl: string) => wl.toLowerCase().includes(lang.toLowerCase()))
-      );
-
-    const matchesVerified = !filters.verifiedOnly || worker.verified;
-
-    const matchesServiceType =
-      !filters.serviceType || filters.serviceType === "all" ||
-      worker.serviceType === filters.serviceType ||
-      worker.serviceType === "both";
-
-    return matchesSearch && matchesCategory && matchesLocation && matchesJobType && matchesSkills && matchesExperience && matchesSalary && matchesUnlocked && matchesLanguages && matchesVerified && matchesServiceType;
-  });
-
-  const activeFilterCount =
-    filters.locations.length +
-    filters.jobTypes.length +
-    filters.skills.length +
-    filters.languages.length +
-    (filters.experienceMin > 0 ? 1 : 0) +
-    (filters.salaryRange[0] > 0 || filters.salaryRange[1] < 15000 ? 1 : 0) +
-    (filters.nearMe ? 1 : 0) +
-    (filters.unlockedOnly ? 1 : 0) +
-    (filters.verifiedOnly ? 1 : 0) +
-    (filters.minRating > 0 ? 1 : 0) +
-    (filters.serviceType && filters.serviceType !== "all" ? 1 : 0);
 
   const handleWorkerClick = (worker: Worker) => {
     setSelectedWorker(worker);
@@ -416,22 +298,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      {userRole !== "helper" && (
-        <header className="sticky top-0 z-40 glass border-b border-border">
-          <div className="px-4 py-3 flex items-center justify-end">
-            <button
-              onClick={() => setShowCreditStore(true)}
-              className="flex items-center gap-1.5 bg-primary/10 px-4 py-2.5 rounded-full hover:bg-primary/20 active:scale-95 transition-all cursor-pointer relative z-10"
-            >
-              <Coins size={14} className="text-primary" />
-              <span className="text-sm font-bold text-primary">{creditBalance}</span>
-              <span className="text-xs text-muted-foreground">credits</span>
-            </button>
-          </div>
-        </header>
-      )}
-
       {/* Show loading state while role is being determined */}
       {userRole === null && user && (
         <main className="px-4 py-4 flex items-center justify-center min-h-[200px]">
@@ -447,109 +313,18 @@ const Index = () => {
       )}
 
       {activeTab === "home" && userRole !== null && userRole !== "helper" && (
-        <>
-        <TrustBanner />
-        <main className="px-4 py-4 space-y-5">
-          {/* Welcome */}
-          <div>
-           <p className="text-lg font-bold text-foreground">👋 Welcome back, {employerName || "there"}</p>
-            <p className="text-sm text-muted-foreground mt-0.5">Find trusted domestic helpers and gardeners near you</p>
-            <div className="mt-2">
-              <PlatformStatsTicker />
-            </div>
-          </div>
-
-          
-
-          {/* Sub-categories with gardener */}
-
-          {/* Search */}
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onFilter={() => setIsFilterOpen(true)}
-            filterCount={activeFilterCount}
+        <main className="px-4 py-4 pb-24">
+          <EmployerHomeView
+            dbHelpers={dbHelpers}
+            unlockedIds={unlockedIds}
+            creditBalance={creditBalance}
+            onShowCreditStore={() => setShowCreditStore(true)}
+            onWorkerClick={handleWorkerClick}
+            newApplicantCount={newApplicantCount}
+            employerName={employerName}
+            onTabChange={handleTabChange}
           />
-
-
-          {/* Featured Helpers (Verified) */}
-          {(() => {
-            const verified = filteredWorkers.filter(w => w.verified);
-            return verified.length > 0 ? (
-              <div>
-                <h3 className="font-bold text-foreground text-sm mb-3">
-                  ⭐ Featured Helpers (Verified)
-                </h3>
-                <div className="space-y-3">
-                  {verified.slice(0, 5).map((worker, index) => (
-                    <div key={worker.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                      <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null;
-          })()}
-
-          {/* Your Activity + Urgency */}
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/50">
-            <h3 className="font-bold text-foreground text-sm mb-2">📌 Your Activity</h3>
-            <div className="space-y-2">
-              {newApplicantCount > 0 && (
-                <button
-                  onClick={() => handleTabChange("hub")}
-                  className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
-                >
-                  <span>🔥 {newApplicantCount} helper{newApplicantCount !== 1 ? "s" : ""} applied to your job</span>
-                </button>
-              )}
-              {profileViewCount > 0 && (
-                <p className="flex items-center gap-2 text-sm text-foreground font-medium">
-                  <span>👀 {profileViewCount} employer{profileViewCount !== 1 ? "s" : ""} viewed your profile</span>
-                </p>
-              )}
-              {newApplicantCount === 0 && profileViewCount === 0 && (
-                <button
-                  onClick={() => handleTabChange("profile")}
-                  className="flex items-center gap-2 text-sm text-foreground font-medium hover:text-primary transition-colors"
-                >
-                  <span>👋 Welcome! Complete your profile to get started →</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* All Helpers */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-foreground text-sm">
-                {activeCategory === "gardener" ? "Available Gardeners" : "Available Helpers"}
-                <span className="text-muted-foreground font-normal ml-1">({filteredWorkers.length})</span>
-              </h3>
-              <button
-                onClick={() => setShowUnavailable(!showUnavailable)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
-                  showUnavailable ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {showUnavailable ? "Hide unavailable" : "Show unavailable"}
-              </button>
-            </div>
-            <div className="space-y-3">
-              {filteredWorkers.map((worker, index) => (
-                <div key={worker.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <WorkerCard {...worker} isUnlocked={unlockedIds.includes(worker.id)} onClick={() => handleWorkerClick(worker)} />
-                </div>
-              ))}
-            </div>
-            {filteredWorkers.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No helpers found matching your criteria.</p>
-              </div>
-            )}
-          </div>
         </main>
-        </>
       )}
 
       {activeTab === "messages" && (
@@ -566,25 +341,29 @@ const Index = () => {
 
       {activeTab === "hub" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4 pb-24">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
-            <span className="text-muted-foreground text-sm">
-              {unlockedHelpers.length} profiles
-            </span>
-          </div>
-          <div className="space-y-3">
-            {unlockedHelpers.map((worker, index) => (
-              <div
-                key={worker.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
-              </div>
-            ))}
+          <div className="space-y-0">
+            <h2 className="text-lg font-bold text-foreground">Unlocked Profiles</h2>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-4">
+              Helpers whose contact details you've unlocked
+            </p>
+
+            <div className="divide-y divide-border">
+              {unlockedHelpers.map((worker, index) => (
+                <div
+                  key={worker.id}
+                  className="py-3 first:pt-0 animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
+                </div>
+              ))}
+            </div>
+
             {unlockedHelpers.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No unlocked profiles yet. Browse helpers and unlock profiles to see them here.</p>
+                <Users size={40} className="mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground font-medium">No unlocked profiles yet</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Browse helpers and unlock profiles to see them here</p>
               </div>
             )}
           </div>
@@ -603,13 +382,6 @@ const Index = () => {
 
 
 
-      {/* Filter Sheet */}
-      <FilterSheet
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filters={filters}
-        onApply={setFilters}
-      />
 
       {/* Worker Detail Sheet */}
       <WorkerDetailSheet
