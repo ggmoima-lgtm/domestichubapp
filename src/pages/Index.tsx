@@ -341,25 +341,29 @@ const Index = () => {
 
       {activeTab === "hub" && userRole !== null && userRole !== "helper" && (
         <main className="px-4 py-4 pb-24">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-foreground text-lg">Unlocked Profiles</h3>
-            <span className="text-muted-foreground text-sm">
-              {unlockedHelpers.length} profiles
-            </span>
-          </div>
-          <div className="space-y-3">
-            {unlockedHelpers.map((worker, index) => (
-              <div
-                key={worker.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
-              </div>
-            ))}
+          <div className="space-y-0">
+            <h2 className="text-lg font-bold text-foreground">Unlocked Profiles</h2>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-4">
+              Helpers whose contact details you've unlocked
+            </p>
+
+            <div className="divide-y divide-border">
+              {unlockedHelpers.map((worker, index) => (
+                <div
+                  key={worker.id}
+                  className="py-3 first:pt-0 animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <WorkerCard {...worker} isUnlocked={true} onClick={() => handleWorkerClick(worker)} />
+                </div>
+              ))}
+            </div>
+
             {unlockedHelpers.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No unlocked profiles yet. Browse helpers and unlock profiles to see them here.</p>
+                <Users size={40} className="mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground font-medium">No unlocked profiles yet</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Browse helpers and unlock profiles to see them here</p>
               </div>
             )}
           </div>
