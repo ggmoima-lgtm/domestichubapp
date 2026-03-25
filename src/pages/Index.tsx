@@ -16,38 +16,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-const categoryIcons = {
-  all: Grid3X3,
-  nanny: Baby,
-  housekeeper: Home,
-  caregiver: Heart,
-  "all-around": Users,
-  gardener: Leaf,
-};
-
-const categories = [
-  { id: "all", label: "All" },
-  { id: "nanny", label: "Nannies" },
-  { id: "housekeeper", label: "Housekeepers" },
-  { id: "caregiver", label: "Caregivers" },
-  { id: "all-around", label: "All-Around" },
-  { id: "gardener", label: "Gardeners" },
-];
-
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "home";
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
-  const [showUnavailable, setShowUnavailable] = useState(false);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [unlockedHelpers, setUnlockedHelpers] = useState<Worker[]>([]);
   const [unlockRefresh, setUnlockRefresh] = useState(0);
