@@ -85,12 +85,11 @@ Deno.serve(async (req) => {
     }
 
     // Map Shufti events to our status
-    // Verification is NOT auto-approved. Accepted results go to "pending_review"
-    // for admin manual approval.
+    // Auto-approve: accepted results go directly to "verified"
     let verificationStatus: string;
     switch (event) {
       case "verification.accepted":
-        verificationStatus = "pending_review";
+        verificationStatus = "verified";
         break;
       case "verification.declined":
         verificationStatus = "failed";
