@@ -65,7 +65,7 @@ const EmployerHomeView = ({
     setAvatarUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `employer-${user.id}.${ext}`;
+      const filePath = `${user.id}/employer-avatar.${ext}`;
       const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
