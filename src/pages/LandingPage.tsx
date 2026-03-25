@@ -66,9 +66,8 @@ const LandingPage = () => {
       >
         {/* Sign in with Email */}
         <Button
-          variant="outline"
           size="lg"
-          className="w-full h-14 rounded-full font-semibold text-base border-border hover:border-primary/40 hover:bg-primary/5"
+          className="w-full h-14 rounded-full font-semibold text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
           onClick={() => navigate("/auth")}
         >
           <Mail size={18} className="mr-2.5" />
