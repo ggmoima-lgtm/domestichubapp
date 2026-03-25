@@ -226,50 +226,57 @@ const EmployerProfile = () => {
     setLoading(false);
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || saving) return;
+    setSaving(true);
 
-    const resolvedEmail = (editData.email || user.email || "").trim();
-    if (!resolvedEmail || !resolvedEmail.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-    const payload: any = {
-      full_name: editData.full_name || null,
-      email: resolvedEmail,
-      location: editData.location || null,
-      type_of_need: editData.type_of_need || null,
-      category: editData.category || null,
-      availability: editData.availability || [],
-      custom_notes: editData.custom_notes || null,
-      formatted_address: editData.formatted_address || null,
-      suburb: editData.suburb || null,
-      city: editData.city || null,
-      province: editData.province || null,
-      country: editData.country || null,
-      latitude: editData.latitude || null,
-      longitude: editData.longitude || null,
-      place_id: editData.place_id || null,
-    };
+    try {
+      const resolvedEmail = (editData.email || user.email || "").trim();
+      if (!resolvedEmail || !resolvedEmail.includes("@")) {
+        toast.error("Please enter a valid email address");
+        return;
+      }
+      const payload: any = {
+        full_name: editData.full_name || null,
+        email: resolvedEmail,
+        location: editData.location || null,
+        type_of_need: editData.type_of_need || null,
+        category: editData.category || null,
+        availability: editData.availability || [],
+        custom_notes: editData.custom_notes || null,
+        formatted_address: editData.formatted_address || null,
+        suburb: editData.suburb || null,
+        city: editData.city || null,
+        province: editData.province || null,
+        country: editData.country || null,
+        latitude: editData.latitude || null,
+        longitude: editData.longitude || null,
+        place_id: editData.place_id || null,
+      };
 
-    let error;
-    if (employer) {
-      ({ error } = await supabase
-        .from("employer_profiles")
-        .update(payload)
-        .eq("id", employer.id));
-    } else {
-      ({ error } = await supabase
-        .from("employer_profiles")
-        .insert({ ...payload, user_id: user.id }));
-    }
+      let error;
+      if (employer) {
+        ({ error } = await supabase
+          .from("employer_profiles")
+          .update(payload)
+          .eq("user_id", user.id));
+      } else {
+        ({ error } = await supabase
+          .from("employer_profiles")
+          .insert({ ...payload, user_id: user.id }));
+      }
 
-    if (error) {
-      toast.error("Failed to update profile: " + error.message);
-    } else {
-      toast.success("Profile updated!");
-      setIsEditing(false);
-      fetchData();
+      if (error) {
+        toast.error("Failed to update profile: " + error.message);
+      } else {
+        toast.success("Profile updated!");
+        setIsEditing(false);
+        fetchData();
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -449,8 +456,8 @@ const EmployerProfile = () => {
           <CardTitle className="text-base">Household Info</CardTitle>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }}><X size={16} /></Button>
-              <Button size="sm" onClick={handleSave}><Save size={16} /> Save</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}><X size={16} /></Button>
+              <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>

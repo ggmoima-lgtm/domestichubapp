@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import WorkerCard from "@/components/WorkerCard";
 import FilterSheet, { FilterState, defaultFilters } from "@/components/FilterSheet";
-import PlatformStatsTicker from "@/components/PlatformStatsTicker";
+
 import { Worker } from "@/data/mockWorkers";
 
 interface Props {
@@ -221,24 +221,19 @@ const EmployerHomeView = ({
         </button>
       </div>
 
-      {/* ─── Activity Card ─── */}
-      <div className="bg-card border border-border rounded-lg p-4 mb-1">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <PlatformStatsTicker />
-          </div>
-        </div>
-        {newApplicantCount > 0 && (
+      {/* ─── New Applicants Alert ─── */}
+      {newApplicantCount > 0 && (
+        <div className="bg-card border border-border rounded-lg p-4 mb-1">
           <button
             onClick={() => onTabChange("profile")}
-            className="flex items-center gap-2 mt-3 text-sm text-primary font-medium"
+            className="flex items-center gap-2 text-sm text-primary font-medium"
           >
             <Zap size={14} />
             {newApplicantCount} new applicant{newApplicantCount !== 1 ? "s" : ""} — review now
             <ChevronRight size={14} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ─── Divider ─── */}
       <div className="h-2 bg-muted/50 -mx-4" />
