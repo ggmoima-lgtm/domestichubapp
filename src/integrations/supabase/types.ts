@@ -1278,6 +1278,10 @@ export type Database = {
       }
       lookup_email_by_phone: { Args: { p_phone: string }; Returns: string }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      update_helper_availability: {
+        Args: { p_helper_id: string; p_status: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
