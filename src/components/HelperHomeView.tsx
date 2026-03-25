@@ -82,7 +82,8 @@ const HelperHomeView = () => {
   const [helperProfile, setHelperProfile] = useState<HelperProfile | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
-
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     fetchJobs();
     if (user) {
