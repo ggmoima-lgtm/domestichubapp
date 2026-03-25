@@ -528,11 +528,27 @@ const EmployerProfile = () => {
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Type of Work</Label>
-                <Input
-                  value={editData.type_of_need || ""}
-                  onChange={(e) => setEditData({ ...editData, type_of_need: e.target.value })}
-                  placeholder="e.g. Childcare, Cooking, Cleaning"
-                />
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "full-time", label: "Full-time" },
+                    { id: "part-time", label: "Part-time" },
+                    { id: "live-in", label: "Live-in" },
+                    { id: "live-out", label: "Live-out" },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setEditData({ ...editData, type_of_need: option.id })}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        editData.type_of_need === option.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><Clock size={14} /> Availability Needed</Label>
