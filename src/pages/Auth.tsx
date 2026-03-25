@@ -75,6 +75,7 @@ const Auth = () => {
 
   // Welcome popup
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const isSigningUpRef = useRef(false);
 
   // Forgot password (phone OTP flow)
   const [forgotMode, setForgotMode] = useState(false);
@@ -126,7 +127,7 @@ const Auth = () => {
     );
   }
 
-  if (session && !showWelcomePopup) {
+  if (session && !showWelcomePopup && !isSigningUpRef.current) {
     return <Navigate to="/splash" replace />;
   }
 
@@ -206,6 +207,7 @@ const Auth = () => {
 
   const handleSignupComplete = async () => {
     setIsSubmitting(true);
+    isSigningUpRef.current = true;
     try {
       const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}@helper.domestichub.app`;
       const { data, error } = await supabase.auth.signUp({
@@ -221,6 +223,7 @@ const Auth = () => {
           toast({ title: "Account already exists", description: "This email or phone is already registered. Please log in instead.", variant: "destructive" });
           setMode("login");
           setSignupStep("name");
+          isSigningUpRef.current = false;
           return;
         }
         throw error;
@@ -245,7 +248,9 @@ const Auth = () => {
       }
 
       setShowWelcomePopup(true);
+      isSigningUpRef.current = false;
     } catch (error: any) {
+      isSigningUpRef.current = false;
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
