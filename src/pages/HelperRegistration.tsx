@@ -264,8 +264,8 @@ const HelperRegistration = () => {
         avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
       ]);
 
-      // Upsert profiles row
-      const { error: profilesError } = await supabase.from('profiles').upsert({
+      // Upsert profiles row (non-blocking)
+      supabase.from('profiles').upsert({
         user_id: userId,
         full_name: formData.fullName,
         surname: formData.surname,
@@ -274,8 +274,9 @@ const HelperRegistration = () => {
         onboarding_completed: true,
         city: formData.city || null,
         area: formData.area || null,
-      } as any, { onConflict: 'user_id' });
-      if (profilesError) console.error('Profiles row error:', profilesError);
+      } as any, { onConflict: 'user_id' }).then(({ error }) => {
+        if (error) console.error('Profiles row error:', error);
+      });
 
       // Determine category based on service type
       const resolvedCategory = serviceType === "gardening" ? "gardener" 
@@ -318,11 +319,11 @@ const HelperRegistration = () => {
         setIsSubmitting(false); return;
       }
 
-      // Terms acceptance
-      await supabase.from('terms_acceptances').insert({
+      // Terms acceptance (non-blocking)
+      supabase.from('terms_acceptances').insert({
         user_id: userId,
         terms_version: '1.0',
-      });
+      }).catch(() => {});
 
       // Trigger video moderation
       if (videoUrl) {
