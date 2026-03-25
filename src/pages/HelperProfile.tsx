@@ -32,6 +32,14 @@ const startShuftiVerification = async (userId: string, helperId: string) => {
   return data;
 };
 
+const pollShuftiStatus = async (helperId: string): Promise<string> => {
+  const { data, error } = await supabase.functions.invoke("shufti-check-status", {
+    body: { helper_id: helperId },
+  });
+  if (error) throw error;
+  return data?.status || "pending";
+};
+
 interface HelperData {
   id: string;
   full_name: string;
