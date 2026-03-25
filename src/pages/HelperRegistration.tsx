@@ -252,7 +252,8 @@ const HelperRegistration = () => {
     if (!formData.experience) { toast.error("Please enter your years of experience"); return; }
     if (selectedLanguages.length === 0) { toast.error("Please select at least one language"); return; }
     if (!avatarFile) { toast.error("Please upload a profile photo"); return; }
-    if (selectedSkills.length === 0) { toast.error("Please select at least one skill"); return; }
+    const allSkillsSelected = [...selectedSkills, ...selectedDomesticSkills, ...selectedGardeningSkills];
+    if (allSkillsSelected.length === 0) { toast.error("Please select at least one skill"); return; }
     if (!videoFile) { toast.error("Please upload an intro video"); return; }
     if (!acceptedTerms) { toast.error("Please accept the Terms & Conditions"); return; }
 
@@ -359,7 +360,7 @@ const HelperRegistration = () => {
             </button>
             <h1 className="text-lg font-bold text-foreground">Registration</h1>
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={saveDraft} className="gap-1.5 text-xs">
+          <Button type="button" variant="outline" size="sm" onClick={() => saveDraft(true)} className="gap-1.5 text-xs">
             <Save size={14} />
             {draftSaved ? "Saved!" : "Save Draft"}
           </Button>
