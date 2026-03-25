@@ -320,16 +320,6 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[200px] max-h-[50vh]">
-          {/* Guidance Message */}
-          <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 text-xs text-muted-foreground leading-relaxed text-center">
-            Once you're comfortable, you can continue the conversation outside the app.
-          </div>
-
-          {/* Disclaimer */}
-          <div className="p-3 rounded-xl bg-muted/50 border border-border text-[10px] text-muted-foreground leading-relaxed text-center">
-            Domestic Hub is a connection platform. All communication and agreements outside the app are at your own discretion. Domestic Hub is not liable for interactions outside the platform.
-          </div>
-
           {messages.length === 0 && (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">No messages yet. Say hello!</p>
