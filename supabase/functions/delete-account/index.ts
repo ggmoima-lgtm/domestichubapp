@@ -38,6 +38,20 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
+    const userPhone = user.phone || null;
+
+    // Retrieve phone from profile before deletion
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    let smsPhone: string | null = userPhone;
+    if (!smsPhone) {
+      const { data: profile } = await adminClient
+        .from("profiles")
+        .select("phone")
+        .eq("user_id", userId)
+        .maybeSingle();
+      smsPhone = profile?.phone || null;
+    }
 
     // Use service role for deletions
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -117,6 +131,40 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: "Failed to delete account. Please contact support." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // 6. Send SMS confirmation
+    if (smsPhone) {
+      try {
+        const clientId = Deno.env.get("SMSPORTAL_CLIENT_ID");
+        const clientSecret = Deno.env.get("SMSPORTAL_CLIENT_SECRET");
+        if (clientId && clientSecret) {
+          const authCredentials = btoa(`${clientId}:${clientSecret}`);
+          const tokenResponse = await fetch("https://rest.smsportal.com/v1/Authentication", {
+            method: "GET",
+            headers: { Authorization: `Basic ${authCredentials}` },
+          });
+          if (tokenResponse.ok) {
+            const tokenData = await tokenResponse.json();
+            await fetch("https://rest.smsportal.com/v1/BulkMessages", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${tokenData.token}`,
+              },
+              body: JSON.stringify({
+                sendOptions: { testMode: false },
+                messages: [{
+                  destination: smsPhone,
+                  content: "Your Domestic Hub account has been successfully deleted and all personal data removed. If you did not request this, please contact info@domestichub.co.za immediately.",
+                }],
+              }),
+            });
+          }
+        }
+      } catch (smsErr) {
+        console.error("Failed to send deletion SMS:", smsErr);
+      }
     }
 
     return new Response(
