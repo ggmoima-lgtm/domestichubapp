@@ -435,22 +435,27 @@ const HelperProfile = () => {
       {/* Profile Header */}
       <Card variant="gradient" className="overflow-hidden">
         <div className="gradient-primary p-6 pb-8">
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col items-center gap-3 w-full">
             <div className="relative">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-primary-light border-2 border-primary-foreground/20">
+              <div className={`w-28 h-28 rounded-full overflow-hidden bg-primary-light border-[3px] ${
+                helper.availability_status === "available" ? "border-green-500" : "border-destructive"
+              }`}>
                 {helper.avatar_url ? (
                   <img src={helper.avatar_url} alt={helper.full_name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-primary-foreground text-2xl font-bold">
+                  <div className="w-full h-full flex items-center justify-center text-primary-foreground text-3xl font-bold">
                     {helper.full_name.charAt(0)}
                   </div>
                 )}
               </div>
-              <label className="absolute -bottom-1 -right-1 bg-card text-foreground rounded-full p-1.5 shadow-soft cursor-pointer">
+              <div className={`absolute bottom-1 right-1 w-5 h-5 rounded-full border-2 border-card ${
+                helper.availability_status === "available" ? "bg-green-500" : "bg-destructive"
+              }`} />
+              <label className="absolute -bottom-1 -left-1 bg-card text-foreground rounded-full p-1.5 shadow-soft cursor-pointer">
                 {avatarUploading ? (
                   <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 ) : (
-                  <Camera size={12} />
+                  <Camera size={14} />
                 )}
                 <input
                   type="file"
@@ -462,12 +467,12 @@ const HelperProfile = () => {
                 />
               </label>
             </div>
-            <div className="flex-1 text-primary-foreground">
+            <div className="text-center text-primary-foreground">
               <h1 className="text-xl font-bold">{helper.full_name}</h1>
-              <p className="text-primary-foreground/80 text-sm flex items-center gap-1">
+              <p className="text-primary-foreground/80 text-sm flex items-center justify-center gap-1">
                 <MapPin size={14} /> {helper.location || helper.category}
               </p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center justify-center gap-2 mt-2">
                 <Star size={14} className="fill-current" />
                 <span className="font-semibold">{avgRating}</span>
                 <span className="text-primary-foreground/70 text-xs">({reviews.length} reviews)</span>
