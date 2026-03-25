@@ -244,8 +244,7 @@ const Auth = () => {
         }
       }
 
-      toast({ title: "Welcome to Domestic Hub!", description: "Your account has been created." });
-      navigate("/", { replace: true });
+      setShowWelcomePopup(true);
     } catch (error: any) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } finally {
