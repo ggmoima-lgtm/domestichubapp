@@ -38,7 +38,7 @@ const extractComponent = (
 };
 
 const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocompleteProps) => {
-  const mapsReady = useGoogleMaps();
+  const { ready: mapsReady, error: mapsError, retry: retryMapsLoad } = useGoogleMaps();
   const inputRef = useRef<HTMLInputElement>(null);
   const [displayValue, setDisplayValue] = useState(value?.formatted_address || "");
   const [detectingLocation, setDetectingLocation] = useState(false);
@@ -57,6 +57,14 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
       setDisplayValue(value.formatted_address);
     }
   }, [value?.formatted_address]);
+
+  useEffect(() => {
+    if (!mapsError) return;
+
+    setServicesReady(false);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }, [mapsError]);
 
   useEffect(() => {
     if (!mapsReady || !(window as any).google) return;
@@ -333,6 +341,31 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
         </div>
       )}
 
+      {mapsError && !servicesReady && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 space-y-3">
+          <div className="space-y-1">
+            <p className="text-sm text-foreground font-medium">
+              Location search could not start.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Google Maps failed to load, so address lookup is temporarily unavailable.
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSuggestions([]);
+              setShowSuggestions(false);
+              retryMapsLoad();
+            }}
+          >
+            Retry location search
+          </Button>
+        </div>
+      )}
+
       <div className="relative">
         <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10" />
         <Input
@@ -345,7 +378,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
           onBlur={() => {
             setTimeout(() => setShowSuggestions(false), 200);
           }}
-          placeholder={!servicesReady ? "Loading Google Maps..." : (placeholder || "Search your area...")}
+          placeholder={mapsError ? "Google Maps unavailable" : !servicesReady ? "Loading Google Maps..." : (placeholder || "Search your area...")}
           className="rounded-xl h-12 pl-9 pr-12"
           autoComplete="off"
           disabled={!servicesReady}
