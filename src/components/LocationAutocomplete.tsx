@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MapPin, Locate, Loader2 } from "lucide-react";
 
+type PlacesMode = "new" | "legacy" | null;
+
 export interface LocationData {
   latitude: number;
   longitude: number;
@@ -46,6 +48,9 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
   const [servicesReady, setServicesReady] = useState(false);
   const sessionTokenRef = useRef<any>(null);
   const placesLibRef = useRef<any>(null);
+  const modeRef = useRef<PlacesMode>(null);
+  const legacyServiceRef = useRef<any>(null);
+  const legacySessionTokenRef = useRef<any>(null);
 
   useEffect(() => {
     if (value?.formatted_address) {
@@ -61,11 +66,32 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
         const g = (window as any).google;
         const placesLib = await g.maps.importLibrary("places");
         placesLibRef.current = placesLib;
-        sessionTokenRef.current = new placesLib.AutocompleteSessionToken();
+
+        // Try new API first, fall back to legacy
+        if (placesLib.AutocompleteSuggestion) {
+          sessionTokenRef.current = new placesLib.AutocompleteSessionToken();
+          modeRef.current = "new";
+          console.log("[LocationAutocomplete] New Places API ready");
+        } else {
+          legacyServiceRef.current = new g.maps.places.AutocompleteService();
+          legacySessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
+          modeRef.current = "legacy";
+          console.log("[LocationAutocomplete] Legacy Places API ready");
+        }
         setServicesReady(true);
-        console.log("[LocationAutocomplete] New Places API ready");
       } catch (err) {
         console.error("[LocationAutocomplete] Failed to init Places:", err);
+        // Final fallback to legacy
+        try {
+          const g = (window as any).google;
+          legacyServiceRef.current = new g.maps.places.AutocompleteService();
+          legacySessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
+          modeRef.current = "legacy";
+          setServicesReady(true);
+          console.log("[LocationAutocomplete] Legacy Places API fallback ready");
+        } catch (err2) {
+          console.error("[LocationAutocomplete] All Places init failed:", err2);
+        }
       }
     };
     initPlaces();
@@ -76,77 +102,136 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
       const val = e.target.value;
       setDisplayValue(val);
 
-      if (!val || val.length < 2 || !placesLibRef.current) {
+      if (!val || val.length < 2 || !servicesReady) {
         setSuggestions([]);
         setShowSuggestions(false);
         return;
       }
 
-      try {
-        const { AutocompleteSuggestion } = placesLibRef.current;
-        const request: any = {
-          input: val,
-          sessionToken: sessionTokenRef.current,
-          includedRegionCodes: ["za"],
-          includedPrimaryTypes: ["geocode"],
-        };
-
-        const { suggestions: results } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-        
-        const mapped: SuggestionItem[] = results
-          .filter((s: any) => s.placePrediction)
-          .map((s: any) => ({
-            placeId: s.placePrediction.placeId,
-            mainText: s.placePrediction.mainText?.text || s.placePrediction.text?.text || "",
-            secondaryText: s.placePrediction.secondaryText?.text || "",
-            prediction: s.placePrediction,
-          }));
-
-        console.log("[LocationAutocomplete] Got", mapped.length, "suggestions");
-        setSuggestions(mapped);
-        setShowSuggestions(mapped.length > 0);
-      } catch (err) {
-        console.error("[LocationAutocomplete] Fetch error:", err);
-        setSuggestions([]);
-        setShowSuggestions(false);
+      if (modeRef.current === "new" && placesLibRef.current?.AutocompleteSuggestion) {
+        try {
+          const { AutocompleteSuggestion } = placesLibRef.current;
+          const request: any = {
+            input: val,
+            sessionToken: sessionTokenRef.current,
+            includedRegionCodes: ["za"],
+            includedPrimaryTypes: ["geocode"],
+          };
+          const { suggestions: results } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+          const mapped: SuggestionItem[] = results
+            .filter((s: any) => s.placePrediction)
+            .map((s: any) => ({
+              placeId: s.placePrediction.placeId,
+              mainText: s.placePrediction.mainText?.text || s.placePrediction.text?.text || "",
+              secondaryText: s.placePrediction.secondaryText?.text || "",
+              prediction: s.placePrediction,
+            }));
+          setSuggestions(mapped);
+          setShowSuggestions(mapped.length > 0);
+        } catch (err) {
+          console.error("[LocationAutocomplete] New API error, falling back to legacy:", err);
+          modeRef.current = "legacy";
+          const g = (window as any).google;
+          legacyServiceRef.current = new g.maps.places.AutocompleteService();
+          legacySessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
+          fetchLegacy(val);
+        }
+      } else {
+        fetchLegacy(val);
       }
     },
-    []
+    [servicesReady]
   );
+
+  const fetchLegacy = useCallback((val: string) => {
+    if (!legacyServiceRef.current) return;
+    legacyServiceRef.current.getPlacePredictions(
+      {
+        input: val,
+        sessionToken: legacySessionTokenRef.current,
+        componentRestrictions: { country: "za" },
+        types: ["geocode"],
+      },
+      (predictions: any[] | null, status: string) => {
+        if (status === "OK" && predictions) {
+          const mapped: SuggestionItem[] = predictions.map((p) => ({
+            placeId: p.place_id,
+            mainText: p.structured_formatting?.main_text || p.description,
+            secondaryText: p.structured_formatting?.secondary_text || "",
+          }));
+          setSuggestions(mapped);
+          setShowSuggestions(mapped.length > 0);
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
+      }
+    );
+  }, []);
 
   const selectPrediction = useCallback(
     async (suggestion: SuggestionItem) => {
-      if (!placesLibRef.current) return;
-
       try {
-        const { Place, AutocompleteSessionToken } = placesLibRef.current;
-        const place = suggestion.prediction?.toPlace?.() || new Place({ id: suggestion.placeId });
-        
-        await place.fetchFields({
-          fields: ["location", "addressComponents", "formattedAddress", "id"],
-        });
-
-        const components = place.addressComponents || [];
-        const locationData: LocationData = {
-          latitude: place.location?.lat() || 0,
-          longitude: place.location?.lng() || 0,
-          suburb:
-            extractComponent(components, "sublocality_level_1") ||
-            extractComponent(components, "sublocality") ||
-            extractComponent(components, "neighborhood") ||
-            extractComponent(components, "locality"),
-          city: extractComponent(components, "locality") || extractComponent(components, "administrative_area_level_2"),
-          province: extractComponent(components, "administrative_area_level_1"),
-          country: extractComponent(components, "country"),
-          formatted_address: place.formattedAddress || suggestion.mainText,
-          place_id: place.id || suggestion.placeId,
-        };
-
-        onChange(locationData);
-        setDisplayValue(locationData.formatted_address);
-
-        // Reset session token
-        sessionTokenRef.current = new AutocompleteSessionToken();
+        if (modeRef.current === "new" && placesLibRef.current?.AutocompleteSuggestion && suggestion.prediction?.toPlace) {
+          const { AutocompleteSessionToken } = placesLibRef.current;
+          const place = suggestion.prediction.toPlace();
+          await place.fetchFields({
+            fields: ["location", "addressComponents", "formattedAddress", "id"],
+          });
+          const components = place.addressComponents || [];
+          const locationData: LocationData = {
+            latitude: place.location?.lat() || 0,
+            longitude: place.location?.lng() || 0,
+            suburb:
+              extractComponent(components, "sublocality_level_1") ||
+              extractComponent(components, "sublocality") ||
+              extractComponent(components, "neighborhood") ||
+              extractComponent(components, "locality"),
+            city: extractComponent(components, "locality") || extractComponent(components, "administrative_area_level_2"),
+            province: extractComponent(components, "administrative_area_level_1"),
+            country: extractComponent(components, "country"),
+            formatted_address: place.formattedAddress || suggestion.mainText,
+            place_id: place.id || suggestion.placeId,
+          };
+          onChange(locationData);
+          setDisplayValue(locationData.formatted_address);
+          sessionTokenRef.current = new AutocompleteSessionToken();
+        } else {
+          // Legacy PlacesService for details
+          const g = (window as any).google;
+          const service = new g.maps.places.PlacesService(document.createElement("div"));
+          service.getDetails(
+            {
+              placeId: suggestion.placeId,
+              fields: ["geometry", "address_components", "formatted_address", "place_id"],
+              sessionToken: legacySessionTokenRef.current,
+            },
+            (place: any, status: string) => {
+              if (status === "OK" && place) {
+                const components = place.address_components || [];
+                const extractLegacy = (comps: any[], type: string) =>
+                  comps.find((c: any) => c.types.includes(type))?.long_name || "";
+                const locationData: LocationData = {
+                  latitude: place.geometry?.location?.lat() || 0,
+                  longitude: place.geometry?.location?.lng() || 0,
+                  suburb:
+                    extractLegacy(components, "sublocality_level_1") ||
+                    extractLegacy(components, "sublocality") ||
+                    extractLegacy(components, "neighborhood") ||
+                    extractLegacy(components, "locality"),
+                  city: extractLegacy(components, "locality") || extractLegacy(components, "administrative_area_level_2"),
+                  province: extractLegacy(components, "administrative_area_level_1"),
+                  country: extractLegacy(components, "country"),
+                  formatted_address: place.formatted_address || suggestion.mainText,
+                  place_id: place.place_id || suggestion.placeId,
+                };
+                onChange(locationData);
+                setDisplayValue(locationData.formatted_address);
+              }
+              legacySessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
+            }
+          );
+        }
       } catch (err) {
         console.error("[LocationAutocomplete] Place details error:", err);
       }
