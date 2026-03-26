@@ -29,7 +29,7 @@ const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-primary gap-6">
-    <img src={logo} alt="Domestic Hub" className="w-32 h-32 object-contain rounded-2xl shadow-lg animate-pulse" />
+    <img src={logo} alt="Domestic Hub" className="w-32 h-32 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
     <p className="text-primary-foreground/80 text-sm font-medium">Connecting Homes With Trusted Hands</p>
     <div className="w-8 h-8 rounded-full border-3 border-primary-foreground/40 border-t-primary-foreground animate-spin" />
   </div>
