@@ -1,40 +1,39 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-let isLoading = false;
-let isLoaded = false;
-const callbacks: (() => void)[] = [];
+import {
+  getGoogleMapsLoaderState,
+  loadGoogleMaps,
+  resetGoogleMapsLoader,
+  subscribeGoogleMapsLoader,
+} from "@/lib/googleMapsLoader";
 
 export const useGoogleMaps = () => {
-  const [ready, setReady] = useState(isLoaded);
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+  const [state, setState] = useState(() => getGoogleMapsLoaderState());
 
   useEffect(() => {
-    if (isLoaded) {
-      setReady(true);
-      return;
-    }
+    const syncState = () => setState(getGoogleMapsLoaderState());
+    const unsubscribe = subscribeGoogleMapsLoader(syncState);
 
-    callbacks.push(() => setReady(true));
-
-    if (isLoading) return;
-    isLoading = true;
-
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      isLoaded = true;
-      callbacks.forEach((cb) => cb());
-      callbacks.length = 0;
-    };
-    script.onerror = (err) => {
+    syncState();
+    loadGoogleMaps(apiKey).catch((err) => {
       console.error("[useGoogleMaps] Failed to load Google Maps script:", err);
-      isLoading = false;
-    };
-    document.head.appendChild(script);
-  }, []);
+    });
 
-  return ready;
+    return unsubscribe;
+  }, [apiKey]);
+
+  const retry = useCallback(() => {
+    resetGoogleMapsLoader();
+    loadGoogleMaps(apiKey).catch((err) => {
+      console.error("[useGoogleMaps] Retry failed:", err);
+    });
+  }, [apiKey]);
+
+  return {
+    ready: state.ready,
+    loading: state.loading,
+    error: state.error,
+    retry,
+  };
 };
