@@ -6,6 +6,44 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const jsonHeaders = {
+  ...corsHeaders,
+  "Content-Type": "application/json",
+};
+
+const runMutation = async (
+  label: string,
+  operation: Promise<{ error: { message: string } | null }>,
+) => {
+  const { error } = await operation;
+  if (error) {
+    throw new Error(`${label}: ${error.message}`);
+  }
+};
+
+const removeUserFiles = async (
+  adminClient: ReturnType<typeof createClient>,
+  bucket: string,
+  userId: string,
+) => {
+  try {
+    const { data: files, error } = await adminClient.storage.from(bucket).list(userId);
+    if (error) throw error;
+
+    const filePaths =
+      files
+        ?.filter((file) => file.name && !file.id?.endsWith("/"))
+        .map((file) => `${userId}/${file.name}`) ?? [];
+
+    if (filePaths.length > 0) {
+      const { error: removeError } = await adminClient.storage.from(bucket).remove(filePaths);
+      if (removeError) throw removeError;
+    }
+  } catch (error) {
+    console.warn(`Storage cleanup skipped for ${bucket}:`, error);
+  }
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -16,7 +54,7 @@ Deno.serve(async (req) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Not authenticated" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
 
@@ -33,100 +71,104 @@ Deno.serve(async (req) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Invalid session" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
 
     const userId = user.id;
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
-    
-    // Get helper IDs for this user
-    const { data: helpers } = await adminClient
-      .from("helpers")
-      .select("id")
-      .eq("user_id", userId);
 
-    const helperIds = helpers?.map((h) => h.id) || [];
+    const [{ data: helpers, error: helpersError }, { data: jobPosts, error: jobPostsError }] = await Promise.all([
+      adminClient.from("helpers").select("id").eq("user_id", userId),
+      adminClient.from("job_posts").select("id").eq("employer_id", userId),
+    ]);
 
-    // Delete in dependency order
-    // 1. Delete data linked to helper profiles
+    if (helpersError) throw new Error(`Failed to load helper records: ${helpersError.message}`);
+    if (jobPostsError) throw new Error(`Failed to load job posts: ${jobPostsError.message}`);
+
+    const helperIds = helpers?.map((helper) => helper.id) ?? [];
+    const jobPostIds = jobPosts?.map((jobPost) => jobPost.id) ?? [];
+
+    // Silent deletion only: do not invoke any email or SMS hooks here.
+
     if (helperIds.length > 0) {
-      for (const helperId of helperIds) {
-        await adminClient.from("badge_awards").delete().eq("helper_id", helperId);
-        await adminClient.from("video_flags").delete().eq("helper_id", helperId);
-        await adminClient.from("helper_sensitive_data").delete().eq("helper_id", helperId);
-        await adminClient.from("job_applications").delete().eq("helper_id", helperId);
-        await adminClient.from("profile_unlocks").delete().eq("helper_id", helperId);
-        await adminClient.from("saved_helpers").delete().eq("helper_id", helperId);
-        await adminClient.from("reviews").delete().eq("helper_id", helperId);
-        await adminClient.from("placements").delete().eq("helper_id", helperId);
-        await adminClient.from("messages").delete().eq("helper_id", helperId);
-      }
-      // Delete helper profiles
-      await adminClient.from("helpers").delete().eq("user_id", userId);
+      await Promise.all([
+        runMutation("Deleting badge awards", adminClient.from("badge_awards").delete().in("helper_id", helperIds)),
+        runMutation("Deleting video flags", adminClient.from("video_flags").delete().in("helper_id", helperIds)),
+        runMutation("Deleting helper sensitive data", adminClient.from("helper_sensitive_data").delete().in("helper_id", helperIds)),
+        runMutation("Deleting helper job applications", adminClient.from("job_applications").delete().in("helper_id", helperIds)),
+        runMutation("Deleting profile unlocks", adminClient.from("profile_unlocks").delete().in("helper_id", helperIds)),
+        runMutation("Deleting saved helpers", adminClient.from("saved_helpers").delete().in("helper_id", helperIds)),
+        runMutation("Deleting reviews", adminClient.from("reviews").delete().in("helper_id", helperIds)),
+        runMutation("Deleting placements", adminClient.from("placements").delete().in("helper_id", helperIds)),
+        runMutation("Deleting messages", adminClient.from("messages").delete().in("helper_id", helperIds)),
+      ]);
+
+      await runMutation(
+        "Deleting helper profiles",
+        adminClient.from("helpers").delete().eq("user_id", userId),
+      );
     }
 
-    // 2. Delete employer-related data
-    await adminClient.from("saved_helpers").delete().eq("employer_id", userId);
-    await adminClient.from("profile_unlocks").delete().eq("employer_id", userId);
-    await adminClient.from("reviews").delete().eq("employer_id", userId);
-    await adminClient.from("placements").delete().eq("employer_id", userId);
-    await adminClient.from("job_applications").delete().in(
-      "job_id",
-      (await adminClient.from("job_posts").select("id").eq("employer_id", userId)).data?.map((j) => j.id) || []
-    );
-    await adminClient.from("job_posts").delete().eq("employer_id", userId);
-    await adminClient.from("employer_profiles").delete().eq("user_id", userId);
+    if (jobPostIds.length > 0) {
+      await runMutation(
+        "Deleting employer job applications",
+        adminClient.from("job_applications").delete().in("job_id", jobPostIds),
+      );
+    }
 
-    // 3. Delete user-level data
-    await adminClient.from("messages").delete().eq("sender_id", userId);
-    await adminClient.from("messages").delete().eq("receiver_id", userId);
-    await adminClient.from("credit_transactions").delete().eq("user_id", userId);
-    await adminClient.from("credit_wallets").delete().eq("user_id", userId);
-    await adminClient.from("notification_preferences").delete().eq("user_id", userId);
-    await adminClient.from("push_tokens").delete().eq("user_id", userId);
-    await adminClient.from("blocked_users").delete().eq("blocker_id", userId);
-    await adminClient.from("blocked_users").delete().eq("blocked_id", userId);
-    await adminClient.from("user_reports").delete().eq("reporter_id", userId);
-    await adminClient.from("terms_acceptances").delete().eq("user_id", userId);
-    await adminClient.from("promo_redemptions").delete().eq("user_id", userId);
-    await adminClient.from("otp_codes").delete().eq("user_id", userId);
-    await adminClient.from("user_roles").delete().eq("user_id", userId);
-    await adminClient.from("profiles").delete().eq("user_id", userId);
-    await adminClient.from("audit_logs").delete().eq("actor_id", userId);
+    await Promise.all([
+      runMutation("Deleting employer saved helpers", adminClient.from("saved_helpers").delete().eq("employer_id", userId)),
+      runMutation("Deleting employer profile unlocks", adminClient.from("profile_unlocks").delete().eq("employer_id", userId)),
+      runMutation("Deleting employer reviews", adminClient.from("reviews").delete().eq("employer_id", userId)),
+      runMutation("Deleting employer placements", adminClient.from("placements").delete().eq("employer_id", userId)),
+      runMutation("Deleting job posts", adminClient.from("job_posts").delete().eq("employer_id", userId)),
+      runMutation("Deleting employer profile", adminClient.from("employer_profiles").delete().eq("user_id", userId)),
+    ]);
 
-    // 4. Delete storage files
-    try {
-      const { data: avatarFiles } = await adminClient.storage
-        .from("avatars")
-        .list(userId);
-      if (avatarFiles?.length) {
-        await adminClient.storage
-          .from("avatars")
-          .remove(avatarFiles.map((f) => `${userId}/${f.name}`));
-      }
-    } catch (_) { /* ignore storage errors */ }
+    await Promise.all([
+      runMutation("Deleting sent messages", adminClient.from("messages").delete().eq("sender_id", userId)),
+      runMutation("Deleting received messages", adminClient.from("messages").delete().eq("receiver_id", userId)),
+      runMutation("Deleting credit transactions", adminClient.from("credit_transactions").delete().eq("user_id", userId)),
+      runMutation("Deleting credit wallet", adminClient.from("credit_wallets").delete().eq("user_id", userId)),
+      runMutation("Deleting notification preferences", adminClient.from("notification_preferences").delete().eq("user_id", userId)),
+      runMutation("Deleting push tokens", adminClient.from("push_tokens").delete().eq("user_id", userId)),
+      runMutation("Deleting outbound blocks", adminClient.from("blocked_users").delete().eq("blocker_id", userId)),
+      runMutation("Deleting inbound blocks", adminClient.from("blocked_users").delete().eq("blocked_id", userId)),
+      runMutation("Deleting user reports", adminClient.from("user_reports").delete().eq("reporter_id", userId)),
+      runMutation("Deleting terms acceptances", adminClient.from("terms_acceptances").delete().eq("user_id", userId)),
+      runMutation("Deleting promo redemptions", adminClient.from("promo_redemptions").delete().eq("user_id", userId)),
+      runMutation("Deleting OTP codes", adminClient.from("otp_codes").delete().eq("user_id", userId)),
+      runMutation("Deleting user roles", adminClient.from("user_roles").delete().eq("user_id", userId)),
+      runMutation("Deleting profile", adminClient.from("profiles").delete().eq("user_id", userId)),
+      runMutation("Deleting audit logs", adminClient.from("audit_logs").delete().eq("actor_id", userId)),
+    ]);
 
-    // 5. Delete auth user
+    await Promise.all([
+      removeUserFiles(adminClient, "avatars", userId),
+      removeUserFiles(adminClient, "helper-videos", userId),
+      removeUserFiles(adminClient, "helper-documents", userId),
+    ]);
+
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
     if (deleteError) {
       console.error("Failed to delete auth user:", deleteError);
       return new Response(
         JSON.stringify({ error: "Failed to delete account. Please contact support." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: jsonHeaders }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: jsonHeaders }
     );
   } catch (error) {
     console.error("Account deletion error:", error);
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: jsonHeaders }
     );
   }
 });

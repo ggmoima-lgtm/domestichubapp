@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 const DeleteAccount = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
   const [step, setStep] = useState<"info" | "confirm">("info");
   const [confirmText, setConfirmText] = useState("");
@@ -24,7 +24,10 @@ const DeleteAccount = () => {
         setDeleting(false);
         return;
       }
-      await signOut();
+      const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
+      if (signOutError) {
+        console.warn("Local sign out after deletion failed:", signOutError);
+      }
       toast.success("Your account and all data have been permanently deleted.");
       navigate("/", { replace: true });
     } catch {
