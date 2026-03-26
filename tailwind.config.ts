@@ -118,6 +118,7 @@ export default {
         "scale-in": "scale-in 0.3s ease-out forwards",
         "float": "float 3s ease-in-out infinite",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+        "heartbeat": "heartbeat 1.2s ease-in-out infinite",
       },
     },
   },
