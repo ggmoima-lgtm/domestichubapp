@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,6 +35,54 @@ const PageLoader = () => (
   </div>
 );
 
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("App error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center gap-5">
+          <img src={logo} alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-md" />
+          <h1 className="text-xl font-bold text-foreground">Something went wrong</h1>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            We're sorry, an unexpected error occurred. Please try again.
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.href = "/";
+            }}
+            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-opacity"
+          >
+            Go to Home
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -47,41 +95,43 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/welcome" element={<LandingPage />} />
-              <Route path="/splash" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
-              <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/index" element={<Navigate to="/home" replace />} />
-              <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsConditions />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
-              <Route path="/popia" element={<POPIACompliance />} />
-              <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
-              <Route path="/delete-account" element={<DeleteAccount />} />
-              <Route path="/architecture" element={<ArchitectureFlowchart />} />
-              <Route path="/components" element={<ComponentSummary />} />
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/welcome" element={<LandingPage />} />
+                <Route path="/splash" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
+                <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/index" element={<Navigate to="/home" replace />} />
+                <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsConditions />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/unlock-disclaimer" element={<UnlockDisclaimer />} />
+                <Route path="/popia" element={<POPIACompliance />} />
+                <Route path="/off-platform-liability" element={<OffPlatformLiability />} />
+                <Route path="/delete-account" element={<DeleteAccount />} />
+                <Route path="/architecture" element={<ArchitectureFlowchart />} />
+                <Route path="/components" element={<ComponentSummary />} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
