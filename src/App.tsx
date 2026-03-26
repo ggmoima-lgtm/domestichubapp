@@ -64,17 +64,25 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           <img src={logo} alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-md" />
           <h1 className="text-xl font-bold text-foreground">Something went wrong</h1>
           <p className="text-sm text-muted-foreground max-w-xs">
-            We're sorry, an unexpected error occurred. Please try again.
+            We're sorry, an unexpected error occurred. Please try again or contact support if the issue persists.
           </p>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false });
-              window.location.href = "/";
-            }}
-            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-opacity"
-          >
-            Go to Home
-          </button>
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            <button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.href = "/";
+              }}
+              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-opacity"
+            >
+              Go to Home
+            </button>
+            <a
+              href="mailto:support@domestichub.app?subject=App%20Error%20Report&body=Hi%20Support%2C%0A%0AI%20encountered%20an%20error%20while%20using%20the%20app.%0A%0APlease%20describe%20what%20you%20were%20doing%3A%0A"
+              className="px-6 py-3 rounded-xl border border-border bg-card text-foreground font-semibold text-sm shadow-sm hover:bg-accent transition-colors text-center"
+            >
+              Email Support
+            </a>
+          </div>
         </div>
       );
     }
