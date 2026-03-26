@@ -545,37 +545,28 @@ const HelperRegistration = () => {
         {/* Domestic category selection */}
         {(serviceType === "domestic" || serviceType === "both") && (
           <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Category</h2>
-            <div className="grid grid-cols-2 gap-2">
+            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Category *</h2>
+            <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
                 const isChecked = formData.category.includes(cat.id);
                 return (
-                  <label
+                  <button
                     key={cat.id}
-                    className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
+                    type="button"
+                    onClick={() => {
+                      const updated = isChecked
+                        ? formData.category.filter((c: string) => c !== cat.id)
+                        : [...formData.category, cat.id];
+                      handleInputChange("category", updated);
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
                       isChecked
-                        ? "border-primary bg-primary/5 text-primary"
+                        ? "border-primary bg-primary/10 text-primary"
                         : "border-border bg-card text-foreground hover:border-primary/40"
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => {
-                        const updated = isChecked
-                          ? formData.category.filter((c: string) => c !== cat.id)
-                          : [...formData.category, cat.id];
-                        handleInputChange("category", updated);
-                      }}
-                      className="sr-only"
-                    />
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
-                      isChecked ? "border-primary bg-primary" : "border-muted-foreground"
-                    }`}>
-                      {isChecked && <span className="text-primary-foreground text-xs">✓</span>}
-                    </div>
-                    <span className="text-sm font-medium">{cat.label}</span>
-                  </label>
+                    {cat.label}
+                  </button>
                 );
               })}
             </div>
