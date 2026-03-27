@@ -33,7 +33,7 @@ const RefundPolicy = () => {
 
         <section className="space-y-2">
           <h2 className="text-base font-bold">3. How to Request a Refund</h2>
-          <p>To request a refund, email <strong>support@domestichub.app</strong> with your account email, purchase date, and the number of credits you wish to refund. We aim to respond within 5 business days.</p>
+          <p>To request a refund, email <strong>info@domestichub.co.za</strong> with your account email, purchase date, and the number of credits you wish to refund. We aim to respond within 5 business days.</p>
         </section>
 
         <section className="space-y-2">

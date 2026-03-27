@@ -996,11 +996,11 @@ const EmployerProfile = () => {
           </button>
           <Separator className="my-2" />
           <a
-            href="mailto:support@domestichub.app"
+            href="mailto:info@domestichub.co.za"
             className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
           >
             <span className="flex items-center gap-3 text-sm"><Mail size={16} className="text-primary" /> Support</span>
-            <span className="text-xs text-muted-foreground">support@domestichub.app</span>
+            <span className="text-xs text-muted-foreground">info@domestichub.co.za</span>
           </a>
           <Separator className="my-2" />
           <button

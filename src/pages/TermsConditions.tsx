@@ -115,8 +115,8 @@ const TermsConditions = () => {
           <h2 className="text-base font-bold">11. Contact</h2>
           <div className="bg-muted rounded-2xl p-4">
             <p className="font-semibold">Domestic Hub Support</p>
-            <a href="mailto:support@domestichub.app" className="inline-flex items-center gap-1.5 text-primary font-medium mt-1">
-              <Mail size={14} /> support@domestichub.app
+            <a href="mailto:info@domestichub.co.za" className="inline-flex items-center gap-1.5 text-primary font-medium mt-1">
+              <Mail size={14} /> info@domestichub.co.za
             </a>
           </div>
         </section>

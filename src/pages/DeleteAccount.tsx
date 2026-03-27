@@ -336,7 +336,7 @@ const DeleteAccount = () => {
         <div className="bg-muted rounded-2xl p-4 space-y-2">
           <p className="text-sm font-semibold text-foreground">Need help?</p>
           <p className="text-sm text-muted-foreground">
-            For questions about data deletion, contact: support@domestichub.app
+            For questions about data deletion, contact: info@domestichub.co.za
           </p>
         </div>
       </main>
