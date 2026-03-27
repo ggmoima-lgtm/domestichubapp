@@ -27,6 +27,7 @@ const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart")
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
 
+
 const PageLoader = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-primary gap-6">
     <img src={logo} alt="Domestic Hub" className="w-32 h-32 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
@@ -131,6 +132,7 @@ const App = () => (
                 <Route path="/architecture" element={<ArchitectureFlowchart />} />
                 <Route path="/components" element={<ComponentSummary />} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
