@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
-  Users, Briefcase, Star, CreditCard, Shield, Search,
-  Ban, CheckCircle, XCircle, ArrowLeft, Flag, Eye,
-  TrendingUp, UserCheck, Unlock, BarChart3, FileText,
-  DollarSign, Gift, Activity
+  Users, Briefcase, Star, Shield, Search, Ban, CheckCircle,
+  ArrowLeft, Flag, Eye, UserCheck, Unlock, BarChart3, FileText,
+  DollarSign, Gift, Activity, Mail, MessageSquare, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AdminUsersTab from "@/components/admin/AdminUsersTab";
+import AdminComplaintsTab from "@/components/admin/AdminComplaintsTab";
+import AdminEmailsTab from "@/components/admin/AdminEmailsTab";
 
 interface Stats {
   totalHelpers: number;
@@ -22,8 +23,8 @@ interface Stats {
   totalReviews: number;
   totalReports: number;
   activeJobs: number;
-  totalCredits: number;
   totalRevenue: number;
+  totalUsers: number;
 }
 
 const AdminDashboard = () => {
@@ -31,13 +32,16 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeSection, setActiveSection] = useState("overview");
-  const [stats, setStats] = useState<Stats>({ totalHelpers: 0, totalEmployers: 0, totalUnlocks: 0, totalReviews: 0, totalReports: 0, activeJobs: 0, totalCredits: 0, totalRevenue: 0 });
+  const [stats, setStats] = useState<Stats>({ totalHelpers: 0, totalEmployers: 0, totalUnlocks: 0, totalReviews: 0, totalReports: 0, activeJobs: 0, totalRevenue: 0, totalUsers: 0 });
   const [helpers, setHelpers] = useState<any[]>([]);
-  const [reports, setReports] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [promoCodes, setPromoCodes] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [newPromo, setNewPromo] = useState({ code: "", bonus_credits: "5", max_uses: "100" });
+
+  // Email prefill state
+  const [emailPrefillTo, setEmailPrefillTo] = useState("");
+  const [emailPrefillName, setEmailPrefillName] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -48,7 +52,7 @@ const AdminDashboard = () => {
   }, [user]);
 
   const fetchStats = async () => {
-    const [h, e, u, r, rep, j, inv] = await Promise.all([
+    const [h, e, u, r, rep, j, inv, allUsers] = await Promise.all([
       supabase.from("helpers").select("*", { count: "exact", head: true }),
       supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "employer"),
       supabase.from("profile_unlocks").select("*", { count: "exact", head: true }),
@@ -56,6 +60,7 @@ const AdminDashboard = () => {
       supabase.from("user_reports").select("*", { count: "exact", head: true }),
       supabase.from("job_posts").select("*", { count: "exact", head: true }).eq("status", "active"),
       supabase.from("invoices").select("total").eq("status", "paid"),
+      supabase.from("profiles").select("*", { count: "exact", head: true }),
     ]);
     const totalRevenue = (inv.data || []).reduce((sum: number, i: any) => sum + (i.total || 0), 0);
     setStats({
@@ -65,23 +70,16 @@ const AdminDashboard = () => {
       totalReviews: r.count || 0,
       totalReports: rep.count || 0,
       activeJobs: j.count || 0,
-      totalCredits: 0,
-      totalRevenue: totalRevenue,
+      totalRevenue,
+      totalUsers: allUsers.count || 0,
     });
   };
 
   const fetchHelpers = async () => {
     const { data } = await supabase.from("helpers").select("id, full_name, email, phone, category, availability_status, is_verified, created_at, video_moderation_status, age, gender, nationality").order("created_at", { ascending: false }).limit(50);
-    // Fetch sensitive data separately (admin only)
     const { data: sensitiveData } = await supabase.from("helper_sensitive_data").select("helper_id, id_document_url");
     const sensitiveMap = new Map((sensitiveData || []).map(s => [s.helper_id, s]));
-    const merged = (data || []).map(h => ({ ...h, id_document_url: sensitiveMap.get(h.id)?.id_document_url || null }));
-    setHelpers(merged);
-  };
-
-  const fetchReports = async () => {
-    const { data } = await supabase.from("user_reports").select("*").order("created_at", { ascending: false }).limit(50);
-    setReports(data || []);
+    setHelpers((data || []).map(h => ({ ...h, id_document_url: sensitiveMap.get(h.id)?.id_document_url || null })));
   };
 
   const fetchTransactions = async () => {
@@ -97,7 +95,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAdmin) return;
     if (activeSection === "helpers") fetchHelpers();
-    if (activeSection === "reports") fetchReports();
     if (activeSection === "revenue") fetchTransactions();
     if (activeSection === "promos") fetchPromoCodes();
   }, [isAdmin, activeSection]);
@@ -119,10 +116,10 @@ const AdminDashboard = () => {
     else { toast.success("Promo code created!"); setNewPromo({ code: "", bonus_credits: "5", max_uses: "100" }); fetchPromoCodes(); }
   };
 
-  const handleResolveReport = async (reportId: string) => {
-    await supabase.from("user_reports").update({ status: "resolved" } as any).eq("id", reportId);
-    toast.success("Report resolved");
-    fetchReports();
+  const handleSendEmailFromUsers = (email: string, name: string) => {
+    setEmailPrefillTo(email);
+    setEmailPrefillName(name);
+    setActiveSection("emails");
   };
 
   if (isAdmin === null) {
@@ -141,9 +138,7 @@ const AdminDashboard = () => {
             <Shield size={48} className="mx-auto text-destructive mb-4" />
             <h2 className="text-xl font-bold mb-2">Access Denied</h2>
             <p className="text-muted-foreground text-sm mb-4">You don't have admin privileges.</p>
-            <Button onClick={() => navigate("/home")} variant="outline">
-              <ArrowLeft size={16} /> Go Home
-            </Button>
+            <Button onClick={() => navigate("/home")} variant="outline"><ArrowLeft size={16} /> Go Home</Button>
           </CardContent>
         </Card>
       </div>
@@ -152,14 +147,16 @@ const AdminDashboard = () => {
 
   const sections = [
     { id: "overview", label: "Overview", icon: BarChart3 },
-    { id: "helpers", label: "Helpers", icon: Users },
-    { id: "reports", label: "Reports", icon: Flag },
+    { id: "users", label: "Users", icon: Users },
+    { id: "helpers", label: "Helpers", icon: UserCheck },
+    { id: "complaints", label: "Complaints", icon: Flag },
+    { id: "emails", label: "Emails", icon: Mail },
     { id: "revenue", label: "Revenue", icon: DollarSign },
     { id: "promos", label: "Promos", icon: Gift },
   ];
 
   const sanitizedSearch = searchQuery.slice(0, 100).trim();
-  const filteredHelpers = helpers.filter((h) =>
+  const filteredHelpers = helpers.filter(h =>
     !sanitizedSearch || h.full_name?.toLowerCase().includes(sanitizedSearch.toLowerCase()) || h.email?.toLowerCase().includes(sanitizedSearch.toLowerCase())
   );
 
@@ -170,7 +167,7 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate("/home")}><ArrowLeft size={18} /></Button>
             <div>
-              <h1 className="font-bold text-foreground">Admin Dashboard</h1>
+              <h1 className="font-bold text-foreground">Admin Portal</h1>
               <p className="text-xs text-muted-foreground">Manage your platform</p>
             </div>
           </div>
@@ -180,9 +177,9 @@ const AdminDashboard = () => {
 
       <div className="sticky top-[57px] z-30 bg-card border-b border-border">
         <div className="flex gap-1 px-4 py-2 max-w-4xl mx-auto overflow-x-auto">
-          {sections.map((s) => (
+          {sections.map(s => (
             <button key={s.id} onClick={() => setActiveSection(s.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeSection === s.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${activeSection === s.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
               <s.icon size={14} />{s.label}
             </button>
           ))}
@@ -194,14 +191,14 @@ const AdminDashboard = () => {
         {activeSection === "overview" && (
           <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: Users, value: stats.totalHelpers, label: "Helpers", color: "text-primary" },
+              { icon: Users, value: stats.totalUsers, label: "Total Users", color: "text-primary" },
               { icon: UserCheck, value: stats.totalEmployers, label: "Employers", color: "text-primary" },
+              { icon: Users, value: stats.totalHelpers, label: "Helpers", color: "text-primary" },
               { icon: Unlock, value: stats.totalUnlocks, label: "Unlocks", color: "text-primary" },
               { icon: Star, value: stats.totalReviews, label: "Reviews", color: "text-amber-500" },
               { icon: Briefcase, value: stats.activeJobs, label: "Active Jobs", color: "text-primary" },
               { icon: Flag, value: stats.totalReports, label: "Reports", color: "text-destructive" },
               { icon: DollarSign, value: `R${stats.totalRevenue.toLocaleString()}`, label: "Revenue", color: "text-green-600" },
-              { icon: Activity, value: Math.round((stats.totalUnlocks / Math.max(stats.totalEmployers, 1)) * 100) + "%", label: "Conversion", color: "text-primary" },
             ].map(({ icon: Icon, value, label, color }) => (
               <Card key={label}>
                 <CardContent className="pt-4 text-center">
@@ -214,15 +211,20 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* Users Management */}
+        {activeSection === "users" && (
+          <AdminUsersTab onSendEmail={handleSendEmailFromUsers} />
+        )}
+
         {/* Helpers Management */}
         {activeSection === "helpers" && (
           <>
             <div className="relative">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search helpers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 rounded-xl h-12" />
+              <Input placeholder="Search helpers..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 rounded-xl h-12" />
             </div>
             <div className="space-y-2">
-              {filteredHelpers.map((h) => (
+              {filteredHelpers.map(h => (
                 <Card key={h.id}>
                   <CardContent className="p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -265,28 +267,16 @@ const AdminDashboard = () => {
           </>
         )}
 
-        {/* Reports */}
-        {activeSection === "reports" && (
-          <div className="space-y-2">
-            {reports.map((r) => (
-              <Card key={r.id}>
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant={r.status === "pending" ? "destructive" : "outline"} className="text-[10px]">{r.status}</Badge>
-                    <span className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <p className="text-sm font-semibold">{r.reason}</p>
-                  {r.details && <p className="text-xs text-muted-foreground mt-1">{r.details}</p>}
-                  {r.status === "pending" && (
-                    <Button size="sm" variant="outline" className="mt-2 text-xs h-7" onClick={() => handleResolveReport(r.id)}>
-                      <CheckCircle size={12} /> Resolve
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-            {reports.length === 0 && <p className="text-center text-muted-foreground py-8">No reports yet.</p>}
-          </div>
+        {/* Complaints */}
+        {activeSection === "complaints" && <AdminComplaintsTab />}
+
+        {/* Emails */}
+        {activeSection === "emails" && (
+          <AdminEmailsTab
+            prefillTo={emailPrefillTo}
+            prefillName={emailPrefillName}
+            onClearPrefill={() => { setEmailPrefillTo(""); setEmailPrefillName(""); }}
+          />
         )}
 
         {/* Revenue */}
@@ -300,7 +290,7 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
             <h3 className="font-bold text-sm text-foreground">Recent Invoices</h3>
-            {transactions.map((t) => (
+            {transactions.map(t => (
               <Card key={t.id}>
                 <CardContent className="p-3 flex items-center justify-between">
                   <div>
@@ -324,23 +314,22 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader><CardTitle className="text-base">Create Promo Code</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <Input placeholder="PROMO CODE" value={newPromo.code} onChange={(e) => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })} className="font-mono" />
+                <Input placeholder="PROMO CODE" value={newPromo.code} onChange={e => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })} className="font-mono" />
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground">Bonus Credits</label>
-                    <Input type="number" value={newPromo.bonus_credits} onChange={(e) => setNewPromo({ ...newPromo, bonus_credits: e.target.value })} />
+                    <Input type="number" value={newPromo.bonus_credits} onChange={e => setNewPromo({ ...newPromo, bonus_credits: e.target.value })} />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground">Max Uses</label>
-                    <Input type="number" value={newPromo.max_uses} onChange={(e) => setNewPromo({ ...newPromo, max_uses: e.target.value })} />
+                    <Input type="number" value={newPromo.max_uses} onChange={e => setNewPromo({ ...newPromo, max_uses: e.target.value })} />
                   </div>
                 </div>
                 <Button className="w-full" onClick={handleCreatePromo}>Create Promo Code</Button>
               </CardContent>
             </Card>
-
             <h3 className="font-bold text-sm text-foreground">Existing Codes</h3>
-            {promoCodes.map((p) => (
+            {promoCodes.map(p => (
               <Card key={p.id}>
                 <CardContent className="p-3 flex items-center justify-between">
                   <div>
