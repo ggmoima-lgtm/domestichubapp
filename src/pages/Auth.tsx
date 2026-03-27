@@ -378,12 +378,13 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists || (signupEmail && !signupEmail.includes("@")) ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
             {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {signupEmail && !signupEmail.includes("@") && <p className="text-xs text-destructive mt-1.5">Email must contain @</p>}
             {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
-            {!emailExists && !checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>}
+            {!emailExists && !checkingEmail && signupEmail.includes("@") && <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>}
           </div>
         ) : (
           <div>
@@ -393,10 +394,11 @@ const Auth = () => {
               placeholder="you@example.com"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists ? 'border-destructive' : 'border-border'}`}
+              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists || (signupEmail && !signupEmail.includes("@")) ? 'border-destructive' : 'border-border'}`}
               autoFocus
             />
             {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
+            {signupEmail && !signupEmail.includes("@") && <p className="text-xs text-destructive mt-1.5">Email must contain @</p>}
             {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
           </div>
         )}
@@ -409,7 +411,7 @@ const Auth = () => {
               type="tel"
               placeholder="XX XXX XXXX"
               value={phone}
-              onChange={(e) => { setPhone(e.target.value); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }}
+              onChange={(e) => { const val = e.target.value.replace(/[^0-9]/g, ""); setPhone(val); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }}
               className="border-0 rounded-none px-0 h-11 text-base focus-visible:ring-0 flex-1"
             />
           </div>
@@ -648,7 +650,15 @@ const Auth = () => {
                         type="text"
                         placeholder="Phone or email"
                         value={loginIdentifier}
-                        onChange={(e) => setLoginIdentifier(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          // If it looks like a phone number (no @), strip non-digits
+                          if (!val.includes("@") && /^\d/.test(val.replace(/\s/g, ""))) {
+                            setLoginIdentifier(val.replace(/[^0-9]/g, ""));
+                          } else {
+                            setLoginIdentifier(val);
+                          }
+                        }}
                         className="border-0 rounded-none px-0 h-11 text-base focus-visible:ring-0 flex-1"
                         required
                       />
