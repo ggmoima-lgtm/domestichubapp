@@ -132,6 +132,7 @@ const App = () => (
                 <Route path="/architecture" element={<ArchitectureFlowchart />} />
                 <Route path="/components" element={<ComponentSummary />} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/test-error" element={<TestError />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
