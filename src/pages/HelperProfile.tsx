@@ -823,11 +823,11 @@ const HelperProfile = () => {
           </button>
           <Separator className="my-2" />
           <a
-            href="mailto:support@domestichub.app"
+            href="mailto:info@domestichub.co.za"
             className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
           >
             <span className="flex items-center gap-3 text-sm"><Mail size={16} className="text-primary" /> Support</span>
-            <span className="text-xs text-muted-foreground">support@domestichub.app</span>
+            <span className="text-xs text-muted-foreground">info@domestichub.co.za</span>
           </a>
           <Separator className="my-2" />
           <button
@@ -842,7 +842,7 @@ const HelperProfile = () => {
               const email = user?.email || helper?.email || "";
               const subject = encodeURIComponent("Account & Data Deletion Request");
               const body = encodeURIComponent(`Hi Domestic Hub Support,\n\nI would like to request the deletion of my account and all associated personal data.\n\nRegistered email: ${email}\n\nPlease confirm once this has been processed.\n\nThank you.`);
-              window.open(`mailto:support@domestichub.app?subject=${subject}&body=${body}`, "_self");
+              window.open(`mailto:info@domestichub.co.za?subject=${subject}&body=${body}`, "_self");
               toast.info("Opening your email client to send the deletion request.");
             }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors text-sm text-destructive"
