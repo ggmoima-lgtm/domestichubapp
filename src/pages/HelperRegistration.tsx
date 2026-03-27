@@ -730,12 +730,6 @@ const HelperRegistration = () => {
             <Upload size={18} className="text-primary" /> Introduction Video *
           </h2>
           <p className="text-sm text-muted-foreground">Record a short video (max 2 min) introducing yourself to families</p>
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mt-2">
-            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">⚠️ Important Rule</p>
-            <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-              Do <strong>not</strong> share any contact details in your video — no phone numbers, email, WhatsApp, or social media handles. Videos with contact info will be automatically rejected.
-            </p>
-          </div>
           {videoPreview ? (
             <div className="relative rounded-2xl overflow-hidden bg-muted">
               <video src={videoPreview} controls className="w-full aspect-video object-cover" />

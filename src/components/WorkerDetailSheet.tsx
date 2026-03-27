@@ -496,7 +496,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                     onContextMenu={(e) => e.preventDefault()}
                   />
                 ) : (
-                  <div className="w-full h-full relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowBundleSheet(true)}
+                    className="w-full h-full relative cursor-pointer"
+                  >
                     <img src={worker.avatar} alt="" className="w-full h-full object-cover blur-md scale-110" />
                     <div className="absolute inset-0 bg-foreground/30 flex flex-col items-center justify-center gap-2">
                       <div className="w-14 h-14 rounded-full bg-card/90 flex items-center justify-center shadow-float">
@@ -504,7 +508,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                       </div>
                       <p className="text-sm font-bold text-white">Unlock to watch intro</p>
                     </div>
-                  </div>
+                  </button>
                 )}
               </div>
 
