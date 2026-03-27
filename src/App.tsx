@@ -26,6 +26,7 @@ const LandingPage = lazy(() => import("./pages/LandingPage"));
 const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
+const TestError = lazy(() => import("./pages/TestError"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-primary gap-6">
