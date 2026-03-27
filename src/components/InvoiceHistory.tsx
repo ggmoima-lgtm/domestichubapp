@@ -52,7 +52,7 @@ Payment: ${invoice.payment_method || "N/A"}
 Ref: ${invoice.payment_reference || "N/A"}
 
 Thank you for using Domestic Hub.
-info@domestichub.co.za
+support@domestichub.app
     `.trim();
 
     const blob = new Blob([content], { type: "text/plain" });

@@ -11,7 +11,7 @@ const LOGO_URL = "https://qlvcirkyharrarblgdue.supabase.co/storage/v1/object/pub
 const COMPANY_DETAILS = {
   name: "Domestic Hub",
   address: "South Africa",
-  email: "info@domestichub.co.za",
+  email: "support@domestichub.app",
   website: "www.domestichub.co.za",
 };
 

@@ -61,7 +61,7 @@ const POPIACompliance = () => {
 
         <section className="space-y-2">
           <h2 className="text-base font-bold">7. Information Officer</h2>
-          <p>For POPIA-related inquiries, contact our Information Officer at <strong>info@domestichub.co.za</strong>.</p>
+          <p>For POPIA-related inquiries, contact our Information Officer at <strong>support@domestichub.app</strong>.</p>
         </section>
       </div>
     </div>
