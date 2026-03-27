@@ -831,6 +831,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          is_blocked: boolean
           onboarding_completed: boolean
           phone: string
           role: string
@@ -845,6 +846,7 @@ export type Database = {
           email?: string | null
           full_name: string
           id?: string
+          is_blocked?: boolean
           onboarding_completed?: boolean
           phone: string
           role: string
@@ -859,6 +861,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          is_blocked?: boolean
           onboarding_completed?: boolean
           phone?: string
           role?: string
