@@ -130,6 +130,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
   const [isCheckingUnlock, setIsCheckingUnlock] = useState(true);
   const [showBundleSheet, setShowBundleSheet] = useState(false);
   const [showCreditStore, setShowCreditStore] = useState(false);
+  const [creditStoreReason, setCreditStoreReason] = useState<string | null>(null);
   const [remainingUnlocks, setRemainingUnlocks] = useState(0);
 
   const isValidUuid = worker ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(worker.id) : false;
@@ -859,6 +860,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
         onUnlocked={handleUnlockSuccess}
         onBuyCredits={() => {
           setShowBundleSheet(false);
+          setCreditStoreReason(`You need credits to unlock ${displayName}'s full profile, intro video, and contact details.`);
           setShowCreditStore(true);
         }}
       />
@@ -875,8 +877,14 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               <X size={18} />
             </button>
             <div className="px-5 pb-28">
-              <h2 className="text-xl font-bold text-foreground text-center mb-4">Buy Credits</h2>
-              <CreditWalletCard onPurchaseComplete={() => setShowCreditStore(false)} />
+              <h2 className="text-xl font-bold text-foreground text-center mb-1">Buy Credits</h2>
+              {creditStoreReason && (
+                <div className="bg-primary/5 border border-primary/15 rounded-xl p-3 mb-4 mx-1">
+                  <p className="text-xs text-muted-foreground text-center">{creditStoreReason}</p>
+                  <p className="text-[10px] text-primary font-semibold text-center mt-1">1 credit = 1 full profile unlock</p>
+                </div>
+              )}
+              <CreditWalletCard onPurchaseComplete={() => { setShowCreditStore(false); setCreditStoreReason(null); }} />
             </div>
           </div>
         </div>
