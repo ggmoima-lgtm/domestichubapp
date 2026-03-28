@@ -47,12 +47,28 @@ const AdminDashboard = () => {
   const [emailPrefillName, setEmailPrefillName] = useState("");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsAdmin(null);
+      return;
+    }
     supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
       setIsAdmin(!!data);
       if (data) fetchStats();
     });
   }, [user]);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+    setLoginLoading(false);
+    if (error) {
+      toast.error(error.message);
+    }
+  };
 
   const fetchStats = async () => {
     const [h, e, u, r, rep, j, inv, allUsers] = await Promise.all([
