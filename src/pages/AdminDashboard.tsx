@@ -28,10 +28,13 @@ interface Stats {
 }
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeSection, setActiveSection] = useState("overview");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
   const [stats, setStats] = useState<Stats>({ totalHelpers: 0, totalEmployers: 0, totalUnlocks: 0, totalReviews: 0, totalReports: 0, activeJobs: 0, totalRevenue: 0, totalUsers: 0 });
   const [helpers, setHelpers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
