@@ -141,6 +141,43 @@ const AdminDashboard = () => {
     setActiveSection("emails");
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <Card className="max-w-sm w-full">
+          <CardHeader className="text-center pb-2">
+            <Shield size={40} className="mx-auto text-primary mb-2" />
+            <CardTitle className="text-xl">Admin Portal</CardTitle>
+            <p className="text-muted-foreground text-sm mt-1">Sign in with your admin credentials</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Email</label>
+                <Input type="email" placeholder="admin@domestichub.co.za" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Password</label>
+                <Input type="password" placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+              </div>
+              <Button type="submit" className="w-full" disabled={loginLoading}>
+                {loginLoading ? <><Loader2 size={16} className="animate-spin mr-2" /> Signing in...</> : "Sign In"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (isAdmin === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
