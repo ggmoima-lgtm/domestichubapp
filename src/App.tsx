@@ -131,7 +131,7 @@ const App = () => (
                 <Route path="/delete-account" element={<DeleteAccount />} />
                 <Route path="/architecture" element={<ArchitectureFlowchart />} />
                 <Route path="/components" element={<ComponentSummary />} />
-                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

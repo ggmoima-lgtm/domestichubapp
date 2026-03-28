@@ -28,10 +28,13 @@ interface Stats {
 }
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeSection, setActiveSection] = useState("overview");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
   const [stats, setStats] = useState<Stats>({ totalHelpers: 0, totalEmployers: 0, totalUnlocks: 0, totalReviews: 0, totalReports: 0, activeJobs: 0, totalRevenue: 0, totalUsers: 0 });
   const [helpers, setHelpers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -44,12 +47,28 @@ const AdminDashboard = () => {
   const [emailPrefillName, setEmailPrefillName] = useState("");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsAdmin(null);
+      return;
+    }
     supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
       setIsAdmin(!!data);
       if (data) fetchStats();
     });
   }, [user]);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+    setLoginLoading(false);
+    if (error) {
+      toast.error(error.message);
+    }
+  };
 
   const fetchStats = async () => {
     const [h, e, u, r, rep, j, inv, allUsers] = await Promise.all([
@@ -121,6 +140,43 @@ const AdminDashboard = () => {
     setEmailPrefillName(name);
     setActiveSection("emails");
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <Card className="max-w-sm w-full">
+          <CardHeader className="text-center pb-2">
+            <Shield size={40} className="mx-auto text-primary mb-2" />
+            <CardTitle className="text-xl">Admin Portal</CardTitle>
+            <p className="text-muted-foreground text-sm mt-1">Sign in with your admin credentials</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Email</label>
+                <Input type="email" placeholder="admin@domestichub.co.za" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Password</label>
+                <Input type="password" placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+              </div>
+              <Button type="submit" className="w-full" disabled={loginLoading}>
+                {loginLoading ? <><Loader2 size={16} className="animate-spin mr-2" /> Signing in...</> : "Sign In"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isAdmin === null) {
     return (
