@@ -79,7 +79,7 @@ const UnlockBundleSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked }
           amount: bundle.price,
           workerId: helperId,
           workerName: helperName,
-          callbackUrl: `${window.location.origin}/home?payment=unlock&worker=${helperId}&bundle=${bundle.id}`,
+          callbackUrl: `${window.location.origin}/home?payment=unlock&worker=${helperId}&bundle=${bundle.id}&tab=profile`,
         },
       });
 

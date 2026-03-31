@@ -43,7 +43,7 @@ const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
           amount: totalPrice,
           workerId: helperIds,
           workerName: `${itemCount} profile${itemCount > 1 ? "s" : ""}`,
-          callbackUrl: `${window.location.origin}/home?payment=unlock&worker=${helperIds}&bundle=cart_${itemCount}`,
+          callbackUrl: `${window.location.origin}/home?payment=unlock&worker=${helperIds}&bundle=cart_${itemCount}&tab=profile`,
         },
       });
 
