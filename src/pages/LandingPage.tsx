@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Shield } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { useAuth } from "@/hooks/useAuth";
 import { lovable } from "@/integrations/lovable/index";
@@ -147,6 +147,20 @@ const LandingPage = () => {
           and <a href="/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
         </p>
       </motion.div>
+
+      {/* Footer with policy links */}
+      <footer className="py-4 px-6 border-t border-border/50 bg-background/80">
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <a href="/privacy" className="hover:text-primary transition-colors flex items-center gap-1">
+            <Shield size={12} /> Privacy Policy
+          </a>
+          <span className="text-border">•</span>
+          <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+          <span className="text-border">•</span>
+          <a href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</a>
+        </div>
+        <p className="text-center text-[10px] text-muted-foreground/60 mt-1">© 2026 Domestic Hub. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
