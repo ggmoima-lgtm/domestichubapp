@@ -428,6 +428,9 @@ const Index = () => {
 
       {/* Push Notification Permission Dialog */}
       <PushNotificationDialog open={showPushDialog} onOpenChange={setShowPushDialog} />
+
+      {/* Floating FAQ Chat Button */}
+      <FloatingChatButton />
     </div>
   );
 };
