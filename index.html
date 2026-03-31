@@ -30,20 +30,30 @@
 </head>
 
   <body>
-    <div id="root">
-      <!-- Static fallback for crawlers that don't execute JavaScript -->
-      <div style="max-width:600px;margin:40px auto;padding:24px;font-family:system-ui,sans-serif;text-align:center">
-        <h1 style="font-size:28px;font-weight:bold;margin-bottom:12px">Domestic Hub</h1>
-        <p style="font-size:16px;color:#555;line-height:1.6;margin-bottom:24px">
-          Domestic Hub is a platform that connects South African households with verified nannies, housekeepers, gardeners, and caregivers in their area. Browse profiles, unlock contact details, and hire trusted domestic workers — all in one place.
-        </p>
-        <nav style="display:flex;justify-content:center;gap:24px;font-size:14px">
-          <a href="https://domestichub.co.za/privacy" style="color:#5cb8a5">Privacy Policy</a>
-          <a href="https://domestichub.co.za/terms" style="color:#5cb8a5">Terms of Service</a>
-          <a href="https://domestichub.co.za/refund-policy" style="color:#5cb8a5">Refund Policy</a>
-        </nav>
-      </div>
-    </div>
+    <!-- Static content for crawlers (outside React root so it is never replaced) -->
+    <main id="static-fallback" style="max-width:720px;margin:40px auto;padding:24px;font-family:system-ui,sans-serif;text-align:center">
+      <h1 style="font-size:28px;font-weight:bold;margin-bottom:12px">Domestic Hub</h1>
+      <p style="font-size:16px;color:#555;line-height:1.6;margin-bottom:24px">
+        Domestic Hub connects South African households with verified nannies, housekeepers, gardeners, and caregivers in their area. Browse profiles, unlock contact details, and hire trusted domestic workers — all in one place.
+      </p>
+      <nav style="display:flex;justify-content:center;gap:24px;font-size:14px">
+        <a href="https://domestichub.co.za/privacy" style="color:#5cb8a5">Privacy Policy</a>
+        <a href="https://domestichub.co.za/terms" style="color:#5cb8a5">Terms of Service</a>
+        <a href="https://domestichub.co.za/refund-policy" style="color:#5cb8a5">Refund Policy</a>
+      </nav>
+    </main>
+    <div id="root"></div>
+    <script>
+      // Hide static fallback once React mounts
+      var observer = new MutationObserver(function() {
+        if (document.getElementById('root').children.length > 0) {
+          var el = document.getElementById('static-fallback');
+          if (el) el.style.display = 'none';
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
