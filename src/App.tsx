@@ -78,7 +78,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               Go to Home
             </button>
             <a
-              href="mailto:support@domestichub.app?subject=App%20Error%20Report&body=Hi%20Support%2C%0A%0AI%20encountered%20an%20error%20while%20using%20the%20app.%0A%0APlease%20describe%20what%20you%20were%20doing%3A%0A"
+              href="mailto:info@domestichub.co.za?subject=App%20Error%20Report&body=Hi%20Support%2C%0A%0AI%20encountered%20an%20error%20while%20using%20the%20app.%0A%0APlease%20describe%20what%20you%20were%20doing%3A%0A"
               className="px-6 py-3 rounded-xl border border-border bg-card text-foreground font-semibold text-sm shadow-sm hover:bg-accent transition-colors text-center"
             >
               Email Support

@@ -298,7 +298,7 @@ const ApplicationPreviewSheet = ({
                     </a>
                   </div>
                 )}
-                {helper.email && !helper.email.endsWith("@helper.domestichub.app") && (
+                {helper.email && !helper.email.endsWith("@helper.domestichub.co.za") && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-0.5">Email</p>
                     <a href={`mailto:${helper.email}`} className="text-sm font-semibold text-primary hover:underline">

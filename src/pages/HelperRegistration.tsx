@@ -116,7 +116,7 @@ const HelperRegistration = () => {
   useEffect(() => {
     if (user) {
       // Check if email is a placeholder
-      const emailIsPlaceholder = user.email?.endsWith("@helper.domestichub.app") ?? false;
+      const emailIsPlaceholder = user.email?.endsWith("@helper.domestichub.co.za") ?? false;
       setIsPlaceholderEmail(emailIsPlaceholder);
       if (!emailIsPlaceholder && user.email) {
         setFormData(prev => ({ ...prev, email: user.email! }));
@@ -302,7 +302,7 @@ const HelperRegistration = () => {
       const { error: profileError } = await supabase.from('helpers').insert({
         user_id: userId,
         full_name: `${formData.fullName} ${formData.surname}`.trim(),
-        email: formData.email || `${formData.phone.replace(/\D/g, "")}@helper.domestichub.app`,
+        email: formData.email || `${formData.phone.replace(/\D/g, "")}@helper.domestichub.co.za`,
         phone: formData.phone,
         category: resolvedCategory,
         experience_years: formData.experience ? parseInt(formData.experience) : 0,
