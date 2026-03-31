@@ -261,17 +261,23 @@ const Index = () => {
       });
   }, [user, unlockRefresh]);
 
-  // Handle payment callback (credit purchase) — credits are added server-side by the webhook
+  // Handle payment callback — credits are added server-side by the webhook
   useEffect(() => {
     if (paymentProcessedRef.current) return;
     if (!user) return;
 
     const payment = searchParams.get("payment");
-    const creditsParam = searchParams.get("credits");
+    const tabParam = searchParams.get("tab");
 
-    if (payment !== "credits" || !creditsParam) return;
+    if (payment !== "credits" && payment !== "unlock") return;
 
     paymentProcessedRef.current = true;
+
+    // Navigate to profile tab
+    if (tabParam === "profile") {
+      setActiveTab("profile");
+    }
+
     setSearchParams({}, { replace: true });
 
     toast.success("Payment received! Your credits will appear shortly.");
