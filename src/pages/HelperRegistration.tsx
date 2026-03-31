@@ -116,7 +116,7 @@ const HelperRegistration = () => {
   useEffect(() => {
     if (user) {
       // Check if email is a placeholder
-      const emailIsPlaceholder = user.email?.endsWith("@helper.domestichub.app") ?? false;
+      const emailIsPlaceholder = user.email?.endsWith("const emailIsPlaceholder = user.email?.endsWith("@helper.domestichub.co.za") ?? false;
       setIsPlaceholderEmail(emailIsPlaceholder);
       if (!emailIsPlaceholder && user.email) {
         setFormData(prev => ({ ...prev, email: user.email! }));
