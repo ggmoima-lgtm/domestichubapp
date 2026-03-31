@@ -23,7 +23,7 @@ const LandingPage = () => {
   }
 
   if (session) {
-    return <Navigate to="/splash" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return (

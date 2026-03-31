@@ -128,7 +128,7 @@ const Auth = () => {
   }
 
   if (session && !showWelcomePopup && !isSigningUpRef.current) {
-    return <Navigate to="/splash" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
