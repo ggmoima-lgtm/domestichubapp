@@ -142,9 +142,9 @@ const LandingPage = () => {
         {/* Terms footer */}
         <p className="text-[11px] text-center text-muted-foreground pt-2 leading-relaxed">
           By clicking Continue, you agree to Domestic Hub's{" "}
-          <a href="/terms" className="text-primary font-medium hover:underline">User Agreement</a>,{" "}
-          <a href="/privacy" className="text-primary font-medium hover:underline">Privacy Policy</a>,
-          and <a href="/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
+          <a href="https://domestichub.co.za/terms" className="text-primary font-medium hover:underline">User Agreement</a>,{" "}
+          <a href="https://domestichub.co.za/privacy" className="text-primary font-medium hover:underline">Privacy Policy</a>,
+          and <a href="https://domestichub.co.za/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
         </p>
       </motion.div>
 
