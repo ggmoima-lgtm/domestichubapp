@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import HelperProfile from "./HelperProfile";
 import EmployerProfile from "./EmployerProfile";
+import logo from "@/assets/logo.jpg";
 
 const ProfileTab = () => {
   const { user } = useAuth();
