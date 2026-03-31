@@ -36,7 +36,7 @@ const ProfileTab = () => {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-primary gap-4 rounded-2xl mx-2">
-        <img src="/lovable-uploads/domestic-hub-logo.jpg" alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
+        <img src={logo} alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
         <p className="text-primary-foreground/80 text-xs font-medium">Loading profile...</p>
       </div>
     );
