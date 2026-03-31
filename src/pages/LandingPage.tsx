@@ -51,8 +51,8 @@ const LandingPage = () => {
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Domestic Hub
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 max-w-[260px] mx-auto leading-relaxed">
-            Join a trusted community of verified helpers and employers
+          <p className="text-sm text-muted-foreground mt-2 max-w-[300px] mx-auto leading-relaxed">
+            Domestic Hub is a platform that connects South African households with verified nannies, housekeepers, gardeners, and caregivers in their area.
           </p>
         </motion.div>
       </div>
@@ -142,22 +142,22 @@ const LandingPage = () => {
         {/* Terms footer */}
         <p className="text-[11px] text-center text-muted-foreground pt-2 leading-relaxed">
           By clicking Continue, you agree to Domestic Hub's{" "}
-          <a href="/terms" className="text-primary font-medium hover:underline">User Agreement</a>,{" "}
-          <a href="/privacy" className="text-primary font-medium hover:underline">Privacy Policy</a>,
-          and <a href="/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
+          <a href="https://domestichub.co.za/terms" className="text-primary font-medium hover:underline">User Agreement</a>,{" "}
+          <a href="https://domestichub.co.za/privacy" className="text-primary font-medium hover:underline">Privacy Policy</a>,
+          and <a href="https://domestichub.co.za/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
         </p>
       </motion.div>
 
       {/* Footer with policy links */}
       <footer className="py-4 px-6 border-t border-border/50 bg-background/80">
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <a href="/privacy" className="hover:text-primary transition-colors flex items-center gap-1">
+          <a href="https://domestichub.co.za/privacy" className="hover:text-primary transition-colors flex items-center gap-1">
             <Shield size={12} /> Privacy Policy
           </a>
           <span className="text-border">•</span>
-          <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+          <a href="https://domestichub.co.za/terms" className="hover:text-primary transition-colors">Terms of Service</a>
           <span className="text-border">•</span>
-          <a href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</a>
+          <a href="https://domestichub.co.za/refund-policy" className="hover:text-primary transition-colors">Refund Policy</a>
         </div>
         <p className="text-center text-[10px] text-muted-foreground/60 mt-1">© 2026 Domestic Hub. All rights reserved.</p>
       </footer>
