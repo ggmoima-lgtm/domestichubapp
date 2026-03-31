@@ -51,8 +51,8 @@ const LandingPage = () => {
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Domestic Hub
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 max-w-[260px] mx-auto leading-relaxed">
-            Join a trusted community of verified helpers and employers
+          <p className="text-sm text-muted-foreground mt-2 max-w-[300px] mx-auto leading-relaxed">
+            Domestic Hub is a platform that connects South African households with verified nannies, housekeepers, gardeners, and caregivers in their area.
           </p>
         </motion.div>
       </div>
