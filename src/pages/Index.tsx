@@ -44,7 +44,7 @@ const Index = () => {
   // Sync activeTab when search params change (e.g. navigating from another page)
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["home", "messages", "hub", "profile"].includes(tab)) {
+    if (tab && ["home", "messages", "hub", "profile", "support"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);

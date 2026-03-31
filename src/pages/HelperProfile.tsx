@@ -823,7 +823,7 @@ const HelperProfile = () => {
           </button>
           <Separator className="my-2" />
           <button
-            onClick={() => navigate("/support")}
+            onClick={() => navigate("/home?tab=support")}
             className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
           >
             <span className="flex items-center gap-3 text-sm"><Mail size={16} className="text-primary" /> Support & Help</span>
