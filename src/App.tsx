@@ -26,6 +26,7 @@ const LandingPage = lazy(() => import("./pages/LandingPage"));
 const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
 
 
 const PageLoader = () => (
@@ -132,6 +133,7 @@ const App = () => (
                 <Route path="/architecture" element={<ArchitectureFlowchart />} />
                 <Route path="/components" element={<ComponentSummary />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
