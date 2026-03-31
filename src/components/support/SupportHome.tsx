@@ -1,18 +1,26 @@
-import { MessageCircle, Mail, AlertTriangle, Shield } from "lucide-react";
+import { ArrowLeft, MessageCircle, Mail, AlertTriangle, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface SupportHomeProps {
   onNavigate: (screen: "faq" | "contact" | "report") => void;
+  onBack?: () => void;
 }
 
-const SupportHome = ({ onNavigate }: SupportHomeProps) => {
+const SupportHome = ({ onNavigate, onBack }: SupportHomeProps) => {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Support</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          How can we help you today?
-        </p>
+      <div className="flex items-center gap-3">
+        {onBack && (
+          <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+            <ArrowLeft size={20} className="text-foreground" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Support</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            How can we help you today?
+          </p>
+        </div>
       </div>
 
       <div className="space-y-3">
