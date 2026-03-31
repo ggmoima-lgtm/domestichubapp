@@ -306,8 +306,8 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-24">
       {/* Show loading state while role is being determined */}
       {userRole === null && user && (
-        <main className="px-4 py-4 flex items-center justify-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <main className="px-4 py-4 flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <img src={logo} alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
         </main>
       )}
 
