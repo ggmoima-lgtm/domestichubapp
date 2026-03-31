@@ -209,7 +209,7 @@ const Auth = () => {
     setIsSubmitting(true);
     isSigningUpRef.current = true;
     try {
-      const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}@helper.domestichub.app`;
+      const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}const authEmail = signupEmail.trim() || `${phone.replace(/\D/g, "")}@helper.domestichub.co.za`;`;
       const { data, error } = await supabase.auth.signUp({
         email: authEmail,
         password: signupPassword,
