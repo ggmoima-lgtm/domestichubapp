@@ -385,6 +385,12 @@ const Index = () => {
         </main>
       )}
 
+      {activeTab === "support" && (
+        <main className="pb-24">
+          <SupportPage />
+        </main>
+      )}
+
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
 
