@@ -12,6 +12,7 @@ import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import PushNotificationDialog from "@/components/PushNotificationDialog";
 import FloatingChatButton from "@/components/support/FloatingChatButton";
+import SupportPage from "@/pages/SupportPage";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
