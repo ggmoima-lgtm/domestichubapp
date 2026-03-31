@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { X, Coins, Users } from "lucide-react";
 import CreditWalletCard from "@/components/CreditWalletCard";
@@ -12,6 +12,7 @@ import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
 import PushNotificationDialog from "@/components/PushNotificationDialog";
 import FloatingChatButton from "@/components/support/FloatingChatButton";
+import SupportPage from "@/pages/SupportPage";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -44,7 +45,7 @@ const Index = () => {
   // Sync activeTab when search params change (e.g. navigating from another page)
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["home", "messages", "hub", "profile"].includes(tab)) {
+    if (tab && ["home", "messages", "hub", "profile", "support"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -381,6 +382,12 @@ const Index = () => {
       {activeTab === "profile" && (
         <main className="px-4 py-4 pb-24">
           <ProfileTab />
+        </main>
+      )}
+
+      {activeTab === "support" && (
+        <main className="pb-24">
+          <SupportPage />
         </main>
       )}
 
