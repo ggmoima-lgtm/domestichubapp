@@ -15,6 +15,7 @@ import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import logo from "@/assets/logo.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
