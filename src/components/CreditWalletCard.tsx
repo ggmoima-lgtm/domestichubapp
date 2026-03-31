@@ -75,7 +75,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
           amount: bundle.price,
           workerId: "credit_purchase",
           workerName: bundle.label,
-          callbackUrl: `${window.location.origin}/home?payment=credits&credits=${bundle.credits}&amount=${bundle.price}&bundle=${bundle.id}`,
+          callbackUrl: `${window.location.origin}/home?payment=credits&credits=${bundle.credits}&amount=${bundle.price}&bundle=${bundle.id}&tab=profile`,
         },
       });
       if (error) throw error;
