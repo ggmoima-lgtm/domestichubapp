@@ -568,18 +568,19 @@ const Auth = () => {
     <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-5 pt-4 pb-2 shrink-0">
-        <div className="flex items-center gap-3 mb-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (mode === "login") navigate("/");
-              else handleGoBack();
-            }}
-            className="p-1.5 -ml-1.5 rounded-xl hover:bg-muted transition-colors"
-          >
-            <ArrowLeft size={20} className="text-foreground" />
-          </button>
-          <img src={logo} alt="Domestic Hub" className="w-20 h-20 rounded-2xl shadow-lg" />
+        <button
+          type="button"
+          onClick={() => {
+            if (mode === "login") navigate("/");
+            else handleGoBack();
+          }}
+          className="p-1.5 -ml-1.5 rounded-xl hover:bg-muted transition-colors mb-4"
+        >
+          <ArrowLeft size={20} className="text-foreground" />
+        </button>
+        <div className="flex flex-col items-center mb-4">
+          <img src={logo} alt="Domestic Hub" className="w-28 h-28 rounded-3xl shadow-lg" />
+          <h1 className="text-xl font-bold text-foreground mt-3">Domestic Hub</h1>
         </div>
 
         {/* Progress bar for signup */}
