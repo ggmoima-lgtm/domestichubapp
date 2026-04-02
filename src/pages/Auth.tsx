@@ -579,7 +579,7 @@ const Auth = () => {
           >
             <ArrowLeft size={20} className="text-foreground" />
           </button>
-          <img src={logo} alt="Domestic Hub" className="w-8 h-8 rounded-lg" />
+          <img src={logo} alt="Domestic Hub" className="w-20 h-20 rounded-2xl shadow-lg" />
         </div>
 
         {/* Progress bar for signup */}
