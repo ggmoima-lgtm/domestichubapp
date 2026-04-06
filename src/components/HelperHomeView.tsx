@@ -76,6 +76,7 @@ const jobCollections = [
 const HelperHomeView = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [employerNames, setEmployerNames] = useState<Record<string, string>>({});
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
