@@ -1260,6 +1260,13 @@ export type Database = {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
+      get_employer_names: {
+        Args: { p_employer_ids: string[] }
+        Returns: {
+          display_name: string
+          user_id: string
+        }[]
+      }
       get_helper_ids_for_user: {
         Args: { p_user_id: string }
         Returns: string[]
