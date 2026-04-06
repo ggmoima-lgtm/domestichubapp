@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  MapPin, Clock, Search, Home, X, Briefcase,
+  MapPin, Clock, Search, Home, X, Briefcase, User,
   Settings2, ListChecks, PenSquare, Zap, Globe, Wrench, MoreHorizontal,
   ChevronRight, CheckCircle, AlertCircle, Pencil, FileText,
 } from "lucide-react";
