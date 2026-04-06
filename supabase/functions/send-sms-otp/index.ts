@@ -89,7 +89,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const code = Array.from({ length: 6 }, () => Math.floor(Math.random() * 10)).join("");
+    const digits = new Uint32Array(6);
+    crypto.getRandomValues(digits);
+    const code = Array.from(digits, d => d % 10).join("");
 
     const { error: insertError } = await supabase.from("otp_codes").insert({
       phone: sanitizedPhone,

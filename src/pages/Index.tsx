@@ -167,14 +167,14 @@ const Index = () => {
     if (!user) return;
     const fetchHelpers = async () => {
       const { data: helpers } = await supabase
-        .from("helpers")
+        .from("helpers_public")
         .select("*");
       
-      const mapped: Worker[] = (helpers || []).map((h) => ({
+      const mapped: Worker[] = (helpers || []).map((h: any) => ({
         id: h.id,
         name: h.full_name,
         role: h.category,
-        location: (h as any).location || "",
+        location: "",
         rating: 0,
         reviews: 0,
         experience: `${h.experience_years || 0} yrs`,
@@ -188,12 +188,12 @@ const Index = () => {
         introVideo: h.intro_video_url || undefined,
         availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
         availableFrom: h.available_from || null,
-        phone: h.phone || undefined,
-        email: h.email || undefined,
-        serviceType: (h as any).service_type || "domestic",
-        skillsDomestic: (h as any).skills_domestic || [],
-        skillsGardening: (h as any).skills_gardening || [],
-        hasTools: (h as any).has_tools || false,
+        phone: undefined,
+        email: undefined,
+        serviceType: "domestic",
+        skillsDomestic: [],
+        skillsGardening: [],
+        hasTools: false,
       }));
       setDbHelpers(mapped);
     };
