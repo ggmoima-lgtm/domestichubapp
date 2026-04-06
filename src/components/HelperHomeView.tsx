@@ -116,17 +116,16 @@ const HelperHomeView = () => {
       .order("created_at", { ascending: false });
     if (!error && data) {
       setJobs(data);
-      // Fetch employer names for initials
+      // Fetch employer names for initials via secure RPC
       const employerIds = [...new Set(data.map((j) => j.employer_id))];
       if (employerIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, surname")
-          .in("user_id", employerIds);
-        if (profiles) {
+        const { data: names } = await supabase.rpc("get_employer_names", {
+          p_employer_ids: employerIds,
+        });
+        if (names) {
           const nameMap: Record<string, string> = {};
-          profiles.forEach((p) => {
-            nameMap[p.user_id] = [p.full_name, p.surname].filter(Boolean).join(" ");
+          (names as any[]).forEach((n: any) => {
+            nameMap[n.user_id] = n.display_name;
           });
           setEmployerNames(nameMap);
         }
