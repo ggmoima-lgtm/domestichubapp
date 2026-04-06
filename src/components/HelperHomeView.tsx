@@ -342,16 +342,8 @@ const HelperHomeView = () => {
               <div key={job.id} className="py-3 first:pt-0">
                 <div className="flex items-start gap-3">
                   {/* Employer Initials */}
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
-                    <span className="text-sm font-bold text-primary">
-                      {(employerNames[job.employer_id] || "?")
-                        .split(" ")
-                        .filter(Boolean)
-                        .map((w) => w[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </span>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#E6EAF0' }}>
+                    <User size={22} style={{ color: '#6B7280' }} />
                   </div>
 
                   {/* Job Details */}
