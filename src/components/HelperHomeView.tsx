@@ -76,6 +76,7 @@ const jobCollections = [
 const HelperHomeView = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [employerNames, setEmployerNames] = useState<Record<string, string>>({});
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,13 +108,30 @@ const HelperHomeView = () => {
     }
   }, [user]);
 
-  const fetchJobs = async () => {
+   const fetchJobs = async () => {
     const { data, error } = await supabase
       .from("job_posts")
       .select("*")
       .eq("status", "active")
       .order("created_at", { ascending: false });
-    if (!error && data) setJobs(data);
+    if (!error && data) {
+      setJobs(data);
+      // Fetch employer names for initials
+      const employerIds = [...new Set(data.map((j) => j.employer_id))];
+      if (employerIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, surname")
+          .in("user_id", employerIds);
+        if (profiles) {
+          const nameMap: Record<string, string> = {};
+          profiles.forEach((p) => {
+            nameMap[p.user_id] = [p.full_name, p.surname].filter(Boolean).join(" ");
+          });
+          setEmployerNames(nameMap);
+        }
+      }
+    }
     setLoading(false);
   };
 
@@ -324,9 +342,17 @@ const HelperHomeView = () => {
             return (
               <div key={job.id} className="py-3 first:pt-0">
                 <div className="flex items-start gap-3">
-                  {/* Company/Category Icon */}
-                  <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center flex-shrink-0 border border-border">
-                    <span className="text-xl">{categoryIcons[job.category] || "💼"}</span>
+                  {/* Employer Initials */}
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
+                    <span className="text-sm font-bold text-primary">
+                      {(employerNames[job.employer_id] || "?")
+                        .split(" ")
+                        .filter(Boolean)
+                        .map((w) => w[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </span>
                   </div>
 
                   {/* Job Details */}
