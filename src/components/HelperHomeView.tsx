@@ -108,13 +108,30 @@ const HelperHomeView = () => {
     }
   }, [user]);
 
-  const fetchJobs = async () => {
+   const fetchJobs = async () => {
     const { data, error } = await supabase
       .from("job_posts")
       .select("*")
       .eq("status", "active")
       .order("created_at", { ascending: false });
-    if (!error && data) setJobs(data);
+    if (!error && data) {
+      setJobs(data);
+      // Fetch employer names for initials
+      const employerIds = [...new Set(data.map((j) => j.employer_id))];
+      if (employerIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, surname")
+          .in("user_id", employerIds);
+        if (profiles) {
+          const nameMap: Record<string, string> = {};
+          profiles.forEach((p) => {
+            nameMap[p.user_id] = [p.full_name, p.surname].filter(Boolean).join(" ");
+          });
+          setEmployerNames(nameMap);
+        }
+      }
+    }
     setLoading(false);
   };
 
