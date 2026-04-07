@@ -1075,6 +1075,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tester_credit_emails: {
+        Row: {
+          created_at: string
+          credits_to_grant: number
+          email: string
+          id: string
+          redeemed: boolean
+          redeemed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          credits_to_grant?: number
+          email: string
+          id?: string
+          redeemed?: boolean
+          redeemed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          credits_to_grant?: number
+          email?: string
+          id?: string
+          redeemed?: boolean
+          redeemed_at?: string | null
+        }
+        Relationships: []
+      }
       user_reports: {
         Row: {
           created_at: string
