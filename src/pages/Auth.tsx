@@ -521,24 +521,58 @@ const Auth = () => {
     <motion.div key="verify" {...fadeSlide} className="space-y-6">
       <div className="text-center space-y-3">
         <h2 className="text-xl font-bold text-foreground">
-          Enter the code that was sent to your mobile phone.
+          Verify your identity
         </h2>
         <p className="text-sm text-muted-foreground">
-          To finish registering, please enter the verification code we gave you.
-          It might take a few minutes to receive your code.
+          Choose how you'd like to receive your verification code.
         </p>
       </div>
 
       {!otpSent ? (
-        <Button
-          type="button"
-          size="lg"
-          className="w-full h-12 rounded-full font-semibold text-base"
-          onClick={handleSendOtp}
-          disabled={otpLoading}
-        >
-          {otpLoading ? "Sending..." : "Send Verification Code"}
-        </Button>
+        <div className="space-y-4">
+          {/* Channel selector */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setOtpChannel("sms")}
+              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors ${
+                otpChannel === "sms"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              <Phone size={16} /> SMS
+            </button>
+            <button
+              type="button"
+              onClick={() => setOtpChannel("email")}
+              disabled={!signupEmail || !signupEmail.includes("@")}
+              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                otpChannel === "email"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              <Mail size={16} /> Email
+            </button>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center">
+            {otpChannel === "sms"
+              ? `Code will be sent to ${phone}`
+              : `Code will be sent to ${signupEmail}`}
+          </p>
+
+          <Button
+            type="button"
+            size="lg"
+            className="w-full h-12 rounded-full font-semibold text-base"
+            onClick={handleSendOtp}
+            disabled={otpLoading}
+          >
+            {otpLoading ? "Sending..." : "Send Verification Code"}
+          </Button>
+        </div>
       ) : !phoneVerified ? (
         <div className="space-y-5">
           <div className="flex justify-center">
@@ -562,7 +596,7 @@ const Auth = () => {
               disabled={otpLoading}
               className="text-sm text-primary font-semibold hover:underline"
             >
-              Resend code by SMS
+              Resend code via {otpChannel === "sms" ? "SMS" : "email"}
             </button>
           </div>
 
@@ -578,8 +612,8 @@ const Auth = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-green-600">
-            <Shield size={16} /> Phone verified successfully!
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
+            <Shield size={16} /> Verified successfully!
           </div>
           <Button
             type="button"
