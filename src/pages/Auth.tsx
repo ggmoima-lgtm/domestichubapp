@@ -61,11 +61,12 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  // Phone OTP
+  // OTP
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [otpChannel, setOtpChannel] = useState<"sms" | "email">("sms");
 
   // Real-time validation
   const [phoneExists, setPhoneExists] = useState<boolean | null>(null);
