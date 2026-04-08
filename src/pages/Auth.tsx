@@ -178,19 +178,33 @@ const Auth = () => {
   };
 
   const handleSendOtp = async () => {
-    if (!phone || phone.length < 10) {
+    if (otpChannel === "sms" && (!phone || phone.length < 10)) {
       toast({ title: "Please enter a valid phone number", variant: "destructive" });
+      return;
+    }
+    if (otpChannel === "email" && (!signupEmail || !signupEmail.includes("@"))) {
+      toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
     setOtpLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-sms-otp", {
-        body: { phone, purpose: "signup_verify" },
+        body: {
+          phone: otpChannel === "sms" ? phone : undefined,
+          email: otpChannel === "email" ? signupEmail : undefined,
+          purpose: "signup_verify",
+          channel: otpChannel,
+        },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setOtpSent(true);
-      toast({ title: "OTP sent!", description: "Check your phone for a 6-digit code." });
+      toast({
+        title: "OTP sent!",
+        description: otpChannel === "sms"
+          ? "Check your phone for a 6-digit code."
+          : "Check your email for a 6-digit code.",
+      });
     } catch (error: any) {
       toast({ title: "Failed to send OTP", description: error.message, variant: "destructive" });
     } finally {
