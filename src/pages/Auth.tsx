@@ -140,17 +140,33 @@ const Auth = () => {
         toast({ title: "Please enter your email or phone", variant: "destructive" });
         return;
       }
-      let email = identifier;
       if (!identifier.includes("@")) {
-        const phoneDigits = identifier.replace(/\D/g, "");
-        const { data: foundEmail, error: lookupError } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
-        if (lookupError || !foundEmail) {
-          toast({ title: "Phone number not found", variant: "destructive" });
-          return;
+        const { data, error } = await supabase.functions.invoke("phone-login", {
+          body: {
+            phone: identifier,
+            countryCode: loginCountryCode,
+            password: loginPassword,
+          },
+        });
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        if (!data?.session?.access_token || !data?.session?.refresh_token) {
+          throw new Error("Invalid login response");
         }
-        email = foundEmail as string;
+
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+
+        if (sessionError) throw sessionError;
+
+        navigate("/splash");
+        return;
       }
-      const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
+
+      const { error } = await supabase.auth.signInWithPassword({ email: identifier, password: loginPassword });
       if (error) throw error;
       navigate("/splash");
     } catch (error: any) {
