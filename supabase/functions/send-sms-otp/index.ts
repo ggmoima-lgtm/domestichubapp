@@ -189,11 +189,12 @@ Deno.serve(async (req) => {
         });
       }
     } else {
-      // Send email via Resend API
+      // Send email via Resend API through connector gateway
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-      if (!resendApiKey) {
-        console.error("Resend API key not configured");
+      if (!resendApiKey || !lovableApiKey) {
+        console.error("Email service credentials not configured");
         return new Response(JSON.stringify({ error: "Email service not configured" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -219,11 +220,12 @@ Deno.serve(async (req) => {
         </div>
       `;
 
-      const emailResponse = await fetch("https://api.resend.com/emails", {
+      const emailResponse = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
+          "Authorization": `Bearer ${lovableApiKey}`,
+          "X-Connection-Api-Key": resendApiKey,
         },
         body: JSON.stringify({
           from: "Domestic Hub <info@domestichub.co.za>",
