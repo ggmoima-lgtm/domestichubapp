@@ -189,10 +189,13 @@ Deno.serve(async (req) => {
         });
       }
     } else {
-      // Send email via Resend
+      // Send email via Resend connector gateway
+      const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+      const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
-      if (!resendApiKey) {
-        console.error("RESEND_API_KEY not configured");
+
+      if (!lovableApiKey || !resendApiKey) {
+        console.error("Email gateway credentials not configured");
         return new Response(JSON.stringify({ error: "Email service not configured" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -218,14 +221,15 @@ Deno.serve(async (req) => {
         </div>
       `;
 
-      const emailResponse = await fetch("https://api.resend.com/emails", {
+      const emailResponse = await fetch(`${GATEWAY_URL}/emails`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
+          "Authorization": `Bearer ${lovableApiKey}`,
+          "X-Connection-Api-Key": resendApiKey,
         },
         body: JSON.stringify({
-          from: "Domestic Hub <noreply@domestichub.co.za>",
+          from: "Domestic Hub <onboarding@resend.dev>",
           to: [identifier],
           subject: `${code} is your Domestic Hub verification code`,
           html: emailHtml,
@@ -234,7 +238,7 @@ Deno.serve(async (req) => {
 
       if (!emailResponse.ok) {
         const emailError = await emailResponse.text();
-        console.error("Resend send error:", emailError);
+        console.error("Email send error:", emailError);
         return new Response(JSON.stringify({ error: "Failed to send email" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
