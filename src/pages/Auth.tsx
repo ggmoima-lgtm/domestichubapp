@@ -61,11 +61,12 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  // Phone OTP
+  // OTP
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [otpChannel, setOtpChannel] = useState<"sms" | "email">("sms");
 
   // Real-time validation
   const [phoneExists, setPhoneExists] = useState<boolean | null>(null);
@@ -177,19 +178,33 @@ const Auth = () => {
   };
 
   const handleSendOtp = async () => {
-    if (!phone || phone.length < 10) {
+    if (otpChannel === "sms" && (!phone || phone.length < 10)) {
       toast({ title: "Please enter a valid phone number", variant: "destructive" });
+      return;
+    }
+    if (otpChannel === "email" && (!signupEmail || !signupEmail.includes("@"))) {
+      toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
     setOtpLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-sms-otp", {
-        body: { phone, purpose: "signup_verify" },
+        body: {
+          phone: otpChannel === "sms" ? phone : undefined,
+          email: otpChannel === "email" ? signupEmail : undefined,
+          purpose: "signup_verify",
+          channel: otpChannel,
+        },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setOtpSent(true);
-      toast({ title: "OTP sent!", description: "Check your phone for a 6-digit code." });
+      toast({
+        title: "OTP sent!",
+        description: otpChannel === "sms"
+          ? "Check your phone for a 6-digit code."
+          : "Check your email for a 6-digit code.",
+      });
     } catch (error: any) {
       toast({ title: "Failed to send OTP", description: error.message, variant: "destructive" });
     } finally {
@@ -204,13 +219,14 @@ const Auth = () => {
     }
     setOtpLoading(true);
     try {
+      const otpIdentifier = otpChannel === "sms" ? phone : signupEmail;
       const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
-        body: { phone, code: otpCode, purpose: "signup_verify" },
+        body: { phone: otpIdentifier, code: otpCode, purpose: "signup_verify" },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setPhoneVerified(true);
-      toast({ title: "Phone verified!" });
+      toast({ title: "Verified!" });
       setTimeout(() => {
         handleSignupComplete();
       }, 500);
@@ -505,24 +521,58 @@ const Auth = () => {
     <motion.div key="verify" {...fadeSlide} className="space-y-6">
       <div className="text-center space-y-3">
         <h2 className="text-xl font-bold text-foreground">
-          Enter the code that was sent to your mobile phone.
+          Verify your identity
         </h2>
         <p className="text-sm text-muted-foreground">
-          To finish registering, please enter the verification code we gave you.
-          It might take a few minutes to receive your code.
+          Choose how you'd like to receive your verification code.
         </p>
       </div>
 
       {!otpSent ? (
-        <Button
-          type="button"
-          size="lg"
-          className="w-full h-12 rounded-full font-semibold text-base"
-          onClick={handleSendOtp}
-          disabled={otpLoading}
-        >
-          {otpLoading ? "Sending..." : "Send Verification Code"}
-        </Button>
+        <div className="space-y-4">
+          {/* Channel selector */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setOtpChannel("sms")}
+              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors ${
+                otpChannel === "sms"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              <Phone size={16} /> SMS
+            </button>
+            <button
+              type="button"
+              onClick={() => setOtpChannel("email")}
+              disabled={!signupEmail || !signupEmail.includes("@")}
+              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                otpChannel === "email"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              <Mail size={16} /> Email
+            </button>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center">
+            {otpChannel === "sms"
+              ? `Code will be sent to ${phone}`
+              : `Code will be sent to ${signupEmail}`}
+          </p>
+
+          <Button
+            type="button"
+            size="lg"
+            className="w-full h-12 rounded-full font-semibold text-base"
+            onClick={handleSendOtp}
+            disabled={otpLoading}
+          >
+            {otpLoading ? "Sending..." : "Send Verification Code"}
+          </Button>
+        </div>
       ) : !phoneVerified ? (
         <div className="space-y-5">
           <div className="flex justify-center">
@@ -546,7 +596,7 @@ const Auth = () => {
               disabled={otpLoading}
               className="text-sm text-primary font-semibold hover:underline"
             >
-              Resend code by SMS
+              Resend code via {otpChannel === "sms" ? "SMS" : "email"}
             </button>
           </div>
 
@@ -562,8 +612,8 @@ const Auth = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-green-600">
-            <Shield size={16} /> Phone verified successfully!
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
+            <Shield size={16} /> Verified successfully!
           </div>
           <Button
             type="button"
@@ -683,28 +733,6 @@ const Auth = () => {
                     {isSubmitting ? "Logging in..." : "Sign in"}
                   </Button>
 
-                  <div className="relative my-2">
-                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                    <div className="relative flex justify-center text-xs"><span className="bg-background px-2 text-muted-foreground">or</span></div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="w-full h-12 rounded-full font-semibold text-base border-dashed"
-                    disabled={isSubmitting}
-                    onClick={() => {
-                      setLoginIdentifier("employer1@domestichub.co.za");
-                      setLoginPassword("test123");
-                      setTimeout(() => {
-                        const form = document.querySelector("form");
-                        form?.requestSubmit();
-                      }, 100);
-                    }}
-                  >
-                    🔑 Demo Login
-                  </Button>
                 </form>
               </motion.div>
             )}
