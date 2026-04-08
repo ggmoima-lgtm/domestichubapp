@@ -106,10 +106,10 @@ Deno.serve(async (req) => {
       .gt("expires_at", nowIso)
       .gte("created_at", oneHourAgo);
 
-    if (count && count >= 3) {
+    if (count && count >= 5) {
       return new Response(
-        JSON.stringify({ error: "Too many OTP requests. Please try again later." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Too many OTP requests. Please try again later.", rateLimited: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
