@@ -682,6 +682,30 @@ const Auth = () => {
                   <Button type="submit" size="lg" className="w-full h-12 rounded-full font-semibold text-base" disabled={isSubmitting}>
                     {isSubmitting ? "Logging in..." : "Sign in"}
                   </Button>
+
+                  <div className="relative my-2">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                    <div className="relative flex justify-center text-xs"><span className="bg-background px-2 text-muted-foreground">or</span></div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full h-12 rounded-full font-semibold text-base border-dashed"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      setLoginIdentifier("0710001001");
+                      setLoginPassword("test123");
+                      setLoginCountryCode("+27");
+                      setTimeout(() => {
+                        const form = document.querySelector("form");
+                        form?.requestSubmit();
+                      }, 100);
+                    }}
+                  >
+                    🔑 Demo Login
+                  </Button>
                 </form>
               </motion.div>
             )}
