@@ -219,13 +219,14 @@ const Auth = () => {
     }
     setOtpLoading(true);
     try {
+      const otpIdentifier = otpChannel === "sms" ? phone : signupEmail;
       const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
-        body: { phone, code: otpCode, purpose: "signup_verify" },
+        body: { phone: otpIdentifier, code: otpCode, purpose: "signup_verify" },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setPhoneVerified(true);
-      toast({ title: "Phone verified!" });
+      toast({ title: "Verified!" });
       setTimeout(() => {
         handleSignupComplete();
       }, 500);
