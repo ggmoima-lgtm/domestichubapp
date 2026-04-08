@@ -189,11 +189,12 @@ Deno.serve(async (req) => {
         });
       }
     } else {
-      // Send email via Resend API
-      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      // Send email via Mailjet API
+      const mailjetApiKey = Deno.env.get("MAILJET_API_KEY");
+      const mailjetSecretKey = Deno.env.get("MAILJET_SECRET_KEY");
 
-      if (!resendApiKey) {
-        console.error("RESEND_API_KEY not configured");
+      if (!mailjetApiKey || !mailjetSecretKey) {
+        console.error("Mailjet credentials not configured");
         return new Response(JSON.stringify({ error: "Email service not configured" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -219,23 +220,28 @@ Deno.serve(async (req) => {
         </div>
       `;
 
-      const emailResponse = await fetch("https://api.resend.com/emails", {
+      const mailjetAuth = btoa(`${mailjetApiKey}:${mailjetSecretKey}`);
+      const emailResponse = await fetch("https://api.mailjet.com/v3.1/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
+          Authorization: `Basic ${mailjetAuth}`,
         },
         body: JSON.stringify({
-          from: "Domestic Hub <onboarding@resend.dev>",
-          to: [identifier],
-          subject: `${code} is your Domestic Hub verification code`,
-          html: emailHtml,
+          Messages: [
+            {
+              From: { Email: "noreply@domestichub.app", Name: "Domestic Hub" },
+              To: [{ Email: identifier }],
+              Subject: `${code} is your Domestic Hub verification code`,
+              HTMLPart: emailHtml,
+            },
+          ],
         }),
       });
 
       if (!emailResponse.ok) {
         const emailError = await emailResponse.text();
-        console.error("Resend send error:", emailError);
+        console.error("Mailjet send error:", emailError);
         return new Response(JSON.stringify({ error: "Failed to send email" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
