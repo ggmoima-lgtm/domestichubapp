@@ -695,9 +695,8 @@ const Auth = () => {
                     className="w-full h-12 rounded-full font-semibold text-base border-dashed"
                     disabled={isSubmitting}
                     onClick={() => {
-                      setLoginIdentifier("0710001001");
+                      setLoginIdentifier("employer1@domestichub.co.za");
                       setLoginPassword("test123");
-                      setLoginCountryCode("+27");
                       setTimeout(() => {
                         const form = document.querySelector("form");
                         form?.requestSubmit();
