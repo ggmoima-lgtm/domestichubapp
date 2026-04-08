@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     let query = supabase
       .from("otp_codes")
       .select("*")
-      .eq("phone", sanitizedPhone)
+      .eq("phone", identifier)
       .eq("purpose", purpose)
       .eq("verified", false)
       .gt("expires_at", new Date().toISOString())
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     if (userId && (purpose === "phone_change" || purpose === "phone_verify")) {
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ phone: sanitizedPhone })
+        .update({ phone: identifier })
         .eq("user_id", userId);
 
       if (profileError) {
@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
 
       await supabase
         .from("helpers")
-        .update({ phone: sanitizedPhone })
+        .update({ phone: identifier })
         .eq("user_id", userId);
     }
 
