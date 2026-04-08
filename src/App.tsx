@@ -27,6 +27,7 @@ const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart")
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 
 const PageLoader = () => (
@@ -120,6 +121,7 @@ const App = () => (
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/welcome" element={<LandingPage />} />
                 <Route path="/splash" element={<ProtectedRoute><SplashScreen /></ProtectedRoute>} />
+                <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                 <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/index" element={<Navigate to="/home" replace />} />
                 <Route path="/register/helper" element={<ProtectedRoute><HelperRegistration /></ProtectedRoute>} />
