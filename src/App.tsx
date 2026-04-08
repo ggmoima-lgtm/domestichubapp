@@ -27,6 +27,7 @@ const ArchitectureFlowchart = lazy(() => import("./pages/ArchitectureFlowchart")
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ComponentSummary = lazy(() => import("./pages/ComponentSummary"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 
 const PageLoader = () => (

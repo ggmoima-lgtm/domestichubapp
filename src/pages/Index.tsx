@@ -90,11 +90,9 @@ const Index = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      // If no profile exists (e.g. OAuth user who never registered), sign out
+      // If no profile exists, redirect to onboarding to complete setup
       if (!data) {
-        localStorage.removeItem("pending_oauth_role");
-        await supabase.auth.signOut();
-        toast.error("No account found. Please register first before using Google or Apple sign-in.");
+        navigate("/onboarding", { replace: true });
         return;
       }
 
