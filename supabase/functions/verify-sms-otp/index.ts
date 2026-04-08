@@ -50,7 +50,9 @@ Deno.serve(async (req) => {
       userId = claimsData.claims.sub;
     }
 
-    const sanitizedPhone = phone.replace(/[^\d+\s]/g, "").trim();
+    // If the phone looks like an email, use it as-is; otherwise sanitize as phone number
+    const isEmail = phone.includes("@");
+    const identifier = isEmail ? phone.trim().toLowerCase() : phone.replace(/[^\d+\s]/g, "").trim();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
