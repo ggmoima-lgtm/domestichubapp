@@ -12,14 +12,38 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, purpose = "phone_change" } = await req.json();
+    const body = await req.json();
+    const { phone, email, purpose = "phone_change", channel = "sms" } = body;
 
-    // For signup_verify, no auth required. For other purposes, require auth.
+    // Validate channel
+    if (channel !== "sms" && channel !== "email") {
+      return new Response(JSON.stringify({ error: "Invalid channel. Use 'sms' or 'email'." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // For email channel, email is required
+    if (channel === "email" && (!email || typeof email !== "string" || !email.includes("@"))) {
+      return new Response(JSON.stringify({ error: "Valid email address required for email OTP" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // For SMS channel, phone is required
+    if (channel === "sms" && (!phone || typeof phone !== "string" || phone.length < 10)) {
+      return new Response(JSON.stringify({ error: "Invalid phone number" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Auth check for non-public purposes
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization");
 
     if (purpose === "signup_verify" || purpose === "password_reset") {
-      // No auth needed for pre-signup verification or password reset
       userId = null;
     } else {
       if (!authHeader?.startsWith("Bearer ")) {
@@ -44,19 +68,19 @@ Deno.serve(async (req) => {
       userId = claimsData.claims.sub;
     }
 
-    if (!phone || typeof phone !== "string" || phone.length < 10) {
-      return new Response(JSON.stringify({ error: "Invalid phone number" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // The identifier for rate limiting and storage
+    const identifier = channel === "sms"
+      ? phone.replace(/[^\d+\s]/g, "").trim()
+      : email.trim().toLowerCase();
 
-    const sanitizedPhone = phone.replace(/[^\d+\s]/g, "").trim();
-    if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
-      return new Response(JSON.stringify({ error: "Invalid phone number format" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (channel === "sms") {
+      const sanitizedPhone = identifier;
+      if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
+        return new Response(JSON.stringify({ error: "Invalid phone number format" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const supabase = createClient(
@@ -64,7 +88,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Cleanup expired OTPs, then rate limit only active pending codes for this phone + purpose
+    // Cleanup expired OTPs, then rate limit
     const nowIso = new Date().toISOString();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
@@ -76,7 +100,7 @@ Deno.serve(async (req) => {
     const { count } = await supabase
       .from("otp_codes")
       .select("id", { count: "exact", head: true })
-      .eq("phone", sanitizedPhone)
+      .eq("phone", identifier)
       .eq("purpose", purpose)
       .eq("verified", false)
       .gt("expires_at", nowIso)
@@ -94,7 +118,7 @@ Deno.serve(async (req) => {
     const code = Array.from(digits, d => d % 10).join("");
 
     const { error: insertError } = await supabase.from("otp_codes").insert({
-      phone: sanitizedPhone,
+      phone: identifier,
       code,
       user_id: userId,
       purpose,
@@ -108,67 +132,123 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Send SMS via SMSPortal
-    const clientId = Deno.env.get("SMSPORTAL_CLIENT_ID");
-    const clientSecret = Deno.env.get("SMSPORTAL_CLIENT_SECRET");
+    // Send via chosen channel
+    if (channel === "sms") {
+      // Send SMS via SMSPortal
+      const clientId = Deno.env.get("SMSPORTAL_CLIENT_ID");
+      const clientSecret = Deno.env.get("SMSPORTAL_CLIENT_SECRET");
 
-    if (!clientId || !clientSecret) {
-      console.error("SMSPortal credentials not configured");
-      return new Response(JSON.stringify({ error: "SMS service not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      if (!clientId || !clientSecret) {
+        console.error("SMSPortal credentials not configured");
+        return new Response(JSON.stringify({ error: "SMS service not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const authCredentials = btoa(`${clientId}:${clientSecret}`);
+      const tokenResponse = await fetch("https://rest.smsportal.com/v1/Authentication", {
+        method: "GET",
+        headers: { Authorization: `Basic ${authCredentials}` },
       });
+
+      if (!tokenResponse.ok) {
+        console.error("SMSPortal auth failed:", await tokenResponse.text());
+        return new Response(JSON.stringify({ error: "SMS service authentication failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const tokenData = await tokenResponse.json();
+      const smsToken = tokenData.token;
+
+      const smsResponse = await fetch("https://rest.smsportal.com/v1/BulkMessages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${smsToken}`,
+        },
+        body: JSON.stringify({
+          sendOptions: { testMode: false },
+          messages: [
+            {
+              destination: identifier,
+              content: `Your Domestic Hub verification code is: ${code}. It expires in 10 minutes. Do not share this code.`,
+            },
+          ],
+        }),
+      });
+
+      if (!smsResponse.ok) {
+        const smsError = await smsResponse.text();
+        console.error("SMSPortal send error:", smsError);
+        return new Response(JSON.stringify({ error: "Failed to send SMS" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // Send email via Resend
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      if (!resendApiKey) {
+        console.error("RESEND_API_KEY not configured");
+        return new Response(JSON.stringify({ error: "Email service not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
+          <h2 style="color: #1a1a1a; font-size: 22px; margin-bottom: 8px;">Verification Code</h2>
+          <p style="color: #555; font-size: 15px; margin-bottom: 24px;">
+            Use the code below to verify your identity on Domestic Hub.
+          </p>
+          <div style="background: #f4f4f5; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1a1a1a;">${code}</span>
+          </div>
+          <p style="color: #888; font-size: 13px;">
+            This code expires in 10 minutes. Do not share it with anyone.
+          </p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="color: #aaa; font-size: 11px;">
+            If you didn't request this code, you can safely ignore this email.
+          </p>
+        </div>
+      `;
+
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: "Domestic Hub <noreply@domestichub.co.za>",
+          to: [identifier],
+          subject: `${code} is your Domestic Hub verification code`,
+          html: emailHtml,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        const emailError = await emailResponse.text();
+        console.error("Resend send error:", emailError);
+        return new Response(JSON.stringify({ error: "Failed to send email" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    const authCredentials = btoa(`${clientId}:${clientSecret}`);
-    const tokenResponse = await fetch("https://rest.smsportal.com/v1/Authentication", {
-      method: "GET",
-      headers: { Authorization: `Basic ${authCredentials}` },
-    });
-
-    if (!tokenResponse.ok) {
-      console.error("SMSPortal auth failed:", await tokenResponse.text());
-      return new Response(JSON.stringify({ error: "SMS service authentication failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const tokenData = await tokenResponse.json();
-    const smsToken = tokenData.token;
-
-    const smsResponse = await fetch("https://rest.smsportal.com/v1/BulkMessages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${smsToken}`,
-      },
-      body: JSON.stringify({
-        sendOptions: { testMode: false },
-        messages: [
-          {
-            destination: sanitizedPhone,
-            content: `Your Domestic Hub verification code is: ${code}. It expires in 10 minutes. Do not share this code.`,
-          },
-        ],
-      }),
-    });
-
-    if (!smsResponse.ok) {
-      const smsError = await smsResponse.text();
-      console.error("SMSPortal send error:", smsError);
-      return new Response(JSON.stringify({ error: "Failed to send SMS" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
+    const channelLabel = channel === "sms" ? "SMS" : "email";
     return new Response(
-      JSON.stringify({ success: true, message: "Verification code sent" }),
+      JSON.stringify({ success: true, message: `Verification code sent via ${channelLabel}` }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("send-sms-otp error:", error);
+    console.error("send-otp error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
