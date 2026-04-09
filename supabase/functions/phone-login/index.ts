@@ -64,8 +64,8 @@ Deno.serve(async (req) => {
     const phoneCandidates = normalizePhoneCandidates(phone, countryCode);
 
     if (phoneCandidates.length === 0) {
-      return new Response(JSON.stringify({ error: "Invalid login credentials" }), {
-        status: 401,
+      return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
+        status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -80,6 +80,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY")!
     );
 
+    // Step 1: Check if the phone number exists in profiles
     const { data: profile } = await serviceClient
       .from("profiles")
       .select("user_id, email, phone")
@@ -87,14 +88,80 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    const candidateEmails = new Set<string>();
-
-    if (profile?.email?.trim()) {
-      candidateEmails.add(profile.email.trim());
+    // If no profile found, also check helpers table
+    let helperProfile = null;
+    if (!profile) {
+      const { data: helper } = await serviceClient
+        .from("helpers")
+        .select("user_id, email, phone")
+        .in("phone", phoneCandidates)
+        .limit(1)
+        .maybeSingle();
+      helperProfile = helper;
     }
 
-    if (profile?.user_id) {
-      const { data: userData } = await serviceClient.auth.admin.getUserById(profile.user_id);
+    const foundProfile = profile || helperProfile;
+
+    // If no profile found at all, return a clear "not found" message
+    if (!foundProfile) {
+      // Also check if any placeholder email exists in auth
+      let foundAnyAuth = false;
+      for (const candidate of phoneCandidates) {
+        const placeholderEmail = `${candidate}@helper.domestichub.co.za`;
+        const { data: userData } = await serviceClient.auth.admin.listUsers({ 
+          page: 1, 
+          perPage: 1 
+        });
+        // Quick check via getUserById won't work, try sign in to see
+        const { error } = await authClient.auth.signInWithPassword({ 
+          email: placeholderEmail, 
+          password 
+        });
+        if (!error) {
+          foundAnyAuth = true;
+          // Actually succeeded - get the session
+          const { data } = await authClient.auth.signInWithPassword({ 
+            email: placeholderEmail, 
+            password 
+          });
+          if (data?.session) {
+            return new Response(
+              JSON.stringify({
+                success: true,
+                session: {
+                  access_token: data.session.access_token,
+                  refresh_token: data.session.refresh_token,
+                  expires_at: data.session.expires_at,
+                  expires_in: data.session.expires_in,
+                  token_type: data.session.token_type,
+                  user: data.session.user,
+                },
+                user: data.user,
+              }),
+              {
+                status: 200,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              }
+            );
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Step 2: Phone exists - now try to authenticate
+    const candidateEmails = new Set<string>();
+
+    if (foundProfile.email?.trim()) {
+      candidateEmails.add(foundProfile.email.trim());
+    }
+
+    if (foundProfile.user_id) {
+      const { data: userData } = await serviceClient.auth.admin.getUserById(foundProfile.user_id);
       const authEmail = userData.user?.email?.trim();
 
       if (authEmail) {
@@ -131,7 +198,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ error: "Invalid login credentials" }), {
+    // Phone exists but password is wrong
+    return new Response(JSON.stringify({ error: "Incorrect password. Please try again or reset your password." }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
