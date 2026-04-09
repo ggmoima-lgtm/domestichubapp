@@ -150,7 +150,11 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Edge function errors come with the response body in error.message or data
+          const errorMsg = data?.error || error.message || "Login failed";
+          throw new Error(errorMsg);
+        }
         if (data?.error) throw new Error(data.error);
         if (!data?.session?.access_token || !data?.session?.refresh_token) {
           throw new Error("Invalid login response");
