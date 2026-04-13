@@ -137,7 +137,8 @@ const EmployerProfile = () => {
     const { count: unlocks } = await supabase
       .from("profile_unlocks")
       .select("*", { count: "exact", head: true })
-      .eq("employer_id", user.id);
+      .eq("employer_id", user.id)
+      .gt("expires_at", new Date().toISOString());
 
     const { count: reviews } = await supabase
       .from("reviews")
@@ -180,6 +181,7 @@ const EmployerProfile = () => {
       .from("profile_unlocks")
       .select("*, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
+      .gt("expires_at", new Date().toISOString())
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
 
