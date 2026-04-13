@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, ArrowLeft, Shield, Lock, Mail } from "lucide-react";
+import { Phone, ArrowLeft, Shield, Lock } from "lucide-react";
 import { PasswordInput } from "@/components/PasswordInput";
 import CountryCodeSelect from "@/components/CountryCodeSelect";
 import logo from "@/assets/logo.jpg";
@@ -110,27 +110,7 @@ const Auth = () => {
     return () => clearTimeout(phoneTimerRef.current);
   }, [phone, signupCountryCode]);
 
-  // Debounced email existence check via edge function
-  const emailTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  useEffect(() => {
-    if (!signupEmail || !signupEmail.includes("@")) { setEmailExists(null); return; }
-    setCheckingEmail(true);
-    clearTimeout(emailTimerRef.current);
-    emailTimerRef.current = setTimeout(async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("check-user-exists", {
-          body: { email: signupEmail.trim() },
-        });
-        if (!error && data) {
-          setEmailExists(data.emailExists || false);
-        } else {
-          setEmailExists(null);
-        }
-      } catch { setEmailExists(null); }
-      setCheckingEmail(false);
-    }, 600);
-    return () => clearTimeout(emailTimerRef.current);
-  }, [signupEmail]);
+  // Email existence check removed - signup is phone-only
 
   if (loading) {
     return (
@@ -194,22 +174,17 @@ const Auth = () => {
   };
 
   const handleSendOtp = async () => {
-    if (otpChannel === "sms" && (!phone || phone.length < 10)) {
+    if (!phone || phone.length < 10) {
       toast({ title: "Please enter a valid phone number", variant: "destructive" });
-      return;
-    }
-    if (otpChannel === "email" && (!signupEmail || !signupEmail.includes("@"))) {
-      toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
     setOtpLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-sms-otp", {
         body: {
-          phone: otpChannel === "sms" ? phone : undefined,
-          email: otpChannel === "email" ? signupEmail : undefined,
+          phone,
           purpose: "signup_verify",
-          channel: otpChannel,
+          channel: "sms",
         },
       });
       if (error) throw error;
@@ -217,9 +192,7 @@ const Auth = () => {
       setOtpSent(true);
       toast({
         title: "OTP sent!",
-        description: otpChannel === "sms"
-          ? "Check your phone for a 6-digit code."
-          : "Check your email for a 6-digit code.",
+        description: "Check your phone for a 6-digit code.",
       });
     } catch (error: any) {
       toast({ title: "Failed to send OTP", description: error.message, variant: "destructive" });
@@ -235,7 +208,7 @@ const Auth = () => {
     }
     setOtpLoading(true);
     try {
-      const otpIdentifier = otpChannel === "sms" ? phone : signupEmail;
+      const otpIdentifier = phone;
       const { data, error } = await supabase.functions.invoke("verify-sms-otp", {
         body: { phone: otpIdentifier, code: otpCode, purpose: "signup_verify" },
       });
@@ -339,16 +312,8 @@ const Auth = () => {
   };
 
   const handleNextFromContact = async () => {
-    if (selectedRole === "employer" && (!signupEmail || !signupEmail.includes("@"))) {
-      toast({ title: "Please enter a valid email address", variant: "destructive" });
-      return;
-    }
     if (!phone || phone.length < 6) {
       toast({ title: "Please enter a valid phone number", variant: "destructive" });
-      return;
-    }
-    if (signupEmail && !signupEmail.includes("@")) {
-      toast({ title: "Please enter a valid email", variant: "destructive" });
       return;
     }
 
@@ -357,18 +322,12 @@ const Auth = () => {
     try {
       const fullPhone = signupCountryCode + phone.replace(/^0+/, "");
       const { data, error } = await supabase.functions.invoke("check-user-exists", {
-        body: { phone: fullPhone, email: signupEmail.trim() || undefined },
+        body: { phone: fullPhone },
       });
       if (!error && data) {
         if (data.phoneExists) {
           setPhoneExists(true);
           toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
-          setIsSubmitting(false);
-          return;
-        }
-        if (data.emailExists) {
-          setEmailExists(true);
-          toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
           setIsSubmitting(false);
           return;
         }
@@ -433,42 +392,9 @@ const Auth = () => {
   // ──────────── STEP 2: CONTACT ────────────
   const renderContactStep = () => (
     <motion.div key="contact" {...fadeSlide} className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Add your email or phone</h2>
+      <h2 className="text-2xl font-bold text-foreground">Add your phone number</h2>
 
       <div className="space-y-5">
-        {selectedRole === "employer" ? (
-          <div>
-            <Label className="text-sm text-muted-foreground mb-1.5 block">Email*</Label>
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists || (signupEmail && !signupEmail.includes("@")) ? 'border-destructive' : 'border-border'}`}
-              autoFocus
-            />
-            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
-            {signupEmail && !signupEmail.includes("@") && <p className="text-xs text-destructive mt-1.5">Email must contain @</p>}
-            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
-            {!emailExists && !checkingEmail && signupEmail.includes("@") && <p className="text-xs text-muted-foreground mt-1.5">Required for invoices and notifications</p>}
-          </div>
-        ) : (
-          <div>
-            <Label className="text-sm text-muted-foreground mb-1.5 block">Email (optional)</Label>
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              className={`border-0 border-b rounded-none px-0 h-11 text-base focus-visible:ring-0 focus-visible:border-primary ${emailExists || (signupEmail && !signupEmail.includes("@")) ? 'border-destructive' : 'border-border'}`}
-              autoFocus
-            />
-            {checkingEmail && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
-            {signupEmail && !signupEmail.includes("@") && <p className="text-xs text-destructive mt-1.5">Email must contain @</p>}
-            {emailExists && <p className="text-xs text-destructive mt-1.5">This email is already registered. Please log in instead.</p>}
-          </div>
-        )}
-
         <div>
           <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number*</Label>
           <div className={`flex border-b ${phoneExists ? 'border-destructive' : 'border-border'}`}>
@@ -479,6 +405,7 @@ const Auth = () => {
               value={phone}
               onChange={(e) => { const val = e.target.value.replace(/[^0-9]/g, ""); setPhone(val); setPhoneVerified(false); setOtpSent(false); setOtpCode(""); }}
               className="border-0 rounded-none px-0 h-11 text-base focus-visible:ring-0 flex-1"
+              autoFocus
             />
           </div>
           {checkingPhone && <p className="text-xs text-muted-foreground mt-1.5">Checking...</p>}
@@ -491,7 +418,7 @@ const Auth = () => {
         size="lg"
         className="w-full h-12 rounded-full font-semibold text-base"
         onClick={handleNextFromContact}
-        disabled={isSubmitting || phoneExists === true || emailExists === true || checkingPhone || checkingEmail}
+        disabled={isSubmitting || phoneExists === true || checkingPhone}
       >
         {isSubmitting ? "Checking..." : "Continue"}
       </Button>
@@ -505,9 +432,9 @@ const Auth = () => {
 
       <div className="space-y-5">
         <div>
-          <Label className="text-sm text-muted-foreground mb-1.5 block">Email or Phone*</Label>
+          <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number</Label>
           <div className="border-b border-border pb-2">
-            <p className="text-base text-foreground">{signupEmail || phone}</p>
+            <p className="text-base text-foreground">{phone}</p>
           </div>
         </div>
 
@@ -555,48 +482,15 @@ const Auth = () => {
     <motion.div key="verify" {...fadeSlide} className="space-y-6">
       <div className="text-center space-y-3">
         <h2 className="text-xl font-bold text-foreground">
-          Verify your identity
+          Verify your phone number
         </h2>
         <p className="text-sm text-muted-foreground">
-          Choose how you'd like to receive your verification code.
+          We'll send a verification code to {phone}
         </p>
       </div>
 
       {!otpSent ? (
         <div className="space-y-4">
-          {/* Channel selector */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setOtpChannel("sms")}
-              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors ${
-                otpChannel === "sms"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/40"
-              }`}
-            >
-              <Phone size={16} /> SMS
-            </button>
-            <button
-              type="button"
-              onClick={() => setOtpChannel("email")}
-              disabled={!signupEmail || !signupEmail.includes("@")}
-              className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                otpChannel === "email"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/40"
-              }`}
-            >
-              <Mail size={16} /> Email
-            </button>
-          </div>
-
-          <p className="text-xs text-muted-foreground text-center">
-            {otpChannel === "sms"
-              ? `Code will be sent to ${phone}`
-              : `Code will be sent to ${signupEmail}`}
-          </p>
-
           <Button
             type="button"
             size="lg"
@@ -604,7 +498,7 @@ const Auth = () => {
             onClick={handleSendOtp}
             disabled={otpLoading}
           >
-            {otpLoading ? "Sending..." : "Send Verification Code"}
+            {otpLoading ? "Sending..." : "Send SMS Code"}
           </Button>
         </div>
       ) : !phoneVerified ? (
@@ -630,7 +524,7 @@ const Auth = () => {
               disabled={otpLoading}
               className="text-sm text-primary font-semibold hover:underline"
             >
-              Resend code via {otpChannel === "sms" ? "SMS" : "email"}
+              Resend code via SMS
             </button>
           </div>
 
