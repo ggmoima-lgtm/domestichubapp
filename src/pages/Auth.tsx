@@ -432,9 +432,9 @@ const Auth = () => {
 
       <div className="space-y-5">
         <div>
-          <Label className="text-sm text-muted-foreground mb-1.5 block">Email or Phone*</Label>
+          <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number</Label>
           <div className="border-b border-border pb-2">
-            <p className="text-base text-foreground">{signupEmail || phone}</p>
+            <p className="text-base text-foreground">{phone}</p>
           </div>
         </div>
 
