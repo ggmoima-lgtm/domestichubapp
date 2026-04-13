@@ -271,6 +271,16 @@ const EmployerProfile = () => {
       if (error) {
         toast.error("Failed to update profile: " + error.message);
       } else {
+        // Also sync key fields to profiles table
+        if (editData.full_name) {
+          await supabase
+            .from("profiles")
+            .update({ 
+              full_name: editData.full_name,
+              email: resolvedEmail,
+            })
+            .eq("user_id", user.id);
+        }
         toast.success("Profile updated!");
         setIsEditing(false);
         fetchData();
