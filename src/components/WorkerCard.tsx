@@ -177,8 +177,10 @@ const WorkerCard = ({
               )}
             </div>
 
-            {/* Role */}
-            <p className="text-xs text-muted-foreground mt-0.5 capitalize">{displayRole}</p>
+            {/* Role + Experience */}
+            <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+              {displayRole} · {expYears > 0 ? `${expYears}yr${expYears !== 1 ? "s" : ""} exp` : "New"}
+            </p>
 
             {/* Location */}
             {location && (
@@ -250,11 +252,6 @@ const WorkerCard = ({
             <span className="text-[10px] text-muted-foreground font-medium">Active this week</span>
           </div>
           <span className="text-[10px] text-muted-foreground font-medium">Responds fast</span>
-          {expYears > 0 && (
-            <span className="text-[10px] text-muted-foreground font-medium ml-auto">
-              {expYears}yr{expYears !== 1 ? "s" : ""} exp
-            </span>
-          )}
         </div>
 
         {/* CTA */}
