@@ -192,11 +192,9 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
           )}
 
           {category !== "gardener" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
-                <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
+              <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
             </div>
           )}
 
