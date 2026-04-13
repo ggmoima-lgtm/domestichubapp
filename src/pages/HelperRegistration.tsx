@@ -51,8 +51,12 @@ const skillOptions = [
 ];
 
 const languageOptions = [
+  // South African official languages
   "English", "Afrikaans", "isiZulu", "isiXhosa", "Sesotho", 
-  "Setswana", "Sepedi", "Xitsonga", "siSwati", "Tshivenda", "isiNdebele"
+  "Setswana", "Sepedi", "Xitsonga", "siSwati", "Tshivenda", "isiNdebele",
+  // Pan-African languages
+  "Shona", "Chichewa", "Swahili", "French", "Portuguese", 
+  "Lingala", "Yoruba", "Igbo", "Amharic", "Somali",
 ];
 
 const availabilityOptions = [
