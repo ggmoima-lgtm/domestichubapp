@@ -105,6 +105,7 @@ const EmployerProfile = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
+  const [selectedSavedHelper, setSelectedSavedHelper] = useState<any>(null);
 
   useEffect(() => {
     if (user) fetchData();
@@ -1077,6 +1078,32 @@ const EmployerProfile = () => {
         } : null}
         isOpen={showFullProfile && !!selectedApplicant}
         onClose={() => { setShowFullProfile(false); setSelectedApplicant(null); }}
+        onHired={fetchData}
+      />
+
+      {/* Saved Helper Profile Sheet */}
+      <WorkerDetailSheet
+        worker={selectedSavedHelper ? {
+          id: selectedSavedHelper.id,
+          name: selectedSavedHelper.full_name || "Unknown",
+          role: selectedSavedHelper.category || "Helper",
+          location: "",
+          rating: 0,
+          reviews: 0,
+          experience: selectedSavedHelper.experience_years ? `${selectedSavedHelper.experience_years} years` : "",
+          monthlyRate: selectedSavedHelper.hourly_rate ? `R${selectedSavedHelper.hourly_rate}/hr` : "",
+          verified: selectedSavedHelper.is_verified || false,
+          avatar: selectedSavedHelper.avatar_url || "/placeholder.svg",
+          skills: selectedSavedHelper.skills || [],
+          bio: selectedSavedHelper.bio || "",
+          languages: selectedSavedHelper.languages || [],
+          availability: selectedSavedHelper.availability || "",
+          introVideo: selectedSavedHelper.intro_video_url || "",
+          availabilityStatus: selectedSavedHelper.availability_status || "available",
+          availableFrom: selectedSavedHelper.available_from || null,
+        } : null}
+        isOpen={!!selectedSavedHelper}
+        onClose={() => setSelectedSavedHelper(null)}
         onHired={fetchData}
       />
     </div>
