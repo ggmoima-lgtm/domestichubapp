@@ -195,6 +195,7 @@ const Index = () => {
         hasTools: false,
       }));
       setDbHelpers(mapped);
+      setHelpersLoading(false);
     };
     fetchHelpers();
   }, [user, unlockRefresh]);
@@ -306,8 +307,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Show loading state while role is being determined */}
-      {userRole === null && user && (
+      {/* Show loading state while role is being determined or data is loading */}
+      {(userRole === null || (userRole === "employer" && helpersLoading)) && user && (
         <main className="px-4 py-4 flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <img src={logo} alt="Domestic Hub" className="w-24 h-24 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]" />
         </main>
