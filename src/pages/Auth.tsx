@@ -603,12 +603,12 @@ const Auth = () => {
 
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div>
-                    <Label className="text-sm text-muted-foreground mb-1.5 block">Phone or Email</Label>
+                    <Label className="text-sm text-muted-foreground mb-1.5 block">Phone number</Label>
                     <div className="flex border-b border-border">
                       <CountryCodeSelect value={loginCountryCode} onChange={setLoginCountryCode} />
                       <Input
                         type="text"
-                        placeholder="Phone or email"
+                        placeholder="e.g. 0812345678"
                         value={loginIdentifier}
                         onChange={(e) => {
                           const val = e.target.value;
