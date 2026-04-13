@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, ArrowLeft, Shield, Lock, Mail } from "lucide-react";
+import { Phone, ArrowLeft, Shield, Lock } from "lucide-react";
 import { PasswordInput } from "@/components/PasswordInput";
 import CountryCodeSelect from "@/components/CountryCodeSelect";
 import logo from "@/assets/logo.jpg";
@@ -524,7 +524,7 @@ const Auth = () => {
               disabled={otpLoading}
               className="text-sm text-primary font-semibold hover:underline"
             >
-              Resend code via {otpChannel === "sms" ? "SMS" : "email"}
+              Resend code via SMS
             </button>
           </div>
 
