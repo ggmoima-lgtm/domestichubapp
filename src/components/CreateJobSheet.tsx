@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { X, Plus, Briefcase } from "lucide-react";
+import { maskContactInfo } from "@/lib/contactMasking";
 
 interface CreateJobSheetProps {
   isOpen: boolean;
@@ -148,7 +149,12 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground">Description</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the role..." rows={3} className="rounded-xl" />
+            <Textarea value={description} onChange={(e) => {
+              const raw = e.target.value;
+              const masked = maskContactInfo(raw);
+              if (masked !== raw) toast.error("Contact information is not allowed in job descriptions");
+              setDescription(masked);
+            }} placeholder="Describe the role..." rows={3} className="rounded-xl" />
           </div>
 
           <div className="space-y-2">
@@ -186,15 +192,9 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
           )}
 
           {category !== "gardener" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
-                <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-muted-foreground">Family Size</Label>
-                <Input value={familySize} onChange={(e) => setFamilySize(e.target.value)} placeholder="e.g. 4 members" className="rounded-xl h-12" />
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
+              <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
             </div>
           )}
 
