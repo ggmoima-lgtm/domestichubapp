@@ -209,53 +209,55 @@ const CATEGORIES = FAQ_DATA.map((c) => c.category);
 const findAnswer = (input: string): string | null => {
   const lower = input.toLowerCase();
   
-  // First try exact question matching with keyword overlap
+  // First try exact question matching with high keyword overlap
   for (const cat of FAQ_DATA) {
     for (const faq of cat.questions) {
-      const keywords = faq.q.toLowerCase().split(/\s+/);
-      const matchCount = keywords.filter((w) => w.length > 3 && lower.includes(w)).length;
-      if (matchCount >= 2) return faq.a;
+      const keywords = faq.q.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+      const matchCount = keywords.filter((w) => lower.includes(w)).length;
+      // Require at least 50% of keywords to match AND at least 2 matches
+      if (keywords.length > 0 && matchCount >= Math.max(2, Math.ceil(keywords.length * 0.5))) return faq.a;
     }
   }
   
-  // Keyword-based fallback matching
+  // Specific keyword-based matching (ordered from most specific to least)
+  if (lower.includes("didn't come") || lower.includes("didnt come") || lower.includes("no show") || lower.includes("not come to work")) {
+    return "Domestic Hub is a connection platform that helps employers find helpers. We are not responsible for any agreements, employment terms, or interactions that occur outside the app. We strongly recommend formalising any employment arrangements with proper contracts. If you'd like to report the helper, you can do so from their profile.";
+  }
   if (lower.includes("delete") && lower.includes("account")) return FAQ_DATA[4].questions[0].a;
   if (lower.includes("reset") && lower.includes("password")) return FAQ_DATA[4].questions[1].a;
   if (lower.includes("switch") && lower.includes("role")) return FAQ_DATA[4].questions[3].a;
   if (lower.includes("notif") && lower.includes("enable")) return FAQ_DATA[5].questions[0].a;
-  if (lower.includes("notif") && lower.includes("off")) return FAQ_DATA[5].questions[2].a;
+  if (lower.includes("notif") && (lower.includes("off") || lower.includes("turn"))) return FAQ_DATA[5].questions[2].a;
   if (lower.includes("notif") && lower.includes("not receiv")) return FAQ_DATA[5].questions[3].a;
   if (lower.includes("notification")) return FAQ_DATA[5].questions[1].a;
   if (lower.includes("update") && lower.includes("app")) return FAQ_DATA[7].questions[0].a;
   if (lower.includes("not loading") || lower.includes("won't load")) return FAQ_DATA[7].questions[1].a;
-  if (lower.includes("browser")) return FAQ_DATA[7].questions[2].a;
+  if (lower.includes("browser") && lower.includes("support")) return FAQ_DATA[7].questions[2].a;
   if (lower.includes("install") || lower.includes("home screen")) return FAQ_DATA[7].questions[3].a;
-  if (lower.includes("block")) return FAQ_DATA[6].questions[2].a;
+  if (lower.includes("block") && lower.includes("user")) return FAQ_DATA[6].questions[2].a;
   if (lower.includes("flag") && lower.includes("video")) return FAQ_DATA[6].questions[3].a;
   if (lower.includes("post") && lower.includes("job")) return FAQ_DATA[1].questions[4].a;
-  if (lower.includes("application")) return FAQ_DATA[1].questions[5].a;
-  if (lower.includes("photo") || lower.includes("picture")) return FAQ_DATA[3].questions[2].a;
+  if (lower.includes("application") && (lower.includes("review") || lower.includes("view"))) return FAQ_DATA[1].questions[5].a;
+  if ((lower.includes("photo") || lower.includes("picture")) && lower.includes("profile")) return FAQ_DATA[3].questions[2].a;
   if (lower.includes("video") && lower.includes("intro")) return FAQ_DATA[3].questions[3].a;
-  if (lower.includes("availability")) return FAQ_DATA[3].questions[4].a;
-  if (lower.includes("document") || lower.includes("id")) return FAQ_DATA[2].questions[3].a;
+  if (lower.includes("availability") && lower.includes("status")) return FAQ_DATA[3].questions[4].a;
   if (lower.includes("declined") && lower.includes("verif")) return FAQ_DATA[2].questions[2].a;
+  if (lower.includes("verification") && lower.includes("document")) return FAQ_DATA[2].questions[3].a;
   if (lower.includes("payment") && (lower.includes("didn") || lower.includes("no credit"))) return FAQ_DATA[0].questions[4].a;
   if (lower.includes("cost") || lower.includes("price")) return FAQ_DATA[0].questions[3].a;
-  if (lower.includes("credit")) return FAQ_DATA[0].questions[0].a;
-  if (lower.includes("unlock")) return FAQ_DATA[1].questions[0].a;
+  if (lower.includes("credit") && (lower.includes("how") || lower.includes("what"))) return FAQ_DATA[0].questions[0].a;
+  if (lower.includes("buy") && lower.includes("credit")) return FAQ_DATA[0].questions[1].a;
+  if (lower.includes("unlock") && lower.includes("profile")) return FAQ_DATA[1].questions[0].a;
   if (lower.includes("refund")) return FAQ_DATA[0].questions[2].a;
-  if (lower.includes("verif")) return FAQ_DATA[2].questions[0].a;
+  if (lower.includes("verif") && !lower.includes("work")) return FAQ_DATA[2].questions[0].a;
   if (lower.includes("profile") && lower.includes("update")) return FAQ_DATA[3].questions[0].a;
-  if (lower.includes("report")) return FAQ_DATA[6].questions[0].a;
+  if (lower.includes("report") && lower.includes("user")) return FAQ_DATA[6].questions[0].a;
   if (lower.includes("contact") && lower.includes("helper")) return FAQ_DATA[1].questions[2].a;
-  if (lower.includes("unavailable")) return FAQ_DATA[1].questions[3].a;
-  if (lower.includes("phone")) return FAQ_DATA[3].questions[1].a;
-  if (lower.includes("email") && lower.includes("change")) return FAQ_DATA[4].questions[2].a;
+  if (lower.includes("unavailable") && lower.includes("helper")) return FAQ_DATA[1].questions[3].a;
+  if (lower.includes("change") && lower.includes("phone")) return FAQ_DATA[3].questions[1].a;
+  if (lower.includes("change") && lower.includes("email")) return FAQ_DATA[4].questions[2].a;
   if (lower.includes("outside") || lower.includes("liable") || lower.includes("responsible")) return FAQ_DATA[6].questions[1].a;
-  if (lower.includes("buy") || lower.includes("purchase")) return FAQ_DATA[0].questions[1].a;
   if (lower.includes("hire") || lower.includes("hiring")) return FAQ_DATA[1].questions[0].a;
-  if (lower.includes("delete")) return FAQ_DATA[4].questions[0].a;
-  if (lower.includes("password")) return FAQ_DATA[4].questions[1].a;
   
   return null;
 };
