@@ -178,25 +178,25 @@ const WorkerCard = ({
 
             {/* Service type */}
             <p className="text-xs font-medium text-muted-foreground mt-0.5">
-              {serviceType === "both" ? "🏠🌱 Domestic + Gardening" : isGardener ? "🌱 Gardener" : `🏠 ${role}`}
+              {serviceType === "both" ? "Domestic + Gardening" : isGardener ? "Gardener" : role}
             </p>
 
             <span className={`text-sm font-bold ${status.className} mt-1 block`}>
-              {status.emoji} {status.label}
+              {status.label}
             </span>
 
             {verified && (
               <span className="text-sm text-primary font-semibold block mt-0.5">
-                ✅ ID Verified
+                ID Verified
               </span>
             )}
 
             <span className="text-sm text-primary font-semibold block mt-0.5">
-              📱 Phone Verified
+              Phone Verified
             </span>
 
             <p className="text-sm font-semibold text-foreground mt-1">
-              ⭐ {expYears > 0 ? `${expYears} Year${expYears !== 1 ? "s" : ""}` : "New"} Experience
+              {expYears > 0 ? `${expYears} Year${expYears !== 1 ? "s" : ""}` : "New"} Experience
             </p>
           </div>
         </div>
@@ -205,7 +205,7 @@ const WorkerCard = ({
         {isGardener && skillsGardening.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
             {skillsGardening.slice(0, 3).map((skill) => (
-              <span key={skill} className="text-xs text-foreground">✔ {skill}</span>
+              <span key={skill} className="text-xs text-foreground">{skill}</span>
             ))}
           </div>
         )}
@@ -213,18 +213,18 @@ const WorkerCard = ({
         {/* Gardener tools badge */}
         {isGardener && (
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">{hasTools ? "🧰 Own Tools" : "🧰 No Tools"}</span>
-            <span className="text-xs text-muted-foreground">📍 Works in your area</span>
+            <span className="text-xs text-muted-foreground">{hasTools ? "Own Tools" : "No Tools"}</span>
+            <span className="text-xs text-muted-foreground">Works in your area</span>
           </div>
         )}
 
         {/* Activity row */}
         <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
           <span className="text-xs text-green-600 font-medium">
-            🟢 Active this week
+            Active this week
           </span>
           <span className="text-xs text-primary font-medium">
-            ⚡ Responds quickly
+            Responds quickly
           </span>
         </div>
 
