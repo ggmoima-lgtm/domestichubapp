@@ -35,6 +35,48 @@ const fadeSlide = {
   transition: { duration: 0.25, ease: "easeOut" as const },
 };
 
+const extractEdgeFunctionErrorMessage = async (error: unknown, fallback: string) => {
+  if (!error || typeof error !== "object") {
+    return fallback;
+  }
+
+  const maybeError = error as { message?: string; context?: Response };
+  const response = maybeError.context;
+
+  if (response && typeof response.clone === "function") {
+    try {
+      const payload = await response.clone().json() as { error?: string };
+      if (typeof payload?.error === "string" && payload.error.trim()) {
+        return payload.error;
+      }
+    } catch {
+      // Ignore JSON parse failures and fall back to text/message parsing.
+    }
+
+    try {
+      const text = await response.clone().text();
+      if (text.trim()) {
+        try {
+          const payload = JSON.parse(text) as { error?: string };
+          if (typeof payload?.error === "string" && payload.error.trim()) {
+            return payload.error;
+          }
+        } catch {
+          return text;
+        }
+      }
+    } catch {
+      // Ignore text parse failures and fall back to the error message.
+    }
+  }
+
+  if (typeof maybeError.message === "string" && maybeError.message.trim()) {
+    return maybeError.message;
+  }
+
+  return fallback;
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -143,8 +185,7 @@ const Auth = () => {
         });
 
         if (error) {
-          // Edge function errors come with the response body in error.message or data
-          const errorMsg = data?.error || error.message || "Login failed";
+          const errorMsg = await extractEdgeFunctionErrorMessage(error, data?.error || "Login failed");
           throw new Error(errorMsg);
         }
         if (data?.error) throw new Error(data.error);
