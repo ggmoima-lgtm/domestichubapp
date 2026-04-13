@@ -225,6 +225,7 @@ const WorkerCard = ({
             <Phone size={11} className="text-primary" />
             <span className="text-[11px] font-medium text-primary">Phone Verified</span>
           </div>
+        </div>
 
         {/* Gardener skills */}
         {isGardener && skillsGardening.length > 0 && (
