@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Unlock, Lock } from "lucide-react";
-import { Card } from "./ui/card";
+import { Heart, MapPin, Star, ShieldCheck, Phone, ChevronRight, Clock, Zap } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { getPreviewName } from "@/lib/contactMasking";
@@ -10,13 +9,13 @@ import { toast } from "sonner";
 
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
-const statusConfig: Record<HelperStatus, { label: string; emoji: string; className: string }> = {
-  available: { label: "Available", emoji: "🟢", className: "text-green-600" },
-  interviewing: { label: "In Conversation", emoji: "🔵", className: "text-blue-600" },
-  hired_platform: { label: "Hired", emoji: "🟡", className: "text-amber-600" },
-  hired_external: { label: "Employed", emoji: "🟡", className: "text-amber-600" },
-  unavailable: { label: "Unavailable", emoji: "🔴", className: "text-destructive" },
-  suspended: { label: "Suspended", emoji: "⛔", className: "text-destructive" },
+const statusConfig: Record<HelperStatus, { label: string; badgeClass: string; dotClass: string }> = {
+  available: { label: "Available Today", badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200", dotClass: "bg-emerald-500" },
+  interviewing: { label: "In Conversation", badgeClass: "bg-blue-50 text-blue-700 border-blue-200", dotClass: "bg-blue-500" },
+  hired_platform: { label: "Currently Hired", badgeClass: "bg-amber-50 text-amber-700 border-amber-200", dotClass: "bg-amber-500" },
+  hired_external: { label: "Currently Employed", badgeClass: "bg-amber-50 text-amber-700 border-amber-200", dotClass: "bg-amber-500" },
+  unavailable: { label: "Unavailable", badgeClass: "bg-red-50 text-red-700 border-red-200", dotClass: "bg-red-500" },
+  suspended: { label: "Suspended", badgeClass: "bg-red-50 text-red-700 border-red-200", dotClass: "bg-red-500" },
 };
 
 interface WorkerCardProps {
@@ -68,6 +67,7 @@ const WorkerCard = ({
 
   const expYears = parseInt(experience) || 0;
   const isGardener = serviceType === "gardening" || serviceType === "both" || role.toLowerCase().includes("gardener");
+  const displayRole = serviceType === "both" ? "Domestic + Gardening" : isGardener ? "Gardener" : role;
 
   useEffect(() => {
     if (!user) return;
@@ -124,124 +124,155 @@ const WorkerCard = ({
   };
 
   return (
-    <Card
-      variant="interactive"
-      className={`overflow-hidden ${isHired ? "opacity-60" : ""}`}
+    <div
+      className={`group relative bg-card rounded-2xl border border-border/60 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer ${isHired ? "opacity-60" : ""}`}
       onClick={onClick}
     >
-      {/* Status banner for unlocked but non-available helpers */}
-      {isUnlocked && (availabilityStatus === "hired_platform" || availabilityStatus === "hired_external" || availabilityStatus === "unavailable") && (
-        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
-          <span className="text-xs font-semibold text-destructive">
+      {/* Unavailable banner */}
+      {isUnlocked && isHired && (
+        <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10">
+          <span className="text-[11px] font-medium text-destructive">
             {availabilityStatus === "unavailable" ? "Currently Unavailable" : "Currently Hired — Not Available"}
           </span>
         </div>
       )}
 
-      <div className="p-5">
-        {/* Top row: Photo + Name/Status */}
-        <div className="flex gap-4 items-start">
-          {/* Photo */}
+      <div className="p-4">
+        {/* Top section: Avatar + Core info */}
+        <div className="flex gap-3.5">
+          {/* Avatar with save button */}
           <div className="relative flex-shrink-0">
-            <div className="w-28 h-28 rounded-2xl overflow-hidden bg-muted">
+            <div className="w-[88px] h-[88px] rounded-xl overflow-hidden bg-muted">
               <img
                 src={avatar}
                 alt={name}
                 className={`w-full h-full object-cover ${!isUnlocked ? "blur-[3px] scale-110" : ""}`}
               />
               {!isUnlocked && (
-                <div className="absolute inset-0 bg-foreground/10 rounded-2xl" />
+                <div className="absolute inset-0 bg-foreground/5 rounded-xl" />
               )}
             </div>
-            {/* Save button */}
             <button
               onClick={toggleSave}
-              className="absolute -top-2 -right-2 p-1.5 rounded-full bg-card shadow-sm border border-border"
+              className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-card shadow-md border border-border/50 flex items-center justify-center hover:scale-110 transition-transform"
             >
               <Heart
-                size={14}
+                size={13}
                 className={isSaved ? "fill-destructive text-destructive" : "text-muted-foreground"}
               />
             </button>
           </div>
 
-          {/* Name + Status */}
-          <div className="flex-1 min-w-0 pt-0.5">
-            <div className="flex items-center gap-2">
-              <h3 className="font-bold text-foreground text-base truncate">{getPreviewName(name)}</h3>
+          {/* Info column */}
+          <div className="flex-1 min-w-0">
+            {/* Name + Unlocked badge */}
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-semibold text-foreground text-[15px] leading-tight truncate">
+                {getPreviewName(name)}
+              </h3>
               {isUnlocked && (
-                <Badge variant="success" className="text-xs px-2.5 py-0.5 shrink-0">
+                <Badge variant="success" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
                   Unlocked
                 </Badge>
               )}
             </div>
 
-            {/* Service type */}
-            <p className="text-xs font-medium text-muted-foreground mt-0.5">
-              {serviceType === "both" ? "Domestic + Gardening" : isGardener ? "Gardener" : role}
-            </p>
+            {/* Role */}
+            <p className="text-xs text-muted-foreground mt-0.5 capitalize">{displayRole}</p>
 
-            <span className={`text-sm font-bold ${status.className} mt-1 block`}>
-              {status.label}
-            </span>
-
-            {verified && (
-              <span className="text-sm text-primary font-semibold block mt-0.5">
-                ID Verified
-              </span>
+            {/* Location */}
+            {location && (
+              <div className="flex items-center gap-1 mt-1">
+                <MapPin size={11} className="text-muted-foreground shrink-0" />
+                <span className="text-[11px] text-muted-foreground truncate">{location}</span>
+              </div>
             )}
 
-            <span className="text-sm text-primary font-semibold block mt-0.5">
-              Phone Verified
+            {/* Rating */}
+            <div className="flex items-center gap-1 mt-1.5">
+              <Star size={13} className="text-amber-400 fill-amber-400" />
+              <span className="text-xs font-semibold text-foreground">
+                {rating > 0 ? rating.toFixed(1) : "New"}
+              </span>
+              {reviews > 0 && (
+                <span className="text-[11px] text-muted-foreground">
+                  ({reviews} review{reviews !== 1 ? "s" : ""})
+                </span>
+              )}
+            </div>
+
+            {/* Availability badge */}
+            <div className="mt-2">
+              <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full border ${status.badgeClass}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${status.dotClass}`} />
+                {status.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Verification & Experience row */}
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/40">
+          {verified && (
+            <div className="flex items-center gap-1">
+              <ShieldCheck size={13} className="text-primary" />
+              <span className="text-[11px] font-medium text-primary">ID Verified</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1">
+            <Phone size={11} className="text-primary" />
+            <span className="text-[11px] font-medium text-primary">Phone Verified</span>
+          </div>
+          <div className="flex items-center gap-1 ml-auto">
+            <span className="text-[11px] font-semibold text-foreground">
+              {expYears > 0 ? `${expYears}yr${expYears !== 1 ? "s" : ""} exp` : "New"}
             </span>
-
-            <p className="text-sm font-semibold text-foreground mt-1">
-              {expYears > 0 ? `${expYears} Year${expYears !== 1 ? "s" : ""}` : "New"} Experience
-            </p>
           </div>
         </div>
 
-        {/* Service highlights for gardeners */}
+        {/* Gardener skills */}
         {isGardener && skillsGardening.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
             {skillsGardening.slice(0, 3).map((skill) => (
-              <span key={skill} className="text-xs text-foreground">{skill}</span>
+              <span key={skill} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40">
+                {skill}
+              </span>
             ))}
+            {hasTools && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40">
+                Own Tools
+              </span>
+            )}
           </div>
         )}
 
-        {/* Gardener tools badge */}
-        {isGardener && (
-          <div className="mt-2 flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">{hasTools ? "Own Tools" : "No Tools"}</span>
-            <span className="text-xs text-muted-foreground">Works in your area</span>
+        {/* Trust indicators */}
+        <div className="flex items-center gap-3 mt-2.5">
+          <div className="flex items-center gap-1">
+            <Clock size={11} className="text-emerald-500" />
+            <span className="text-[10px] text-muted-foreground font-medium">Active this week</span>
           </div>
-        )}
-
-        {/* Activity row */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
-          <span className="text-xs text-green-600 font-medium">
-            Active this week
-          </span>
-          <span className="text-xs text-primary font-medium">
-            Responds quickly
-          </span>
+          <div className="flex items-center gap-1">
+            <Zap size={11} className="text-amber-500" />
+            <span className="text-[10px] text-muted-foreground font-medium">Responds fast</span>
+          </div>
         </div>
 
-        {/* View Profile Button */}
+        {/* CTA */}
         <Button
           size="default"
+          className="w-full mt-3.5 rounded-xl h-10 font-semibold text-sm group/btn"
           variant={isUnlocked ? "outline" : "default"}
-          className="w-full mt-4 rounded-xl"
           onClick={(e) => {
             e.stopPropagation();
             onClick?.();
           }}
         >
           View Profile
+          <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };
 
