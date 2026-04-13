@@ -321,7 +321,7 @@ const Index = () => {
         </main>
       )}
 
-      {activeTab === "home" && userRole !== null && userRole !== "helper" && (
+      {activeTab === "home" && userRole !== null && userRole !== "helper" && !helpersLoading && (
         <main className="px-4 py-4 pb-24">
           <EmployerHomeView
             dbHelpers={dbHelpers}
