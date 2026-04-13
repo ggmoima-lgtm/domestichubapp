@@ -105,6 +105,7 @@ const EmployerProfile = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<any[]>([]);
+  const [selectedSavedHelper, setSelectedSavedHelper] = useState<any>(null);
 
   useEffect(() => {
     if (user) fetchData();
@@ -136,7 +137,8 @@ const EmployerProfile = () => {
     const { count: unlocks } = await supabase
       .from("profile_unlocks")
       .select("*", { count: "exact", head: true })
-      .eq("employer_id", user.id);
+      .eq("employer_id", user.id)
+      .gt("expires_at", new Date().toISOString());
 
     const { count: reviews } = await supabase
       .from("reviews")
@@ -179,6 +181,7 @@ const EmployerProfile = () => {
       .from("profile_unlocks")
       .select("*, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
       .eq("employer_id", user.id)
+      .gt("expires_at", new Date().toISOString())
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
 
@@ -772,7 +775,14 @@ const EmployerProfile = () => {
                 <p className="text-xs text-muted-foreground py-2">No saved helpers yet. Tap the heart on a helper's card to save them.</p>
               ) : (
                 savedHelpers.map((helper: any) => (
-                  <div key={helper.id} className="flex items-center gap-3 p-2 rounded-xl bg-muted/50">
+                  <div
+                    key={helper.id}
+                    className="flex items-center gap-3 p-2 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => {
+                      setSelectedSavedHelper(helper);
+                      setShowFullProfile(true);
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
                       {helper.avatar_url ? (
                         <img src={helper.avatar_url} alt={helper.full_name} className="w-full h-full object-cover" />
@@ -1070,6 +1080,32 @@ const EmployerProfile = () => {
         } : null}
         isOpen={showFullProfile && !!selectedApplicant}
         onClose={() => { setShowFullProfile(false); setSelectedApplicant(null); }}
+        onHired={fetchData}
+      />
+
+      {/* Saved Helper Profile Sheet */}
+      <WorkerDetailSheet
+        worker={selectedSavedHelper ? {
+          id: selectedSavedHelper.id,
+          name: selectedSavedHelper.full_name || "Unknown",
+          role: selectedSavedHelper.category || "Helper",
+          location: "",
+          rating: 0,
+          reviews: 0,
+          experience: selectedSavedHelper.experience_years ? `${selectedSavedHelper.experience_years} years` : "",
+          monthlyRate: selectedSavedHelper.hourly_rate ? `R${selectedSavedHelper.hourly_rate}/hr` : "",
+          verified: selectedSavedHelper.is_verified || false,
+          avatar: selectedSavedHelper.avatar_url || "/placeholder.svg",
+          skills: selectedSavedHelper.skills || [],
+          bio: selectedSavedHelper.bio || "",
+          languages: selectedSavedHelper.languages || [],
+          availability: selectedSavedHelper.availability || "",
+          introVideo: selectedSavedHelper.intro_video_url || "",
+          availabilityStatus: selectedSavedHelper.availability_status || "available",
+          availableFrom: selectedSavedHelper.available_from || null,
+        } : null}
+        isOpen={!!selectedSavedHelper}
+        onClose={() => setSelectedSavedHelper(null)}
         onHired={fetchData}
       />
     </div>

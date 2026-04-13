@@ -134,24 +134,21 @@ const HelperProfile = () => {
       toast.error("No helper profile found");
       return;
     }
-    if (!editData.bio?.trim()) {
-      toast.error("About Me is required. Please write something about yourself.");
-      return;
-    }
     try {
+      const updatePayload: any = {
+        full_name: editData.full_name,
+        bio: editData.bio || null,
+        skills: editData.skills,
+        languages: editData.languages,
+        experience_years: editData.experience_years,
+        hourly_rate: editData.hourly_rate,
+        availability: editData.availability,
+        has_work_permit: editData.has_work_permit,
+        location: editData.location,
+      };
       const { error } = await supabase
         .from("helpers")
-        .update({
-          full_name: editData.full_name,
-          bio: editData.bio,
-          skills: editData.skills,
-          languages: editData.languages,
-          experience_years: editData.experience_years,
-          hourly_rate: editData.hourly_rate,
-          availability: editData.availability,
-          has_work_permit: editData.has_work_permit,
-          location: editData.location,
-        })
+        .update(updatePayload)
         .eq("id", helper.id);
 
       if (error) {
