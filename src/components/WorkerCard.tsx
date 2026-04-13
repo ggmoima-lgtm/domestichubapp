@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, MapPin, Star, ShieldCheck, Phone, ChevronRight, Clock, Zap } from "lucide-react";
+import { Heart, MapPin, Star, ShieldCheck, Phone, ChevronRight, Clock } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { getPreviewName } from "@/lib/contactMasking";
