@@ -35,6 +35,7 @@ const Index = () => {
   const [creditBalance, setCreditBalance] = useState(0);
   const paymentProcessedRef = useRef(false);
   const [dbHelpers, setDbHelpers] = useState<Worker[]>([]);
+  const [helpersLoading, setHelpersLoading] = useState(true);
   const [showCreditStore, setShowCreditStore] = useState(false);
   const [employerName, setEmployerName] = useState<string>("");
   const [newApplicantCount, setNewApplicantCount] = useState(0);
