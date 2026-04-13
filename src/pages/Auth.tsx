@@ -87,7 +87,7 @@ const Auth = () => {
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
 
-  // Debounced phone existence check
+  // Debounced phone existence check via edge function
   const phoneTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     if (!phone || phone.length < 6) { setPhoneExists(null); return; }
@@ -95,16 +95,22 @@ const Auth = () => {
     clearTimeout(phoneTimerRef.current);
     phoneTimerRef.current = setTimeout(async () => {
       try {
-        const phoneDigits = phone.replace(/\D/g, "");
-        const { data } = await supabase.rpc("lookup_email_by_phone", { p_phone: phoneDigits });
-        setPhoneExists(!!data);
+        const fullPhone = signupCountryCode + phone.replace(/^0+/, "");
+        const { data, error } = await supabase.functions.invoke("check-user-exists", {
+          body: { phone: fullPhone },
+        });
+        if (!error && data) {
+          setPhoneExists(data.phoneExists || false);
+        } else {
+          setPhoneExists(null);
+        }
       } catch { setPhoneExists(null); }
       setCheckingPhone(false);
     }, 600);
     return () => clearTimeout(phoneTimerRef.current);
-  }, [phone]);
+  }, [phone, signupCountryCode]);
 
-  // Debounced email existence check
+  // Debounced email existence check via edge function
   const emailTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     if (!signupEmail || !signupEmail.includes("@")) { setEmailExists(null); return; }
@@ -112,8 +118,14 @@ const Auth = () => {
     clearTimeout(emailTimerRef.current);
     emailTimerRef.current = setTimeout(async () => {
       try {
-        const { data } = await supabase.from("profiles").select("id").eq("email", signupEmail.trim()).maybeSingle();
-        setEmailExists(!!data);
+        const { data, error } = await supabase.functions.invoke("check-user-exists", {
+          body: { email: signupEmail.trim() },
+        });
+        if (!error && data) {
+          setEmailExists(data.emailExists || false);
+        } else {
+          setEmailExists(null);
+        }
       } catch { setEmailExists(null); }
       setCheckingEmail(false);
     }, 600);
@@ -339,14 +351,32 @@ const Auth = () => {
       toast({ title: "Please enter a valid email", variant: "destructive" });
       return;
     }
-    if (phoneExists) {
-      toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
-      return;
+
+    // Do a fresh server-side check before advancing
+    setIsSubmitting(true);
+    try {
+      const fullPhone = signupCountryCode + phone.replace(/^0+/, "");
+      const { data, error } = await supabase.functions.invoke("check-user-exists", {
+        body: { phone: fullPhone, email: signupEmail.trim() || undefined },
+      });
+      if (!error && data) {
+        if (data.phoneExists) {
+          setPhoneExists(true);
+          toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
+        if (data.emailExists) {
+          setEmailExists(true);
+          toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    } catch {
+      // If check fails, allow to proceed (will be caught at signup)
     }
-    if (emailExists) {
-      toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
-      return;
-    }
+    setIsSubmitting(false);
     setSignupStep("password");
   };
 
