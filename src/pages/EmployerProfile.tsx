@@ -772,7 +772,14 @@ const EmployerProfile = () => {
                 <p className="text-xs text-muted-foreground py-2">No saved helpers yet. Tap the heart on a helper's card to save them.</p>
               ) : (
                 savedHelpers.map((helper: any) => (
-                  <div key={helper.id} className="flex items-center gap-3 p-2 rounded-xl bg-muted/50">
+                  <div
+                    key={helper.id}
+                    className="flex items-center gap-3 p-2 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => {
+                      setSelectedSavedHelper(helper);
+                      setShowFullProfile(true);
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary-light shrink-0">
                       {helper.avatar_url ? (
                         <img src={helper.avatar_url} alt={helper.full_name} className="w-full h-full object-cover" />
