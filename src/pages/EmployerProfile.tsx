@@ -449,16 +449,22 @@ const EmployerProfile = () => {
         </div>
       </Card>
 
+      {/* Sticky Save Button when editing */}
+      {isEditing && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}><X size={16} /></Button>
+            <span className="text-sm font-semibold">Household Info</span>
+          </div>
+          <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
+        </div>
+      )}
+
       {/* Household Info */}
       <Card id="household-info">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">Household Info</CardTitle>
-          {isEditing ? (
-            <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}><X size={16} /></Button>
-              <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
-            </div>
-          ) : (
+          {!isEditing && (
             <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
               <Edit3 size={14} /> Edit
             </Button>
@@ -468,7 +474,7 @@ const EmployerProfile = () => {
           {isEditing ? (
             <>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><User size={14} /> Full Name</Label>
+                <Label>Full Name</Label>
                 <Input
                   value={editData.full_name || ""}
                   onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
@@ -476,7 +482,7 @@ const EmployerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><MapPin size={14} /> Location / Area <span className="text-destructive">*</span></Label>
+                <Label>Location / Area <span className="text-destructive">*</span></Label>
                 <LocationAutocomplete
                   value={editLocationData}
                   onChange={(loc) => {
@@ -498,7 +504,7 @@ const EmployerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Category of Need</Label>
+                <Label>Category of Need</Label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => {
                     const selectedCats = (editData.category || "").split(",").filter(Boolean);
@@ -527,7 +533,7 @@ const EmployerProfile = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Briefcase size={14} /> Type of Work</Label>
+                <Label>Type of Work</Label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { id: "full-time", label: "Full-time" },
@@ -551,7 +557,7 @@ const EmployerProfile = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Clock size={14} /> Availability Needed</Label>
+                <Label>Availability Needed</Label>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABILITY_OPTIONS.map((option) => {
                     const isSelected = (editData.availability || []).includes(option);
@@ -573,7 +579,7 @@ const EmployerProfile = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><Mail size={14} /> Email <span className="text-destructive text-xs">*</span></Label>
+                <Label>Email <span className="text-destructive text-xs">*</span></Label>
                 <Input
                   type="email"
                   value={editData.email || ""}
@@ -583,7 +589,7 @@ const EmployerProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1.5"><FileText size={14} /> Custom Notes</Label>
+                <Label>Custom Notes</Label>
                 <Textarea
                   value={editData.custom_notes || ""}
                   onChange={(e) => setEditData({ ...editData, custom_notes: e.target.value })}
