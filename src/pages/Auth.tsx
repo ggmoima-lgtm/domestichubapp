@@ -351,14 +351,32 @@ const Auth = () => {
       toast({ title: "Please enter a valid email", variant: "destructive" });
       return;
     }
-    if (phoneExists) {
-      toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
-      return;
+
+    // Do a fresh server-side check before advancing
+    setIsSubmitting(true);
+    try {
+      const fullPhone = signupCountryCode + phone.replace(/^0+/, "");
+      const { data, error } = await supabase.functions.invoke("check-user-exists", {
+        body: { phone: fullPhone, email: signupEmail.trim() || undefined },
+      });
+      if (!error && data) {
+        if (data.phoneExists) {
+          setPhoneExists(true);
+          toast({ title: "Account already exists", description: "This phone number is already registered. Please log in instead.", variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
+        if (data.emailExists) {
+          setEmailExists(true);
+          toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    } catch {
+      // If check fails, allow to proceed (will be caught at signup)
     }
-    if (emailExists) {
-      toast({ title: "Account already exists", description: "This email is already registered. Please log in instead.", variant: "destructive" });
-      return;
-    }
+    setIsSubmitting(false);
     setSignupStep("password");
   };
 
