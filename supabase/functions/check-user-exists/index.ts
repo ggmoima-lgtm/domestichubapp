@@ -22,43 +22,32 @@ Deno.serve(async (req) => {
 
     if (phone) {
       const cleanPhone = phone.replace(/\D/g, "");
-      // Check profiles table
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("id")
-        .or(`phone.eq.${cleanPhone},phone.eq.+${cleanPhone},phone.eq.0${cleanPhone.slice(2)}`)
-        .limit(1);
-
-      if (profileData && profileData.length > 0) {
-        phoneExists = true;
-      } else {
-        // Check auth.users via admin API
-        const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1 });
-        // Search by phone in users
-        const phoneVariants = [cleanPhone, `+${cleanPhone}`, `0${cleanPhone.slice(2)}`];
-        const found = usersData?.users?.some((u: any) => {
-          const userPhone = (u.phone || "").replace(/\D/g, "");
-          return phoneVariants.some(v => v.replace(/\D/g, "") === userPhone);
-        });
-        // This approach is too expensive for large user bases, use profiles check primarily
+      if (cleanPhone.length >= 6) {
+        // Check profiles table with various phone formats
+        const { data } = await supabase
+          .from("profiles")
+          .select("id")
+          .or(`phone.like.%${cleanPhone.slice(-9)}`)
+          .limit(1);
+        phoneExists = !!(data && data.length > 0);
       }
     }
 
     if (email) {
       const trimmedEmail = email.trim().toLowerCase();
-      // Check profiles table
+      // Check profiles table first
       const { data: profileData } = await supabase
         .from("profiles")
         .select("id")
-        .eq("email", trimmedEmail)
+        .ilike("email", trimmedEmail)
         .limit(1);
 
       if (profileData && profileData.length > 0) {
         emailExists = true;
       } else {
-        // Check auth.users
-        const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        emailExists = usersData?.users?.some((u: any) => u.email?.toLowerCase() === trimmedEmail) || false;
+        // Also check auth.users for email (e.g. placeholder emails for phone-only signups)
+        const { data: userData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+        emailExists = userData?.users?.some((u: any) => u.email?.toLowerCase() === trimmedEmail) || false;
       }
     }
 
