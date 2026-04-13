@@ -543,30 +543,6 @@ const EmployerProfile = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Type of Work</Label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "full-time", label: "Full-time" },
-                    { id: "part-time", label: "Part-time" },
-                    { id: "live-in", label: "Live-in" },
-                    { id: "live-out", label: "Live-out" },
-                  ].map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setEditData({ ...editData, type_of_need: option.id })}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        editData.type_of_need === option.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
                 <Label>Availability Needed</Label>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABILITY_OPTIONS.map((option) => {
@@ -629,9 +605,6 @@ const EmployerProfile = () => {
                     <span>Not set</span>
                   )}
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Briefcase size={14} className="shrink-0" /> <span>{employer?.type_of_need || "Not set"}</span>
               </div>
               <div className="flex items-start gap-2 text-muted-foreground">
                 <Clock size={14} className="shrink-0 mt-0.5" />
