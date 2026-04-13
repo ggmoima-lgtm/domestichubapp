@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Search, X, Briefcase, Settings2, ListChecks, Pencil,
+  Search, X, Briefcase, Settings2, ListChecks, Pencil, Heart,
   ChevronRight, Users, Coins, SlidersHorizontal, MapPin, Eye, Zap,
   Camera,
 } from "lucide-react";
