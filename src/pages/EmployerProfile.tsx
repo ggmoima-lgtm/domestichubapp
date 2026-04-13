@@ -32,7 +32,7 @@ import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 import { mockWorkers } from "@/data/mockWorkers";
-import { getPreviewName } from "@/lib/contactMasking";
+import { getPreviewName, maskContactInfo } from "@/lib/contactMasking";
 
 const CATEGORIES = [
   { value: "nanny", label: "Nanny" },
@@ -578,7 +578,14 @@ const EmployerProfile = () => {
                 <Label>Custom Notes</Label>
                 <Textarea
                   value={editData.custom_notes || ""}
-                  onChange={(e) => setEditData({ ...editData, custom_notes: e.target.value })}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const masked = maskContactInfo(raw);
+                    if (masked !== raw) {
+                      toast.error("Contact information is not allowed in notes");
+                    }
+                    setEditData({ ...editData, custom_notes: masked });
+                  }}
                   placeholder="Any special requirements or additional information..."
                   rows={3}
                 />

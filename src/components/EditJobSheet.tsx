@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { X, Briefcase } from "lucide-react";
+import { maskContactInfo } from "@/lib/contactMasking";
 
 interface EditJobSheetProps {
   isOpen: boolean;
@@ -140,7 +141,12 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground">Description</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="rounded-xl" />
+            <Textarea value={description} onChange={(e) => {
+              const raw = e.target.value;
+              const masked = maskContactInfo(raw);
+              if (masked !== raw) toast.error("Contact information is not allowed in job descriptions");
+              setDescription(masked);
+            }} rows={3} className="rounded-xl" />
           </div>
 
           {category !== "gardener" && (
