@@ -26,6 +26,10 @@ const normalizePhoneCandidates = (phone: string, countryCode?: string) => {
     candidates.add(`0${digits}`);
   }
 
+   if (digits.length === 10 && digits.startsWith("0")) {
+     candidates.add(digits.slice(1));
+   }
+
   if (countryDigits && digits.startsWith(countryDigits)) {
     const withoutCountryCode = digits.slice(countryDigits.length);
 
@@ -38,11 +42,53 @@ const normalizePhoneCandidates = (phone: string, countryCode?: string) => {
     }
   }
 
+   if (countryDigits && digits.length === 9) {
+     candidates.add(`${countryDigits}${digits}`);
+   }
+
   if (countryDigits && digits.length === 10 && digits.startsWith("0")) {
     candidates.add(`${countryDigits}${digits.slice(1)}`);
   }
 
   return [...candidates].filter((candidate) => candidate.length >= 9 && candidate.length <= 15);
+};
+
+const findFirstMatchingPhoneRecord = async (
+  client: any,
+  table: "profiles" | "helpers",
+  phoneCandidates: string[],
+) => {
+  const uniqueCandidates = [...new Set(phoneCandidates)];
+
+  const { data: exactMatch } = await client
+    .from(table)
+    .select("user_id, email, phone")
+    .in("phone", uniqueCandidates)
+    .limit(1)
+    .maybeSingle();
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  const suffixes = [...new Set(
+    uniqueCandidates
+      .map((candidate) => candidate.slice(-9))
+      .filter((candidate) => candidate.length === 9)
+  )];
+
+  if (suffixes.length === 0) {
+    return null;
+  }
+
+  const { data: looseMatch } = await client
+    .from(table)
+    .select("user_id, email, phone")
+    .or(suffixes.map((candidate) => `phone.like.%${candidate}`).join(","))
+    .limit(1)
+    .maybeSingle();
+
+  return looseMatch ?? null;
 };
 
 Deno.serve(async (req) => {
@@ -81,23 +127,12 @@ Deno.serve(async (req) => {
     );
 
     // Step 1: Check if the phone number exists in profiles
-    const { data: profile } = await serviceClient
-      .from("profiles")
-      .select("user_id, email, phone")
-      .in("phone", phoneCandidates)
-      .limit(1)
-      .maybeSingle();
+    const profile = await findFirstMatchingPhoneRecord(serviceClient, "profiles", phoneCandidates);
 
     // If no profile found, also check helpers table
     let helperProfile = null;
     if (!profile) {
-      const { data: helper } = await serviceClient
-        .from("helpers")
-        .select("user_id, email, phone")
-        .in("phone", phoneCandidates)
-        .limit(1)
-        .maybeSingle();
-      helperProfile = helper;
+      helperProfile = await findFirstMatchingPhoneRecord(serviceClient, "helpers", phoneCandidates);
     }
 
     const foundProfile = profile || helperProfile;
