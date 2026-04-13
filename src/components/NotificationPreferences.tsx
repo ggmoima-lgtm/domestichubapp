@@ -11,31 +11,28 @@ interface Prefs {
   messages: boolean;
   profile_unlocks: boolean;
   hire_updates: boolean;
-  reviews: boolean;
   credits: boolean;
-  admin_actions: boolean;
+  interviews: boolean;
 }
 
 const defaultPrefs: Prefs = {
   messages: true,
   profile_unlocks: true,
   hire_updates: true,
-  reviews: true,
   credits: true,
-  admin_actions: true,
+  interviews: true,
 };
 
 const labels: Record<keyof Prefs, string> = {
   messages: "New Messages",
   profile_unlocks: "Profile Unlocked",
   hire_updates: "Hire Updates",
-  reviews: "Review Requests",
   credits: "Credit Alerts",
-  admin_actions: "Admin Actions",
+  interviews: "New Applications",
 };
 
-// Keys to hide for helpers (credits are employer-only)
-const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks", "admin_actions"];
+// Keys to hide for helpers
+const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks", "interviews"];
 
 interface NotificationPreferencesProps {
   userRole?: string;
@@ -57,9 +54,8 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
               messages: data.messages,
               profile_unlocks: data.profile_unlocks,
               hire_updates: data.hire_updates,
-              reviews: data.reviews,
               credits: data.credits,
-              admin_actions: data.admin_actions,
+              interviews: data.interviews,
             });
           }
         });
