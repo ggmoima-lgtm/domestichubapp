@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Search, X, Briefcase, Settings2, ListChecks, Pencil,
+  Search, X, Briefcase, Settings2, ListChecks, Pencil, Heart,
   ChevronRight, Users, Coins, SlidersHorizontal, MapPin, Eye, Zap,
   Camera,
 } from "lucide-react";
@@ -122,14 +122,35 @@ const EmployerHomeView = ({
 
     const matchesVerified = !filters.verifiedOnly || worker.verified;
 
-    return matchesSearch && matchesLocation && matchesSkills && matchesExperience && matchesVerified;
+    const matchesJobTypes =
+      filters.jobTypes.length === 0 ||
+      filters.jobTypes.some((jt) =>
+        (worker.availability || "").toLowerCase().includes(jt.toLowerCase())
+      );
+
+    const matchesLanguages =
+      filters.languages.length === 0 ||
+      filters.languages.some((lang) =>
+        (worker.languages || []).some((wl) => wl.toLowerCase().includes(lang.toLowerCase()))
+      );
+
+    const matchesRating = worker.rating >= filters.minRating;
+
+    const matchesUnlocked = !filters.unlockedOnly || isUnlockedByEmployer;
+
+    return matchesSearch && matchesLocation && matchesSkills && matchesExperience && matchesVerified && matchesJobTypes && matchesLanguages && matchesRating && matchesUnlocked;
   });
 
   const activeFilterCount =
     filters.locations.length +
     filters.skills.length +
+    filters.jobTypes.length +
+    filters.languages.length +
     (filters.experienceMin > 0 ? 1 : 0) +
-    (filters.verifiedOnly ? 1 : 0);
+    (filters.verifiedOnly ? 1 : 0) +
+    (filters.unlockedOnly ? 1 : 0) +
+    (filters.minRating > 0 ? 1 : 0) +
+    (filters.nearMe ? 1 : 0);
 
   const firstName = employerName || "there";
 
@@ -202,7 +223,7 @@ const EmployerHomeView = ({
           onClick={() => onTabChange("hub")}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
         >
-          <ListChecks size={14} /> Unlocked
+          <Heart size={14} /> Saved
         </button>
         <button
           onClick={() => onTabChange("profile")}

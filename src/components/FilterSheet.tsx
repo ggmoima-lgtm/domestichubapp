@@ -16,7 +16,6 @@ export interface FilterState {
   languages: string[];
   verifiedOnly: boolean;
   minRating: number;
-  serviceType: string;
 }
 
 export const defaultFilters: FilterState = {
@@ -30,7 +29,6 @@ export const defaultFilters: FilterState = {
   languages: [],
   verifiedOnly: false,
   minRating: 0,
-  serviceType: "all",
 };
 
 interface FilterSheetProps {
@@ -108,21 +106,6 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
             </div>
           </div>
 
-          {/* Service Type */}
-          <div>
-            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2 text-sm"><Briefcase size={16} className="text-primary" /> What are you looking for?</h3>
-            <div className="flex gap-2">
-              {[
-                { label: "All", value: "all" },
-                { label: "🏠 Domestic", value: "domestic" },
-                { label: "🌱 Gardener", value: "gardening" },
-              ].map((opt) => (
-                <Badge key={opt.value} variant={local.serviceType === opt.value ? "default" : "outline"} className="cursor-pointer transition-all flex-1 justify-center" onClick={() => setLocal((p) => ({ ...p, serviceType: opt.value }))}>
-                  {opt.label}
-                </Badge>
-              ))}
-            </div>
-          </div>
 
           <div>
             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2 text-sm"><Star size={16} className="text-primary" /> Minimum Rating</h3>
