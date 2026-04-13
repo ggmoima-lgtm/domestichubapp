@@ -256,7 +256,6 @@ const WorkerCard = ({
             </span>
           )}
         </div>
-        </div>
 
         {/* CTA */}
         <Button
