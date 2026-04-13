@@ -10,7 +10,7 @@ import { toast } from "sonner";
 type HelperStatus = "available" | "interviewing" | "hired_platform" | "hired_external" | "unavailable" | "suspended";
 
 const statusConfig: Record<HelperStatus, { label: string; badgeClass: string; dotClass: string }> = {
-  available: { label: "Available Today", badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200", dotClass: "bg-emerald-500" },
+  available: { label: "Open for Work", badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200", dotClass: "bg-emerald-500" },
   interviewing: { label: "In Conversation", badgeClass: "bg-blue-50 text-blue-700 border-blue-200", dotClass: "bg-blue-500" },
   hired_platform: { label: "Currently Hired", badgeClass: "bg-amber-50 text-amber-700 border-amber-200", dotClass: "bg-amber-500" },
   hired_external: { label: "Currently Employed", badgeClass: "bg-amber-50 text-amber-700 border-amber-200", dotClass: "bg-amber-500" },
@@ -189,17 +189,19 @@ const WorkerCard = ({
             )}
 
             {/* Rating */}
-            <div className="flex items-center gap-1 mt-1.5">
-              <Star size={13} className="text-amber-400 fill-amber-400" />
-              <span className="text-xs font-semibold text-foreground">
-                {rating > 0 ? rating.toFixed(1) : "New"}
-              </span>
-              {reviews > 0 && (
-                <span className="text-[11px] text-muted-foreground">
-                  ({reviews} review{reviews !== 1 ? "s" : ""})
+            {rating > 0 && (
+              <div className="flex items-center gap-1 mt-1.5">
+                <Star size={13} className="text-amber-400 fill-amber-400" />
+                <span className="text-xs font-semibold text-foreground">
+                  {rating.toFixed(1)}
                 </span>
-              )}
-            </div>
+                {reviews > 0 && (
+                  <span className="text-[11px] text-muted-foreground">
+                    ({reviews} review{reviews !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Availability badge */}
             <div className="mt-2">
@@ -223,12 +225,6 @@ const WorkerCard = ({
             <Phone size={11} className="text-primary" />
             <span className="text-[11px] font-medium text-primary">Phone Verified</span>
           </div>
-          <div className="flex items-center gap-1 ml-auto">
-            <span className="text-[11px] font-semibold text-foreground">
-              {expYears > 0 ? `${expYears}yr${expYears !== 1 ? "s" : ""} exp` : "New"}
-            </span>
-          </div>
-        </div>
 
         {/* Gardener skills */}
         {isGardener && skillsGardening.length > 0 && (
@@ -252,10 +248,13 @@ const WorkerCard = ({
             <Clock size={11} className="text-emerald-500" />
             <span className="text-[10px] text-muted-foreground font-medium">Active this week</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Zap size={11} className="text-amber-500" />
-            <span className="text-[10px] text-muted-foreground font-medium">Responds fast</span>
-          </div>
+          <span className="text-[10px] text-muted-foreground font-medium">Responds fast</span>
+          {expYears > 0 && (
+            <span className="text-[10px] text-muted-foreground font-medium ml-auto">
+              {expYears}yr{expYears !== 1 ? "s" : ""} exp
+            </span>
+          )}
+        </div>
         </div>
 
         {/* CTA */}
