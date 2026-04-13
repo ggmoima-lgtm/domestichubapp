@@ -390,8 +390,13 @@ const EmployerProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-muted-foreground">Loading profile...</div>
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background gap-4">
+        <img
+          src={new URL("../assets/logo.jpg", import.meta.url).href}
+          alt="Domestic Hub"
+          className="w-24 h-24 object-contain rounded-2xl shadow-lg animate-[heartbeat_1.2s_ease-in-out_infinite]"
+        />
+        <p className="text-muted-foreground text-xs font-medium">Loading profile...</p>
       </div>
     );
   }
