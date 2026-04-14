@@ -546,21 +546,24 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
 
           {/* Quick Info - FREE */}
           <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="bg-secondary rounded-2xl p-3 text-center">
-              <p className="text-lg font-bold text-secondary-foreground">{worker.experience}</p>
-              <p className="text-xs text-muted-foreground">experience</p>
+            <div className="bg-muted/50 rounded-2xl p-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Briefcase size={16} className="text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">{worker.experience}</p>
+                <p className="text-[11px] text-muted-foreground">experience</p>
+              </div>
             </div>
-            {worker.location ? (
-              <div className="bg-accent rounded-2xl p-3 text-center">
-                <div className="flex justify-center"><MapPin size={18} className="text-accent-foreground" /></div>
-                <p className="text-xs text-muted-foreground mt-1">{worker.location}</p>
+            <div className="bg-muted/50 rounded-2xl p-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin size={16} className="text-primary" />
               </div>
-            ) : (
-              <div className="bg-accent rounded-2xl p-3 text-center">
-                <div className="flex justify-center"><MapPin size={18} className="text-accent-foreground" /></div>
-                <p className="text-xs text-muted-foreground mt-1">Location not set</p>
+              <div>
+                <p className="text-sm font-bold text-foreground truncate">{worker.location || "Not set"}</p>
+                <p className="text-[11px] text-muted-foreground">location</p>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Badges - FREE */}
