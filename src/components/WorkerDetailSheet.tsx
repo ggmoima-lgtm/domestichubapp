@@ -788,42 +788,29 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
             </>
           ) : (
             <>
-              {/* Video is shown in the main section above */}
-
-              {/* Locked preview for work history & references */}
-              <div className="mb-5 p-4 bg-muted/30 rounded-2xl border border-border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lock size={14} className="text-muted-foreground" />
-                  <h3 className="font-bold text-foreground text-sm">Work History, References & Reviews</h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Unlock this profile to view full work history, employer references, and detailed reviews.
-                </p>
-              </div>
-
-              {/* Contact details locked - messaging only */}
-              <div className="mb-5 p-4 bg-muted/30 rounded-2xl border border-border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lock size={14} className="text-muted-foreground" />
-                  <h3 className="font-bold text-foreground text-sm">Direct Messaging</h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Unlock this profile to chat directly with this helper.
-                </p>
-              </div>
-
-              {/* Unlock CTA */}
+              {/* Unlock CTA - all locked items consolidated */}
               <div className="mb-4 p-5 bg-gradient-to-b from-primary/5 to-primary/10 rounded-2xl border border-primary/15">
                 <p className="text-base font-bold text-foreground mb-3">Unlock this profile to:</p>
-                <ul className="space-y-2 mb-4">
+                <ul className="space-y-2.5 mb-4">
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    ✔ View full details
+                    <Check size={16} className="text-primary shrink-0" />
+                    View full details & contact info
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    ✔ Chat directly
+                    <Check size={16} className="text-primary shrink-0" />
+                    Watch intro video
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
-                    ✔ Connect outside the app
+                    <Check size={16} className="text-primary shrink-0" />
+                    Work history, references & reviews
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-foreground">
+                    <Check size={16} className="text-primary shrink-0" />
+                    Chat directly
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-foreground">
+                    <Check size={16} className="text-primary shrink-0" />
+                    Connect outside the app
                   </li>
                 </ul>
                 <p className="text-xs text-muted-foreground text-center mb-4">
