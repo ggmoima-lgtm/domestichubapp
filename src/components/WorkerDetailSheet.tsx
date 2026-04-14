@@ -446,15 +446,15 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               {/* Service type badge */}
               <div className="flex flex-wrap gap-2 mt-1">
                 {(worker as any).serviceType === "both" ? (
-                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">🏠🌱 Domestic + Gardening</span>
+                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Domestic + Gardening</span>
                 ) : (worker as any).serviceType === "gardening" || worker.role.toLowerCase().includes("gardener") ? (
-                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">🌱 Gardener</span>
+                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Gardener</span>
                 ) : (
-                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">🏠 Domestic Helper</span>
+                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Domestic Helper</span>
                 )}
                 {((worker as any).serviceType === "gardening" || (worker as any).serviceType === "both") && (
                   <span className="text-xs font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                    {(worker as any).hasTools ? "🧰 Own Tools" : "🧰 No Tools"}
+                    {(worker as any).hasTools ? "Own Tools" : "No Tools"}
                   </span>
                 )}
               </div>
@@ -463,13 +463,12 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                 <span className="font-bold text-sm">{worker.rating}</span>
                 <span className="text-sm text-muted-foreground">({worker.reviews})</span>
               </div>
-              {/* Trust badges */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {worker.verified && (
-                  <span className="text-xs text-primary font-medium">✅ ID Verified</span>
+                  <span className="text-xs text-primary font-medium">ID Verified</span>
                 )}
-                <span className="text-xs text-primary font-medium">📱 Phone Verified</span>
-                <span className="text-xs text-green-600 font-medium">🟢 Recently Active</span>
+                <span className="text-xs text-primary font-medium">Phone Verified</span>
+                <span className="text-xs text-green-600 font-medium">Recently Active</span>
               </div>
             </div>
           </div>
