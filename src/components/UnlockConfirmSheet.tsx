@@ -106,7 +106,13 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
               <div className="bg-muted/40 rounded-2xl p-4 mb-4">
                 <p className="text-xs font-bold text-foreground mb-3 uppercase tracking-wide">Unlock this profile to:</p>
                 <div className="space-y-2">
-                  {["View full details", "Chat directly", "Connect outside the app"].map((item) => (
+                  {[
+                    "View full details & contact info",
+                    "Watch intro video",
+                    "Work history, references & reviews",
+                    "Chat directly",
+                    "Connect outside the app",
+                  ].map((item) => (
                     <div key={item} className="flex items-center gap-2">
                       <CheckCircle size={14} className="text-primary shrink-0" />
                       <span className="text-sm text-foreground">{item}</span>
