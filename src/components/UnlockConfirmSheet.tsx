@@ -109,7 +109,7 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
                   {[
                     "View full details & contact info",
                     "Watch intro video",
-                    "Work history, references & reviews",
+                    "Work history & reviews",
                     "Chat directly",
                     "Connect outside the app",
                   ].map((item) => (

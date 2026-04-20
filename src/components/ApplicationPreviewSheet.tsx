@@ -330,7 +330,7 @@ const ApplicationPreviewSheet = ({
                   <p className="text-xs font-bold text-muted-foreground">Unlock to see more</p>
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {["Full name", "Intro video", "Work history", "References", "Direct messaging", "Full bio"].map(
+                  {["Full name", "Intro video", "Work history", "Direct messaging", "Full bio"].map(
                     (item) => (
                       <p key={item} className="text-[11px] text-muted-foreground/60 flex items-center gap-1">
                         <Lock size={10} /> {item}
