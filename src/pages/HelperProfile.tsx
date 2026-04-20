@@ -799,7 +799,9 @@ const HelperProfile = () => {
       </Card>
 
       {/* Notifications */}
-      <NotificationPreferences userRole="helper" />
+      <div id="notification-preferences" className="scroll-mt-20">
+        <NotificationPreferences userRole="helper" />
+      </div>
 
       {/* Account Controls */}
       <Card>

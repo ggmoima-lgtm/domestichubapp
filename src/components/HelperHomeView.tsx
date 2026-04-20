@@ -270,7 +270,7 @@ const HelperHomeView = () => {
       {/* ─── Filter Pills (LinkedIn-style) ─── */}
       <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none">
         <button
-          onClick={() => navigate("/home?tab=profile")}
+          onClick={() => navigate("/home?tab=profile#notification-preferences")}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
         >
           <Settings2 size={14} /> Preferences
