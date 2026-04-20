@@ -1,5 +1,4 @@
-import { forwardRef, useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { forwardRef } from "react";
 import logo from "@/assets/logo.jpg";
 
 export interface InvoiceTemplateData {
