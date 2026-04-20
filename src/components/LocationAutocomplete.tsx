@@ -332,17 +332,17 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
       {showPermissionPrompt && (
         <div className="bg-accent/20 border border-accent rounded-xl p-4 space-y-3">
           <p className="text-sm text-foreground font-medium">
-            Domestic Hub works best with your location enabled.
+            Location permission was denied.
           </p>
           <p className="text-xs text-muted-foreground">
-            Turn on location to automatically detect your area.
+            To use precise location, allow location access in your browser or device settings, then try again.
           </p>
           <div className="flex gap-2">
             <Button size="sm" onClick={doGeolocate} className="flex-1">
-              Allow
+              Try again
             </Button>
             <Button size="sm" variant="outline" onClick={() => setShowPermissionPrompt(false)} className="flex-1">
-              Not Now
+              Dismiss
             </Button>
           </div>
         </div>
