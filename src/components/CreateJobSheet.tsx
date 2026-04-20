@@ -54,6 +54,11 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
   const [salaryMax, setSalaryMax] = useState("");
   const [negotiable, setNegotiable] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Category-specific
+  const [numChildren, setNumChildren] = useState("");
+  const [childAges, setChildAges] = useState("");
+  const [elderMobility, setElderMobility] = useState("");
+  const [medicalNeeds, setMedicalNeeds] = useState("");
 
   if (!isOpen) return null;
 
