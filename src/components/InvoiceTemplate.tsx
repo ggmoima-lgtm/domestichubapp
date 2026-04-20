@@ -73,47 +73,49 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateDat
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 32,
-            gap: 16,
+            alignItems: "center",
+            marginBottom: 28,
+            gap: 12,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: "0 1 auto" }}>
             <img
               src={logo}
               alt="Domestic Hub"
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
+                width: 40,
+                height: 40,
+                borderRadius: 10,
                 objectFit: "contain",
                 background: "#FFFFFF",
+                flexShrink: 0,
               }}
             />
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.2 }}>
                 Domestic Hub
               </div>
-              <div style={{ fontSize: 12, color: TEXT_MUTED }}>
+              <div style={{ fontSize: 11, color: TEXT_MUTED, lineHeight: 1.2, marginTop: 2 }}>
                 domestichub.co.za
               </div>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
             <div
               style={{
-                fontSize: 22,
+                fontSize: 16,
                 fontWeight: 700,
-                letterSpacing: 4,
+                letterSpacing: 2.5,
                 color: TEAL,
+                lineHeight: 1.1,
               }}
             >
               INVOICE
             </div>
-            <div style={{ fontSize: 13, color: TEXT_DARK, fontWeight: 600, marginTop: 6 }}>
+            <div style={{ fontSize: 11, color: TEXT_DARK, fontWeight: 600, marginTop: 4 }}>
               {invoice.invoice_number}
             </div>
-            <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: TEXT_MUTED, marginTop: 1 }}>
               {dateStr}
             </div>
           </div>
