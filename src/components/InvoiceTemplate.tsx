@@ -1,5 +1,4 @@
-import { forwardRef, useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { forwardRef } from "react";
 import logo from "@/assets/logo.jpg";
 
 export interface InvoiceTemplateData {
@@ -26,28 +25,12 @@ const BORDER = "#EEF2F1";
 
 const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateData }>(
   ({ invoice }, ref) => {
-    const [qrDataUrl, setQrDataUrl] = useState<string>("");
     const isPaid = invoice.status?.toLowerCase() === "paid";
     const dateStr = new Date(invoice.created_at).toLocaleDateString("en-ZA", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-
-    useEffect(() => {
-      const payload = JSON.stringify({
-        inv: invoice.invoice_number,
-        ref: invoice.payment_reference,
-        total: Number(invoice.total).toFixed(2),
-      });
-      QRCode.toDataURL(payload, {
-        width: 200,
-        margin: 0,
-        color: { dark: TEXT_DARK, light: "#FFFFFF" },
-      })
-        .then(setQrDataUrl)
-        .catch(() => setQrDataUrl(""));
-    }, [invoice]);
 
     return (
       <div
@@ -60,7 +43,7 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateDat
           color: TEXT_DARK,
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-          padding: 40,
+          padding: 24,
           borderRadius: 16,
           boxShadow: "0 4px 24px rgba(15, 23, 42, 0.06)",
           fontSize: 14,
@@ -73,47 +56,49 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateDat
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 32,
-            gap: 16,
+            alignItems: "center",
+            marginBottom: 28,
+            gap: 12,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: "0 1 auto" }}>
             <img
               src={logo}
               alt="Domestic Hub"
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
+                width: 40,
+                height: 40,
+                borderRadius: 10,
                 objectFit: "contain",
                 background: "#FFFFFF",
+                flexShrink: 0,
               }}
             />
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.2 }}>
                 Domestic Hub
               </div>
-              <div style={{ fontSize: 12, color: TEXT_MUTED }}>
+              <div style={{ fontSize: 11, color: TEXT_MUTED, lineHeight: 1.2, marginTop: 2 }}>
                 domestichub.co.za
               </div>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
             <div
               style={{
-                fontSize: 22,
+                fontSize: 16,
                 fontWeight: 700,
-                letterSpacing: 4,
+                letterSpacing: 2.5,
                 color: TEAL,
+                lineHeight: 1.1,
               }}
             >
               INVOICE
             </div>
-            <div style={{ fontSize: 13, color: TEXT_DARK, fontWeight: 600, marginTop: 6 }}>
+            <div style={{ fontSize: 11, color: TEXT_DARK, fontWeight: 600, marginTop: 4 }}>
               {invoice.invoice_number}
             </div>
-            <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: TEXT_MUTED, marginTop: 1 }}>
               {dateStr}
             </div>
           </div>
@@ -266,59 +251,38 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateDat
           </div>
         </div>
 
-        {/* QR + Reference */}
+        {/* Reference */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 16,
-            padding: "20px 0",
+            padding: "16px 0",
             borderTop: `1px solid ${BORDER}`,
             borderBottom: `1px solid ${BORDER}`,
             marginBottom: 20,
           }}
         >
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: 1.5,
-                color: TEXT_MUTED,
-                fontWeight: 600,
-                marginBottom: 4,
-              }}
-            >
-              REFERENCE NUMBER
-            </div>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: TEXT_DARK,
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                wordBreak: "break-all",
-              }}
-            >
-              {invoice.payment_reference || invoice.transaction_id || "—"}
-            </div>
+          <div
+            style={{
+              fontSize: 10,
+              letterSpacing: 1.5,
+              color: TEXT_MUTED,
+              fontWeight: 600,
+              marginBottom: 4,
+            }}
+          >
+            REFERENCE NUMBER
           </div>
-          {qrDataUrl && (
-            <img
-              src={qrDataUrl}
-              alt="QR Code"
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 8,
-                background: "#FFFFFF",
-                padding: 4,
-                border: `1px solid ${BORDER}`,
-              }}
-            />
-          )}
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: TEXT_DARK,
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              wordBreak: "break-all",
+            }}
+          >
+            {invoice.payment_reference || invoice.transaction_id || "—"}
+          </div>
         </div>
-
         {/* Footer */}
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 11, color: TEXT_MUTED, marginBottom: 4, lineHeight: 1.5 }}>
