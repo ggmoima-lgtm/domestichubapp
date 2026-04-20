@@ -870,7 +870,7 @@ const EmployerProfile = () => {
                         variant={app.status === "pending" ? "secondary" : app.status === "accepted" ? "default" : app.status === "shortlisted" ? "outline" : "destructive"}
                         className="text-[10px] shrink-0"
                       >
-                        {app.status === "pending" ? "⏳ Pending" : app.status === "accepted" ? "✅ Accepted" : app.status === "shortlisted" ? "⭐ Shortlisted" : app.status === "rejected" ? "❌ Declined" : app.status}
+                        {app.status === "pending" ? "Pending" : app.status === "accepted" ? "Accepted" : app.status === "shortlisted" ? "Shortlisted" : app.status === "rejected" ? "Declined" : app.status}
                       </Badge>
                     </div>
                     {app.status === "pending" && (
@@ -881,14 +881,14 @@ const EmployerProfile = () => {
                           className="h-7 text-[10px] rounded-lg"
                           onClick={() => updateApplicationStatus(app.id, "shortlisted", app.helpers?.user_id, app.job_title)}
                         >
-                          ⭐ Shortlist
+                          Shortlist
                         </Button>
                         <Button
                           size="sm"
                           className="h-7 text-[10px] rounded-lg"
                           onClick={() => updateApplicationStatus(app.id, "accepted", app.helpers?.user_id, app.job_title)}
                         >
-                          ✅ Accept
+                          Accept
                         </Button>
                         <Button
                           size="sm"
@@ -896,7 +896,7 @@ const EmployerProfile = () => {
                           className="h-7 text-[10px] rounded-lg border-destructive text-destructive hover:bg-destructive/10"
                           onClick={() => updateApplicationStatus(app.id, "rejected", app.helpers?.user_id, app.job_title)}
                         >
-                          ✕ Decline
+                          Decline
                         </Button>
                       </div>
                     )}

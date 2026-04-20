@@ -14,7 +14,7 @@ const SplashScreen = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-primary">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-primary" style={{ backgroundColor: 'hsl(var(--primary))' }}>
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

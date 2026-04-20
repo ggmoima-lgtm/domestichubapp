@@ -47,7 +47,18 @@ const ResetPassword = () => {
       toast({ title: "Password updated!", description: "You can now log in with your new password." });
       navigate("/auth");
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      const msg = error?.message || "";
+      let friendly = "Something went wrong. Please try again.";
+      if (msg.toLowerCase().includes("expired") || msg.toLowerCase().includes("invalid")) {
+        friendly = "Your reset link has expired. Please request a new one.";
+      } else if (msg.toLowerCase().includes("same") || msg.toLowerCase().includes("different from the old")) {
+        friendly = "New password must be different from your current password.";
+      } else if (msg.toLowerCase().includes("weak") || msg.toLowerCase().includes("password")) {
+        friendly = "Please choose a stronger password (min 6 characters).";
+      } else if (msg.toLowerCase().includes("network") || msg.toLowerCase().includes("fetch")) {
+        friendly = "Connection issue. Check your internet and try again.";
+      }
+      toast({ title: "Couldn't reset password", description: friendly, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
