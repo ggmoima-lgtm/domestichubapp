@@ -231,11 +231,18 @@ const HelperRegistration = () => {
 
   // Phone OTP removed — already verified at signup
 
-  const uploadFile = async (userId: string, file: File, bucket: string): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
+  const uploadFile = async (userId: string, file: File, bucket: string): Promise<string> => {
+    const fileExt = (file.name.split('.').pop() || 'bin').toLowerCase();
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
-    const { error } = await supabase.storage.from(bucket).upload(fileName, file);
-    if (error) { console.error(`Upload error (${bucket}):`, error); return null; }
+    const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
+      upsert: true,
+      contentType: file.type || undefined,
+      cacheControl: '3600',
+    });
+    if (error) {
+      console.error(`Upload error (${bucket}):`, error);
+      throw new Error(`Failed to upload to ${bucket}: ${error.message}`);
+    }
     const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
     return publicUrl;
   };
