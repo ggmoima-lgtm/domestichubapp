@@ -572,7 +572,7 @@ const HelperRegistration = () => {
         {/* Domestic category selection */}
         {(serviceType === "domestic" || serviceType === "both") && (
           <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Category *</h2>
+            <h2 className="text-base font-semibold text-foreground">Domestic Category *</h2>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
                 const isChecked = formData.category.includes(cat.id);
@@ -603,7 +603,7 @@ const HelperRegistration = () => {
         {/* Domestic Skills */}
         {(serviceType === "domestic" || serviceType === "both") && (
           <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">🏠 Domestic Skills *</h2>
+            <h2 className="text-base font-semibold text-foreground">Domestic Skills *</h2>
             <div className="flex flex-wrap gap-2">
               {domesticSkillOptions.map((skill) => (
                 <Badge
@@ -624,7 +624,7 @@ const HelperRegistration = () => {
         {/* Gardening Skills */}
         {(serviceType === "gardening" || serviceType === "both") && (
           <section className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">🌱 Gardening Services *</h2>
+            <h2 className="text-base font-semibold text-foreground">Gardening Services *</h2>
             <div className="flex flex-wrap gap-2">
               {gardeningSkillOptions.map((skill) => (
                 <Badge
