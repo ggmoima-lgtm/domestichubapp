@@ -420,13 +420,6 @@ const HelperHomeView = () => {
                     )}
                   </div>
 
-                  {/* Dismiss Button */}
-                  <button
-                    className="p-1 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                    onClick={() => setDismissedIds((prev) => new Set(prev).add(job.id))}
-                  >
-                    <X size={18} />
-                  </button>
                 </div>
               </div>
             );
