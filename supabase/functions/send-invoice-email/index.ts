@@ -19,123 +19,110 @@ function generateInvoiceHtml(invoice: {
   invoiceNumber: string;
   invoiceDate: string;
   fullName: string;
+  email: string;
   credits: number;
   amount: number;
   tax: string;
   total: string;
   paymentRef: string;
   transactionId: string;
+  status: string;
 }) {
+  const isPaid = invoice.status?.toLowerCase() === "paid";
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f0; margin: 0; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #5bb5a2, #4a9e8e); padding: 32px; text-align: center; color: white; }
-    .logo { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px; background: white; object-fit: contain; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
-    .header p { margin: 6px 0 0; opacity: 0.9; font-size: 14px; }
-    .paid-badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 6px 20px; border-radius: 20px; font-size: 14px; font-weight: 700; letter-spacing: 2px; margin-top: 12px; border: 2px solid rgba(255,255,255,0.5); }
-    .body { padding: 32px; }
-    .invoice-meta { margin-bottom: 24px; }
-    .meta-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-    .meta-label { color: #999; }
-    .meta-value { color: #333; font-weight: 600; }
-    .divider { border: none; border-top: 1px solid #eee; margin: 20px 0; }
-    .greeting { font-size: 14px; color: #666; margin-bottom: 20px; }
-    .greeting strong { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-    th { text-align: left; padding: 12px; background: #f8f8f5; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 2px solid #eee; }
-    th:last-child { text-align: right; }
-    td { padding: 14px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333; }
-    td:last-child { text-align: right; font-weight: 600; }
-    .subtotal-row td { color: #666; font-size: 13px; }
-    .tax-row td { color: #666; font-size: 13px; border-bottom: 2px solid #5bb5a2; }
-    .total-row td { font-weight: 700; font-size: 18px; color: #5bb5a2; border-bottom: none; }
-    .company-details { padding: 24px 32px; background: #f8f8f5; }
-    .company-details h3 { margin: 0 0 8px; font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; }
-    .company-details p { margin: 2px 0; font-size: 12px; color: #666; }
-    .footer { padding: 20px 32px; text-align: center; font-size: 11px; color: #bbb; border-top: 1px solid #f0f0f0; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice ${invoice.invoiceNumber}</title>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <img src="${LOGO_URL}" alt="Domestic Hub" class="logo" />
-      <h1>${COMPANY_DETAILS.name}</h1>
-      <p>Credit Purchase Invoice</p>
-      <div class="paid-badge">✓ PAID</div>
-    </div>
-    <div class="body">
-      <div class="invoice-meta">
-        <div class="meta-row">
-          <span class="meta-label">Invoice Number</span>
-          <span class="meta-value">${invoice.invoiceNumber}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">Date</span>
-          <span class="meta-value">${invoice.invoiceDate}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">Payment Reference</span>
-          <span class="meta-value">${invoice.paymentRef}</span>
-        </div>
-        ${invoice.transactionId ? `<div class="meta-row">
-          <span class="meta-label">Transaction ID</span>
-          <span class="meta-value">${invoice.transactionId}</span>
-        </div>` : ""}
-        <div class="meta-row">
-          <span class="meta-label">Status</span>
-          <span class="meta-value" style="color: #5bb5a2; font-weight: 700;">PAID</span>
-        </div>
-      </div>
-      
-      <hr class="divider" />
-      
-      <p class="greeting">Hi <strong>${invoice.fullName}</strong>,</p>
-      <p class="greeting">Thank you for your purchase. Here is your tax invoice:</p>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>${invoice.credits} Profile Unlock Credits</td>
-            <td>R${Number(invoice.amount).toFixed(2)}</td>
-          </tr>
-          <tr class="subtotal-row">
-            <td>Subtotal</td>
-            <td>R${Number(invoice.amount).toFixed(2)}</td>
-          </tr>
-          <tr class="tax-row">
-            <td>VAT (15%)</td>
-            <td>R${invoice.tax}</td>
-          </tr>
-          <tr class="total-row">
-            <td>Total</td>
-            <td>R${invoice.total}</td>
-          </tr>
-        </tbody>
+<body style="margin:0;padding:20px;background:#F7F9F8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1F2933;">
+  <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,0.06);padding:40px;">
+    <!-- Header -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+      <tr>
+        <td valign="top" style="text-align:left;">
+          <table cellpadding="0" cellspacing="0"><tr>
+            <td><img src="${LOGO_URL}" alt="Domestic Hub" width="48" height="48" style="border-radius:12px;display:block;" /></td>
+            <td style="padding-left:12px;vertical-align:middle;">
+              <div style="font-size:16px;font-weight:700;color:#1F2933;">Domestic Hub</div>
+              <div style="font-size:12px;color:#6B7280;">domestichub.co.za</div>
+            </td>
+          </tr></table>
+        </td>
+        <td valign="top" style="text-align:right;">
+          <div style="font-size:22px;font-weight:700;letter-spacing:4px;color:#58B39E;">INVOICE</div>
+          <div style="font-size:13px;color:#1F2933;font-weight:600;margin-top:6px;">${invoice.invoiceNumber}</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px;">${invoice.invoiceDate}</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Bill To + Status -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td valign="top">
+          <div style="font-size:10px;letter-spacing:1.5px;color:#6B7280;font-weight:600;margin-bottom:6px;">BILL TO</div>
+          <div style="font-size:14px;font-weight:600;color:#1F2933;">${invoice.fullName}</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px;">${invoice.email}</div>
+        </td>
+        <td valign="top" align="right">
+          <span style="display:inline-block;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:1px;background:${isPaid ? "#E6F7EF" : "#FEF3E2"};color:${isPaid ? "#0E8A5F" : "#B26A00"};">
+            ${isPaid ? "● PAID" : "● PENDING"}
+          </span>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Service Card -->
+    <div style="background:#DFF1EC;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <div style="font-size:10px;letter-spacing:1.5px;color:#58B39E;font-weight:700;margin-bottom:10px;">PURCHASE DETAILS</div>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding-bottom:12px;width:50%;">
+            <div style="font-size:11px;color:#6B7280;">Service</div>
+            <div style="font-size:14px;font-weight:600;color:#1F2933;">Profile Unlock Credits</div>
+          </td>
+          <td style="padding-bottom:12px;width:50%;">
+            <div style="font-size:11px;color:#6B7280;">Quantity</div>
+            <div style="font-size:14px;font-weight:600;color:#1F2933;">${invoice.credits} credits</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-size:11px;color:#6B7280;">Payment Reference</div>
+            <div style="font-size:13px;font-weight:600;color:#1F2933;font-family:monospace;word-break:break-all;">${invoice.paymentRef}</div>
+          </td>
+          <td>
+            <div style="font-size:11px;color:#6B7280;">Date Issued</div>
+            <div style="font-size:14px;font-weight:600;color:#1F2933;">${invoice.invoiceDate}</div>
+          </td>
+        </tr>
       </table>
     </div>
-    
-    <div class="company-details">
-      <h3>Company Details</h3>
-      <p><strong>${COMPANY_DETAILS.name}</strong></p>
-      <p>${COMPANY_DETAILS.address}</p>
-      <p>Email: ${COMPANY_DETAILS.email}</p>
-      <p>Web: ${COMPANY_DETAILS.website}</p>
-    </div>
-    
-    <div class="footer">
-      <p>This is an automatically generated tax invoice. Please retain for your records.</p>
-      <p>&copy; ${new Date().getFullYear()} ${COMPANY_DETAILS.name}. All rights reserved.</p>
+
+    <!-- Charges -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="padding:10px 0;font-size:13px;color:#1F2933;">Service Fee (${invoice.credits} credits)</td>
+        <td style="padding:10px 0;font-size:13px;color:#1F2933;text-align:right;">R${Number(invoice.amount).toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 0;font-size:13px;color:#6B7280;border-top:1px solid #EEF2F1;">VAT (15%)</td>
+        <td style="padding:10px 0;font-size:13px;color:#6B7280;text-align:right;border-top:1px solid #EEF2F1;">R${invoice.tax}</td>
+      </tr>
+      <tr>
+        <td style="padding:16px 0 4px;border-top:1px solid #EEF2F1;font-size:16px;font-weight:700;color:#1F2933;">Total</td>
+        <td style="padding:16px 0 4px;border-top:1px solid #EEF2F1;font-size:22px;font-weight:700;color:#58B39E;text-align:right;">R${invoice.total}</td>
+      </tr>
+    </table>
+
+    <!-- Footer -->
+    <div style="border-top:1px solid #EEF2F1;padding-top:20px;text-align:center;">
+      <div style="font-size:11px;color:#6B7280;margin-bottom:6px;line-height:1.5;">
+        Domestic Hub is a connection platform and does not employ service providers.
+      </div>
+      <div style="font-size:11px;color:#58B39E;font-weight:600;">support@domestichub.co.za</div>
     </div>
   </div>
 </body>
