@@ -89,6 +89,7 @@ const HelperProfile = () => {
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const editLocationValue = editData.location
     ? {
         latitude: 0,
@@ -106,7 +107,6 @@ const HelperProfile = () => {
     if (user) fetchHelperData();
   }, [user]);
 
-  // Scroll to hash anchor (e.g. #notification-preferences) once profile renders
   useEffect(() => {
     if (loading) return;
     const hash = window.location.hash?.replace("#", "");
@@ -120,44 +120,69 @@ const HelperProfile = () => {
 
   const fetchHelperData = async () => {
     if (!user) return;
+
     const { data, error } = await supabase
       .from("helpers")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
+    if (error) {
+      toast.error("Failed to load profile");
+      setLoading(false);
+      return;
+    }
+
     if (data) {
       setHelper(data);
       setEditData(data);
+    } else {
+      setHelper(null);
+      setEditData({});
     }
 
-    const { data: reviewData } = await supabase
-      .from("reviews")
-      .select("*")
-      .eq("helper_id", data?.id || "")
-      .order("created_at", { ascending: false });
+    if (data?.id) {
+      const { data: reviewData } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("helper_id", data.id)
+        .order("created_at", { ascending: false });
 
-    if (reviewData) setReviews(reviewData);
+      if (reviewData) setReviews(reviewData);
+    } else {
+      setReviews([]);
+    }
+
     setLoading(false);
   };
 
   const handleSave = async () => {
-    if (!helper) {
+    if (!helper || saving) {
       toast.error("No helper profile found");
       return;
     }
+
+    const fullName = (editData.full_name || "").trim();
+    if (!fullName) {
+      toast.error("Please enter your full name");
+      return;
+    }
+
+    setSaving(true);
+
     try {
       const updatePayload: any = {
-        full_name: editData.full_name,
-        bio: editData.bio || null,
-        skills: editData.skills,
-        languages: editData.languages,
-        experience_years: editData.experience_years,
-        hourly_rate: editData.hourly_rate,
-        availability: editData.availability,
-        has_work_permit: editData.has_work_permit,
-        location: editData.location,
+        full_name: fullName,
+        bio: editData.bio?.trim() || null,
+        skills: editData.skills || [],
+        languages: editData.languages || [],
+        experience_years: editData.experience_years ?? 0,
+        hourly_rate: editData.hourly_rate ?? null,
+        availability: editData.availability || null,
+        has_work_permit: !!editData.has_work_permit,
+        location: editData.location?.trim() || null,
       };
+
       const { error } = await supabase
         .from("helpers")
         .update(updatePayload)
@@ -166,14 +191,22 @@ const HelperProfile = () => {
       if (error) {
         console.error("Helper save error:", error);
         toast.error("Failed to update profile: " + error.message);
-      } else {
-        toast.success("Profile updated!");
-        setIsEditing(false);
-        fetchHelperData();
+        return;
       }
+
+      await supabase
+        .from("profiles")
+        .update({ full_name: fullName })
+        .eq("user_id", user?.id);
+
+      toast.success("Profile updated!");
+      setIsEditing(false);
+      await fetchHelperData();
     } catch (err: any) {
       console.error("Helper save exception:", err);
-      toast.error("Failed to update: " + err.message);
+      toast.error("Failed to update: " + (err?.message || "Unknown error"));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -617,8 +650,8 @@ const HelperProfile = () => {
           <CardTitle className="text-base">Profile Details</CardTitle>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><X size={16} /></Button>
-              <Button size="sm" onClick={handleSave}><Save size={16} /> Save</Button>
+              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} disabled={saving}><X size={16} /></Button>
+              <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>

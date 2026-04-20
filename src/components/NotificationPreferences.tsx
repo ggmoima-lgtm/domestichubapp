@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Switch } from "./ui/switch";
-import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -31,7 +30,6 @@ const labels: Record<keyof Prefs, string> = {
   interviews: "New Applications",
 };
 
-// Keys to hide for helpers
 const helperHiddenKeys: (keyof Prefs)[] = ["credits", "profile_unlocks", "interviews"];
 
 interface NotificationPreferencesProps {
@@ -41,40 +39,61 @@ interface NotificationPreferencesProps {
 const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => {
   const { user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
+  const [hasExistingRow, setHasExistingRow] = useState(false);
+  const [savingKey, setSavingKey] = useState<keyof Prefs | null>(null);
+
   useEffect(() => {
-    if (user) {
-      supabase
-        .from("notification_preferences")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            setPrefs({
-              messages: data.messages,
-              profile_unlocks: data.profile_unlocks,
-              hire_updates: data.hire_updates,
-              credits: data.credits,
-              interviews: data.interviews,
-            });
-          }
-        });
-    }
+    if (!user) return;
+
+    supabase
+      .from("notification_preferences")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) {
+          toast.error("Failed to load preferences");
+          return;
+        }
+
+        if (data) {
+          setHasExistingRow(true);
+          setPrefs({
+            messages: data.messages,
+            profile_unlocks: data.profile_unlocks,
+            hire_updates: data.hire_updates,
+            credits: data.credits,
+            interviews: data.interviews,
+          });
+        } else {
+          setHasExistingRow(false);
+          setPrefs(defaultPrefs);
+        }
+      });
   }, [user]);
 
   const togglePref = async (key: keyof Prefs) => {
-    if (!user) return;
-    const newPrefs = { ...prefs, [key]: !prefs[key] };
-    setPrefs(newPrefs);
+    if (!user || savingKey) return;
 
-    const { error } = await supabase
-      .from("notification_preferences")
-      .upsert({ user_id: user.id, ...newPrefs }, { onConflict: "user_id" });
+    const previousPrefs = prefs;
+    const nextPrefs = { ...prefs, [key]: !prefs[key] };
+    setPrefs(nextPrefs);
+    setSavingKey(key);
+
+    const query = hasExistingRow
+      ? supabase.from("notification_preferences").update(nextPrefs).eq("user_id", user.id)
+      : supabase.from("notification_preferences").insert({ user_id: user.id, ...nextPrefs });
+
+    const { error } = await query;
 
     if (error) {
+      setPrefs(previousPrefs);
       toast.error("Failed to update preferences");
-      setPrefs(prefs);
+    } else if (!hasExistingRow) {
+      setHasExistingRow(true);
     }
+
+    setSavingKey(null);
   };
 
   return (
@@ -85,15 +104,14 @@ const NotificationPreferences = ({ userRole }: NotificationPreferencesProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Per-category toggles */}
         {(Object.keys(labels) as (keyof Prefs)[])
           .filter((key) => !(userRole === "helper" && helperHiddenKeys.includes(key)))
           .map((key) => (
-          <div key={key} className="flex items-center justify-between px-1 py-1.5">
-            <span className="text-sm text-foreground">{labels[key]}</span>
-            <Switch checked={prefs[key]} onCheckedChange={() => togglePref(key)} />
-          </div>
-        ))}
+            <div key={key} className="flex items-center justify-between px-1 py-1.5">
+              <span className="text-sm text-foreground">{labels[key]}</span>
+              <Switch checked={prefs[key]} disabled={savingKey !== null} onCheckedChange={() => togglePref(key)} />
+            </div>
+          ))}
       </CardContent>
     </Card>
   );
