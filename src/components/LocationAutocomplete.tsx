@@ -250,30 +250,25 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
     [onChange]
   );
 
-  const handleDetectLocation = useCallback(async () => {
-    if (!navigator.geolocation) return;
-
-    if ("permissions" in navigator) {
-      const perm = await navigator.permissions.query({ name: "geolocation" });
-      if (perm.state === "prompt") {
-        setShowPermissionPrompt(true);
-        return;
-      }
+  const doGeolocate = useCallback(() => {
+    if (!navigator.geolocation) {
+      console.warn("[LocationAutocomplete] Geolocation API not available");
+      return;
     }
 
-    doGeolocate();
-  }, []);
-
-  const doGeolocate = useCallback(() => {
     setDetectingLocation(true);
     setShowPermissionPrompt(false);
 
+    // CRITICAL: Call getCurrentPosition synchronously inside the user gesture.
+    // Any await before this call breaks the gesture context and the prompt may not appear
+    // (especially in WebView wrappers like Median.co).
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+      (pos) => {
         const { latitude, longitude } = pos.coords;
 
         if (!mapsReady || !(window as any).google) {
           setDetectingLocation(false);
+          console.warn("[LocationAutocomplete] Got coords but Google Maps not ready");
           return;
         }
 
@@ -288,7 +283,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
               const components = place.address_components || [];
               const extractLegacy = (comps: any[], type: string) =>
                 comps.find((c: any) => c.types.includes(type))?.long_name || "";
-              
+
               const locationData: LocationData = {
                 latitude,
                 longitude,
@@ -309,16 +304,28 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
                   ? `${locationData.suburb}, ${locationData.city}`
                   : locationData.formatted_address
               );
+            } else {
+              console.error("[LocationAutocomplete] Geocoder failed:", status);
             }
           }
         );
       },
-      () => {
+      (err) => {
         setDetectingLocation(false);
+        console.error("[LocationAutocomplete] Geolocation error:", err.code, err.message);
+        if (err.code === err.PERMISSION_DENIED) {
+          setShowPermissionPrompt(true);
+        }
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [mapsReady, onChange]);
+
+  const handleDetectLocation = useCallback(() => {
+    // Always call doGeolocate synchronously from the click handler so the browser
+    // treats it as a user gesture and shows the permission prompt natively.
+    doGeolocate();
+  }, [doGeolocate]);
 
   return (
     <div className="relative space-y-2">
