@@ -106,6 +106,18 @@ const HelperProfile = () => {
     if (user) fetchHelperData();
   }, [user]);
 
+  // Scroll to hash anchor (e.g. #notification-preferences) once profile renders
+  useEffect(() => {
+    if (loading) return;
+    const hash = window.location.hash?.replace("#", "");
+    if (!hash) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => clearTimeout(t);
+  }, [loading]);
+
   const fetchHelperData = async () => {
     if (!user) return;
     const { data, error } = await supabase
