@@ -281,11 +281,27 @@ const HelperRegistration = () => {
     try {
       const userId = user.id;
 
-      // Upload files in parallel
-      const [videoUrl, avatarUrl] = await Promise.all([
-        videoFile ? uploadFile(userId, videoFile, 'helper-videos') : Promise.resolve(null),
-        avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
-      ]);
+      // Upload files in parallel — fails loudly if storage rejects
+      let videoUrl: string | null = null;
+      let avatarUrl: string | null = null;
+      try {
+        [videoUrl, avatarUrl] = await Promise.all([
+          videoFile ? uploadFile(userId, videoFile, 'helper-videos') : Promise.resolve(null),
+          avatarFile ? uploadFile(userId, avatarFile, 'avatars') : Promise.resolve(null),
+        ]);
+      } catch (uploadErr: any) {
+        console.error('Upload failed:', uploadErr);
+        const msg: string = uploadErr?.message || '';
+        toast.error(
+          msg.includes('helper-videos')
+            ? "Couldn't upload your video. Please try a smaller file (max 100MB, MP4/MOV/WebM)."
+            : msg.includes('avatars')
+            ? "Couldn't upload your photo. Please try a smaller image (max 5MB, JPG/PNG)."
+            : "Upload failed. Please check your connection and try again."
+        );
+        setIsSubmitting(false);
+        return;
+      }
 
       // Upsert profiles row (non-blocking)
       supabase.from('profiles').upsert({
