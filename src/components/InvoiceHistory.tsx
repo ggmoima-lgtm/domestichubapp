@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FileText, Download, ChevronDown, ChevronRight, Receipt } from "lucide-react";
+import { FileText, Eye, ChevronDown, ChevronRight, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import InvoicePreviewSheet from "./InvoicePreviewSheet";
+import { InvoiceTemplateData } from "./InvoiceTemplate";
 
 interface Invoice {
   id: string;
@@ -23,87 +24,91 @@ const InvoiceHistory = () => {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expanded, setExpanded] = useState(false);
+  const [previewInvoice, setPreviewInvoice] = useState<InvoiceTemplateData | null>(null);
+  const [client, setClient] = useState<{ name: string; email?: string | null; phone?: string | null }>({
+    name: "Customer",
+  });
 
   useEffect(() => {
-    if (user) {
-      supabase
-        .from("invoices")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .then(({ data }) => setInvoices((data as Invoice[]) || []));
-    }
+    if (!user) return;
+    supabase
+      .from("invoices")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setInvoices((data as Invoice[]) || []));
+
+    // Fetch client info for the bill-to section
+    Promise.all([
+      supabase.from("employer_profiles").select("full_name, email").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("full_name, email, phone").eq("user_id", user.id).maybeSingle(),
+    ]).then(([emp, prof]) => {
+      setClient({
+        name: emp.data?.full_name || prof.data?.full_name || "Customer",
+        email: emp.data?.email || prof.data?.email,
+        phone: prof.data?.phone,
+      });
+    });
   }, [user]);
 
-  const downloadInvoice = (invoice: Invoice) => {
-    const content = `
-DOMESTIC HUB - INVOICE
-========================
-Invoice #: ${invoice.invoice_number}
-Date: ${new Date(invoice.created_at).toLocaleDateString("en-ZA")}
-Status: ${invoice.status.toUpperCase()}
-
-Credits Purchased: ${invoice.credits_purchased}
-Subtotal: R${Number(invoice.amount).toFixed(2)}
-VAT (15%): R${Number(invoice.tax).toFixed(2)}
-Total: R${Number(invoice.total).toFixed(2)}
-
-Payment: ${invoice.payment_method || "N/A"}
-Ref: ${invoice.payment_reference || "N/A"}
-
-Thank you for using Domestic Hub.
-info@domestichub.co.za
-    `.trim();
-
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${invoice.invoice_number}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const openPreview = (inv: Invoice) => {
+    setPreviewInvoice({
+      ...inv,
+      client_name: client.name,
+      client_email: client.email,
+      client_phone: client.phone,
+    });
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Receipt size={16} className="text-primary" /> Invoice History
-        </CardTitle>
-        <button onClick={() => setExpanded(!expanded)} className="p-1">
-          {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
-      </CardHeader>
-      {expanded && (
-        <CardContent className="space-y-2">
-          {invoices.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-3">No invoices yet</p>
-          ) : (
-            invoices.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <FileText size={16} className="text-primary" />
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Receipt size={16} className="text-primary" /> Invoice History
+          </CardTitle>
+          <button onClick={() => setExpanded(!expanded)} className="p-1">
+            {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+        </CardHeader>
+        {expanded && (
+          <CardContent className="space-y-2">
+            {invoices.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-3">No invoices yet</p>
+            ) : (
+              invoices.map((inv) => (
+                <button
+                  key={inv.id}
+                  onClick={() => openPreview(inv)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <FileText size={16} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{inv.invoice_number}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(inv.created_at).toLocaleDateString("en-ZA")} · {inv.credits_purchased} credits
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">{inv.invoice_number}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {new Date(inv.created_at).toLocaleDateString("en-ZA")} · {inv.credits_purchased} credits
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-foreground">R{Number(inv.total).toFixed(0)}</span>
+                    <Eye size={14} className="text-primary" />
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground">R{Number(inv.total).toFixed(0)}</span>
-                  <button onClick={() => downloadInvoice(inv)} className="p-1.5 rounded-lg hover:bg-muted">
-                    <Download size={14} className="text-primary" />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      )}
-    </Card>
+                </button>
+              ))
+            )}
+          </CardContent>
+        )}
+      </Card>
+      <InvoicePreviewSheet
+        open={!!previewInvoice}
+        onOpenChange={(v) => !v && setPreviewInvoice(null)}
+        invoice={previewInvoice}
+      />
+    </>
   );
 };
 
