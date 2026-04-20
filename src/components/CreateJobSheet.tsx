@@ -75,11 +75,23 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
     }
     setIsSubmitting(true);
     try {
+      // Append category-specific details to description
+      const extras: string[] = [];
+      if (category === "nanny") {
+        if (numChildren) extras.push(`Children: ${numChildren}`);
+        if (childAges) extras.push(`Ages: ${childAges}`);
+      }
+      if (category === "caregiver") {
+        if (elderMobility) extras.push(`Mobility: ${elderMobility}`);
+        if (medicalNeeds) extras.push(`Medical needs: ${medicalNeeds}`);
+      }
+      const finalDescription = [description, extras.length ? `\n\n${extras.join(" • ")}` : ""].join("").trim() || null;
+
       const { error } = await supabase.from("job_posts").insert({
         employer_id: user.id,
         title,
         category,
-        description: description || null,
+        description: finalDescription,
         location: locationData?.formatted_address || null,
         job_type: jobType || null,
         live_in_out: liveInOut || null,
@@ -111,6 +123,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       setTitle(""); setCategory(""); setDescription(""); setLocationData(null);
       setJobType(""); setLiveInOut(""); setHouseSize(""); setFamilySize("");
       setDuties([]); setHoursPerWeek(""); setDaysPerWeek(""); setSalaryMin(""); setSalaryMax("");
+      setNumChildren(""); setChildAges(""); setElderMobility(""); setMedicalNeeds("");
     } catch (err: any) {
       toast.error("Failed to post job: " + err.message);
     } finally {
