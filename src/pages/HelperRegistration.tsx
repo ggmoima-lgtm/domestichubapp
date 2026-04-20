@@ -666,13 +666,13 @@ const HelperRegistration = () => {
         <section className="space-y-3">
           <div>
             <Label htmlFor="experience">Years of Experience *</Label>
-            <Input id="experience" type="number" placeholder="e.g., 5" value={formData.experience} onChange={(e) => handleInputChange("experience", e.target.value)} className="mt-1" min="0" max="50" />
+            <Input id="experience" type="number" inputMode="numeric" placeholder="e.g., 5" value={formData.experience} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 2); handleInputChange("experience", v); }} className="mt-1" min="0" max="50" maxLength={2} />
           </div>
           <div>
             <Label htmlFor="monthlyRate">{serviceType === "gardening" ? "Rate (ZAR)" : "Monthly Rate (ZAR)"}</Label>
             <div className="relative mt-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">R</span>
-              <Input id="monthlyRate" type="number" placeholder={serviceType === "gardening" ? "e.g., 250" : "e.g., 3500"} value={formData.monthlyRate} onChange={(e) => handleInputChange("monthlyRate", e.target.value)} className="pl-9" min="0" />
+              <Input id="monthlyRate" type="number" inputMode="numeric" placeholder={serviceType === "gardening" ? "e.g., 250" : "e.g., 3500"} value={formData.monthlyRate} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); handleInputChange("monthlyRate", v); }} className="pl-9" min="0" maxLength={5} />
             </div>
           </div>
         </section>
