@@ -401,7 +401,7 @@ const EmployerProfile = () => {
     );
   }
 
-  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.category || !employer?.avatar_url;
+  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.avatar_url;
 
   return (
     <div className="pb-28 space-y-4">
@@ -745,17 +745,17 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{unlock.helpers?.full_name || "Unknown"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {unlock.helpers?.service_type === "gardening" ? "🌱 Gardener" 
-                          : unlock.helpers?.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
-                          : `🏠 ${unlock.helpers?.category || "Helper"}`}
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {unlock.helpers?.service_type === "gardening" ? "Gardener" 
+                          : unlock.helpers?.service_type === "both" ? "Domestic + Gardening" 
+                          : (unlock.helpers?.category || "Helper")}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
-                      {unlock.helpers?.availability_status === "available" ? "🟢 Available" 
-                        : unlock.helpers?.availability_status === "interviewing" ? "🔵 In Conversation"
-                        : unlock.helpers?.availability_status === "hired_platform" || unlock.helpers?.availability_status === "hired_external" ? "🟡 Hired"
-                        : "🔴 Unavailable"}
+                      {unlock.helpers?.availability_status === "available" ? "Available" 
+                        : unlock.helpers?.availability_status === "interviewing" ? "In Conversation"
+                        : unlock.helpers?.availability_status === "hired_platform" || unlock.helpers?.availability_status === "hired_external" ? "Hired"
+                        : "Unavailable"}
                     </Badge>
                   </div>
                 ))
@@ -764,8 +764,9 @@ const EmployerProfile = () => {
           )}
 
           <button
+            id="saved-helpers"
             onClick={() => setShowSavedHelpers(!showSavedHelpers)}
-            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors"
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted transition-colors scroll-mt-20"
           >
             <span className="flex items-center gap-3 text-sm"><Heart size={16} className="text-destructive" /> Saved Helpers</span>
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -799,17 +800,17 @@ const EmployerProfile = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{getPreviewName(helper.full_name)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {helper.service_type === "gardening" ? "🌱 Gardener" 
-                          : helper.service_type === "both" ? "🏠🌱 Domestic + Gardening" 
-                          : `🏠 ${helper.category || "Helper"}`}
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {helper.service_type === "gardening" ? "Gardener" 
+                          : helper.service_type === "both" ? "Domestic + Gardening" 
+                          : (helper.category || "Helper")}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-[10px] shrink-0">
-                      {helper.availability_status === "available" ? "🟢 Available" 
-                        : helper.availability_status === "interviewing" ? "🔵 In Conversation"
-                        : helper.availability_status === "hired_platform" || helper.availability_status === "hired_external" ? "🟡 Hired"
-                        : "🔴 Unavailable"}
+                      {helper.availability_status === "available" ? "Available" 
+                        : helper.availability_status === "interviewing" ? "In Conversation"
+                        : helper.availability_status === "hired_platform" || helper.availability_status === "hired_external" ? "Hired"
+                        : "Unavailable"}
                     </Badge>
                   </div>
                 ))

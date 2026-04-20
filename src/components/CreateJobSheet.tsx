@@ -54,6 +54,11 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
   const [salaryMax, setSalaryMax] = useState("");
   const [negotiable, setNegotiable] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Category-specific
+  const [numChildren, setNumChildren] = useState("");
+  const [childAges, setChildAges] = useState("");
+  const [elderMobility, setElderMobility] = useState("");
+  const [medicalNeeds, setMedicalNeeds] = useState("");
 
   if (!isOpen) return null;
 
@@ -70,11 +75,23 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
     }
     setIsSubmitting(true);
     try {
+      // Append category-specific details to description
+      const extras: string[] = [];
+      if (category === "nanny") {
+        if (numChildren) extras.push(`Children: ${numChildren}`);
+        if (childAges) extras.push(`Ages: ${childAges}`);
+      }
+      if (category === "caregiver") {
+        if (elderMobility) extras.push(`Mobility: ${elderMobility}`);
+        if (medicalNeeds) extras.push(`Medical needs: ${medicalNeeds}`);
+      }
+      const finalDescription = [description, extras.length ? `\n\n${extras.join(" • ")}` : ""].join("").trim() || null;
+
       const { error } = await supabase.from("job_posts").insert({
         employer_id: user.id,
         title,
         category,
-        description: description || null,
+        description: finalDescription,
         location: locationData?.formatted_address || null,
         job_type: jobType || null,
         live_in_out: liveInOut || null,
@@ -106,6 +123,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       setTitle(""); setCategory(""); setDescription(""); setLocationData(null);
       setJobType(""); setLiveInOut(""); setHouseSize(""); setFamilySize("");
       setDuties([]); setHoursPerWeek(""); setDaysPerWeek(""); setSalaryMin(""); setSalaryMax("");
+      setNumChildren(""); setChildAges(""); setElderMobility(""); setMedicalNeeds("");
     } catch (err: any) {
       toast.error("Failed to post job: " + err.message);
     } finally {
@@ -191,7 +209,53 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
             </div>
           )}
 
-          {category !== "gardener" && (
+          {category === "housekeeper" && (
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
+              <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
+            </div>
+          )}
+
+          {category === "nanny" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Number of Children</Label>
+                <Select value={numChildren} onValueChange={setNumChildren}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {["1", "2", "3", "4+"].map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Children's Ages</Label>
+                <Input value={childAges} onChange={(e) => setChildAges(e.target.value)} placeholder="e.g. 2, 5, 8" className="rounded-xl h-12" />
+              </div>
+            </div>
+          )}
+
+          {category === "caregiver" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Mobility Level</Label>
+                <Select value={elderMobility} onValueChange={setElderMobility}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="independent">Independent</SelectItem>
+                    <SelectItem value="walking-aid">Uses walking aid</SelectItem>
+                    <SelectItem value="wheelchair">Wheelchair</SelectItem>
+                    <SelectItem value="bedridden">Bedridden</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Medical Needs</Label>
+                <Input value={medicalNeeds} onChange={(e) => setMedicalNeeds(e.target.value)} placeholder="e.g. dementia, diabetes" className="rounded-xl h-12" />
+              </div>
+            </div>
+          )}
+
+          {category === "all-around" && (
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
               <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
