@@ -196,7 +196,53 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
             </div>
           )}
 
-          {category !== "gardener" && (
+          {category === "housekeeper" && (
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
+              <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
+            </div>
+          )}
+
+          {category === "nanny" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Number of Children</Label>
+                <Select value={numChildren} onValueChange={setNumChildren}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {["1", "2", "3", "4+"].map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Children's Ages</Label>
+                <Input value={childAges} onChange={(e) => setChildAges(e.target.value)} placeholder="e.g. 2, 5, 8" className="rounded-xl h-12" />
+              </div>
+            </div>
+          )}
+
+          {category === "caregiver" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Mobility Level</Label>
+                <Select value={elderMobility} onValueChange={setElderMobility}>
+                  <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="independent">Independent</SelectItem>
+                    <SelectItem value="walking-aid">Uses walking aid</SelectItem>
+                    <SelectItem value="wheelchair">Wheelchair</SelectItem>
+                    <SelectItem value="bedridden">Bedridden</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-muted-foreground">Medical Needs</Label>
+                <Input value={medicalNeeds} onChange={(e) => setMedicalNeeds(e.target.value)} placeholder="e.g. dementia, diabetes" className="rounded-xl h-12" />
+              </div>
+            </div>
+          )}
+
+          {category === "all-around" && (
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-muted-foreground">House Size</Label>
               <Input value={houseSize} onChange={(e) => setHouseSize(e.target.value)} placeholder="e.g. 3 bedroom" className="rounded-xl h-12" />
