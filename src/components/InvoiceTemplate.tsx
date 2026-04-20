@@ -25,28 +25,12 @@ const BORDER = "#EEF2F1";
 
 const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateData }>(
   ({ invoice }, ref) => {
-    const [qrDataUrl, setQrDataUrl] = useState<string>("");
     const isPaid = invoice.status?.toLowerCase() === "paid";
     const dateStr = new Date(invoice.created_at).toLocaleDateString("en-ZA", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-
-    useEffect(() => {
-      const payload = JSON.stringify({
-        inv: invoice.invoice_number,
-        ref: invoice.payment_reference,
-        total: Number(invoice.total).toFixed(2),
-      });
-      QRCode.toDataURL(payload, {
-        width: 200,
-        margin: 0,
-        color: { dark: TEXT_DARK, light: "#FFFFFF" },
-      })
-        .then(setQrDataUrl)
-        .catch(() => setQrDataUrl(""));
-    }, [invoice]);
 
     return (
       <div
@@ -59,7 +43,7 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, { invoice: InvoiceTemplateDat
           color: TEXT_DARK,
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-          padding: 40,
+          padding: 24,
           borderRadius: 16,
           boxShadow: "0 4px 24px rgba(15, 23, 42, 0.06)",
           fontSize: 14,
