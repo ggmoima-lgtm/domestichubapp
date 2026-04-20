@@ -168,7 +168,7 @@ const CreditWalletCard = ({ onPurchaseComplete }: CreditWalletCardProps) => {
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <CheckCircle size={14} className="text-primary flex-shrink-0" />
-                Profiles stay unlocked forever
+                Profiles stay unlocked for 30 days
               </div>
             </div>
           </div>

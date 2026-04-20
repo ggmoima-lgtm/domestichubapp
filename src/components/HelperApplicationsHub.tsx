@@ -32,10 +32,10 @@ const categoryIcons: Record<string, string> = {
 };
 
 const statusConfig: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
-  pending: { label: "Pending", icon: <Hourglass size={12} />, className: "bg-amber-100 text-amber-700 border-amber-200" },
-  accepted: { label: "Accepted", icon: <CheckCircle size={12} />, className: "bg-green-100 text-green-700 border-green-200" },
-  rejected: { label: "Declined", icon: <XCircle size={12} />, className: "bg-red-100 text-red-700 border-red-200" },
-  shortlisted: { label: "Shortlisted", icon: <CheckCircle size={12} />, className: "bg-blue-100 text-blue-700 border-blue-200" },
+  pending: { label: "Pending", icon: null, className: "bg-amber-100 text-amber-700 border-amber-200" },
+  accepted: { label: "Accepted", icon: null, className: "bg-green-100 text-green-700 border-green-200" },
+  rejected: { label: "Declined", icon: null, className: "bg-red-100 text-red-700 border-red-200" },
+  shortlisted: { label: "Shortlisted", icon: null, className: "bg-blue-100 text-blue-700 border-blue-200" },
 };
 
 const HelperApplicationsHub = () => {
