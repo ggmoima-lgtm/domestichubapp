@@ -200,12 +200,14 @@ serve(async (req) => {
       invoiceNumber,
       invoiceDate,
       fullName,
+      email,
       credits,
       amount,
       tax,
       total,
-      paymentRef: payment_ref || "N/A",
+      paymentRef: payment_ref || invoice.payment_reference || "N/A",
       transactionId: transaction_id || invoice.transaction_id || "",
+      status: invoice.status || "paid",
     };
 
     const emailHtml = generateInvoiceHtml(invoiceData);
