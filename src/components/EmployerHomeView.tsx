@@ -220,7 +220,7 @@ const EmployerHomeView = ({
           )}
         </button>
         <button
-          onClick={() => onTabChange("hub")}
+          onClick={() => navigate("/home?tab=profile#saved-helpers")}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
         >
           <Heart size={14} /> Saved

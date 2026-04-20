@@ -178,17 +178,29 @@ const ApplicationPreviewSheet = ({
                 </div>
                 <p className="text-sm text-muted-foreground capitalize">{helper.category}</p>
 
-                <div className="mt-2 space-y-0.5">
-                  <p className="text-xs font-medium text-green-600">
-                    🟢 {helper.availability_status === "available" ? "Available" : helper.availability_status === "interviewing" ? "In Conversation" : "Unavailable"}
-                  </p>
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${helper.availability_status === "available" ? "bg-emerald-500" : helper.availability_status === "interviewing" ? "bg-blue-500" : "bg-red-500"}`} />
+                    <span className="text-xs font-medium text-foreground">
+                      {helper.availability_status === "available" ? "Available" : helper.availability_status === "interviewing" ? "In Conversation" : "Unavailable"}
+                    </span>
+                  </div>
                   {helper.is_verified && (
-                    <p className="text-xs font-medium text-primary">✅ ID Verified</p>
+                    <div className="flex items-center gap-1.5">
+                      <ShieldCheck size={12} className="text-primary" />
+                      <span className="text-xs font-medium text-primary">ID Verified</span>
+                    </div>
                   )}
-                  <p className="text-xs font-medium text-primary">📱 Phone Verified</p>
-                  <p className="text-sm font-semibold text-foreground">
-                    ⭐ {helper.experience_years && helper.experience_years > 0 ? `${helper.experience_years} Year${helper.experience_years !== 1 ? "s" : ""}` : "New"} Experience
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <Phone size={12} className="text-primary" />
+                    <span className="text-xs font-medium text-primary">Phone Verified</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Briefcase size={12} className="text-muted-foreground" />
+                    <span className="text-sm font-semibold text-foreground">
+                      {helper.experience_years && helper.experience_years > 0 ? `${helper.experience_years} Year${helper.experience_years !== 1 ? "s" : ""}` : "New"} Experience
+                    </span>
+                  </div>
                 </div>
 
                 {avgRating !== null && (
@@ -241,12 +253,13 @@ const ApplicationPreviewSheet = ({
                       Status
                     </span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${helper.availability_status === "available" ? "bg-emerald-500" : helper.availability_status === "interviewing" ? "bg-blue-500" : "bg-red-500"}`} />
                     {helper.availability_status === "available"
-                      ? "🟢 Available"
+                      ? "Available"
                       : helper.availability_status === "interviewing"
-                      ? "🔵 In Conversation"
-                      : "🔴 Unavailable"}
+                      ? "In Conversation"
+                      : "Unavailable"}
                   </p>
                 </div>
               )}
@@ -259,7 +272,7 @@ const ApplicationPreviewSheet = ({
                       Verified
                     </span>
                   </div>
-                  <p className="text-sm font-semibold text-primary">✓ ID Verified</p>
+                  <p className="text-sm font-semibold text-primary flex items-center gap-1"><ShieldCheck size={14} /> ID Verified</p>
                 </div>
               )}
             </div>
@@ -319,8 +332,8 @@ const ApplicationPreviewSheet = ({
                 <div className="grid grid-cols-2 gap-1.5">
                   {["Full name", "Intro video", "Work history", "References", "Direct messaging", "Full bio"].map(
                     (item) => (
-                      <p key={item} className="text-[11px] text-muted-foreground/60">
-                        🔒 {item}
+                      <p key={item} className="text-[11px] text-muted-foreground/60 flex items-center gap-1">
+                        <Lock size={10} /> {item}
                       </p>
                     )
                   )}
