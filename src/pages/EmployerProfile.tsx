@@ -233,16 +233,25 @@ const EmployerProfile = () => {
 
   const handleSave = async () => {
     if (!user || saving) return;
+
+    const fullName = (editData.full_name || "").trim();
+    const resolvedEmail = (editData.email || user.email || "").trim();
+
+    if (!fullName) {
+      toast.error("Please enter your full name");
+      return;
+    }
+
+    if (!resolvedEmail || !resolvedEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     setSaving(true);
 
     try {
-      const resolvedEmail = (editData.email || user.email || "").trim();
-      if (!resolvedEmail || !resolvedEmail.includes("@")) {
-        toast.error("Please enter a valid email address");
-        return;
-      }
       const payload: any = {
-        full_name: editData.full_name || null,
+        full_name: fullName,
         email: resolvedEmail,
         location: editData.location || null,
         type_of_need: editData.type_of_need || null,
@@ -273,21 +282,30 @@ const EmployerProfile = () => {
 
       if (error) {
         toast.error("Failed to update profile: " + error.message);
-      } else {
-        // Also sync key fields to profiles table
-        if (editData.full_name) {
-          await supabase
-            .from("profiles")
-            .update({ 
-              full_name: editData.full_name,
-              email: resolvedEmail,
-            })
-            .eq("user_id", user.id);
-        }
-        toast.success("Profile updated!");
-        setIsEditing(false);
-        fetchData();
+        return;
       }
+
+      const { error: profileSyncError } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            user_id: user.id,
+            full_name: fullName,
+            email: resolvedEmail,
+            phone: user.phone || "",
+            role: "employer",
+          } as any,
+          { onConflict: "user_id" },
+        );
+
+      if (profileSyncError) {
+        toast.error("Profile saved, but account details did not fully sync");
+      } else {
+        toast.success("Profile updated!");
+      }
+
+      setIsEditing(false);
+      await fetchData();
     } finally {
       setSaving(false);
     }

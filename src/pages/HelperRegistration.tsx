@@ -174,9 +174,18 @@ const HelperRegistration = () => {
   const saveDraft = useCallback((navigateBack = false) => {
     try {
       const draft = {
-        formData, hasWorkPermit, locationData, selectedSkills, selectedLanguages, references,
+        formData,
+        hasWorkPermit,
+        locationData,
+        selectedSkills,
+        selectedLanguages,
+        references,
         dateOfBirth: dateOfBirth?.toISOString() || null,
-        serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms,
+        serviceType,
+        selectedDomesticSkills,
+        selectedGardeningSkills,
+        hasTools,
+        acceptedTerms,
         savedAt: new Date().toISOString(),
       };
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -186,8 +195,10 @@ const HelperRegistration = () => {
         toast.success("Draft saved successfully");
         navigate("/home?tab=profile");
       }
-    } catch {}
-  }, [formData, hasWorkPermit, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms, navigate]);
+    } catch {
+      toast.error("Failed to save draft");
+    }
+  }, [formData, hasWorkPermit, locationData, selectedSkills, selectedLanguages, references, dateOfBirth, serviceType, selectedDomesticSkills, selectedGardeningSkills, hasTools, acceptedTerms, navigate]);
 
   const clearDraft = () => {
     localStorage.removeItem(DRAFT_KEY);
