@@ -647,19 +647,35 @@ const HelperProfile = () => {
           )}
         </div>
 
-        {/* Availability Toggle */}
-        <div className="p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${helper.availability_status === "available" ? "bg-green-500" : "bg-destructive"}`} />
-            <span className="text-sm font-medium">
-              {helper.availability_status === "available" ? "Available" : "Not Available"}
-            </span>
+        {/* Availability Status */}
+        <div className="p-4 space-y-2">
+          <Label className="text-xs text-muted-foreground">My Availability</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: "available", label: "Available", dot: "bg-green-500", active: "border-green-500 bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300" },
+              { value: "hired_platform", label: "Hired", dot: "bg-amber-500", active: "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" },
+              { value: "unavailable", label: "Not Available", dot: "bg-destructive", active: "border-destructive bg-destructive/10 text-destructive" },
+            ].map((opt) => {
+              const isActive =
+                helper.availability_status === opt.value ||
+                (opt.value === "hired_platform" && helper.availability_status === "hired_external");
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => handleStatusChange(opt.value)}
+                  className={`flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-xl border-2 transition-all text-xs font-medium ${
+                    isActive ? opt.active : "border-border bg-card text-muted-foreground hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${opt.dot}`} />
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
-          <Switch
-            checked={helper.availability_status === "available"}
-            onCheckedChange={toggleAvailability}
-          />
         </div>
+
       </Card>
 
       {/* Profile Details */}
@@ -936,7 +952,7 @@ const HelperProfile = () => {
               <Button
                 variant="destructive"
                 className="flex-1"
-                onClick={() => executeToggleAvailability("available")}
+                onClick={() => executeStatusChange(pendingStatus || "available")}
               >
                 Confirm
               </Button>
