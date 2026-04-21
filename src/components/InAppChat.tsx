@@ -291,19 +291,8 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isCurrentUserHelper && (
-              <Button
-                size="sm"
-                variant={isHired ? "destructive" : "outline"}
-                className="gap-1.5 text-xs"
-                onClick={() => isHired ? handleUnhire() : handleMarkAsHired()}
-              >
-                <UserCheck size={14} />
-                {isHired ? "Unhire" : "Mark as Hired"}
-              </Button>
-            )}
-            {isCurrentUserHelper && isHired && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+            {isHired && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                 <UserCheck size={14} />
                 Hired
               </span>
