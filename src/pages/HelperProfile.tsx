@@ -211,14 +211,16 @@ const HelperProfile = () => {
 
   const [showAvailConfirm, setShowAvailConfirm] = useState(false);
 
-  const toggleAvailability = async () => {
-    if (!helper) return;
-    const wasHired = helper.availability_status === "unavailable";
-    const newStatus = helper.availability_status === "available" ? "unavailable" : "available";
+  const handleStatusChange = async (newStatus: string) => {
+    if (!helper || newStatus === helper.availability_status) return;
 
-    // If hired and switching to available, show confirmation first
+    const wasHired =
+      helper.availability_status === "hired_platform" ||
+      helper.availability_status === "hired_external" ||
+      helper.availability_status === "unavailable";
+
+    // If currently hired and switching to available, confirm first (active placement check)
     if (wasHired && newStatus === "available") {
-      // Check if there's an active placement
       const { data: activePlacement } = await supabase
         .from("placements")
         .select("id")
@@ -227,21 +229,37 @@ const HelperProfile = () => {
         .maybeSingle();
 
       if (activePlacement) {
+        setPendingStatus(newStatus);
         setShowAvailConfirm(true);
         return;
       }
     }
 
-    await executeToggleAvailability(newStatus);
+    await executeStatusChange(newStatus);
   };
 
-  const executeToggleAvailability = async (newStatus: string) => {
+  const executeStatusChange = async (newStatus: string) => {
     if (!helper) return;
-    await supabase.from("helpers").update({ availability_status: newStatus }).eq("id", helper.id);
-    setHelper({ ...helper, availability_status: newStatus });
-    toast.success(`Status: ${newStatus === "available" ? "Available" : "Not Available"}`);
+    const { error } = await supabase
+      .from("helpers")
+      .update({ availability_status: newStatus })
+      .eq("id", helper.id);
 
-    // If switching to available and was hired, notify employer
+    if (error) {
+      toast.error("Failed to update status");
+      return;
+    }
+
+    setHelper({ ...helper, availability_status: newStatus });
+
+    const labelMap: Record<string, string> = {
+      available: "Available",
+      hired_platform: "Hired",
+      unavailable: "Not Available",
+    };
+    toast.success(`Status: ${labelMap[newStatus] || newStatus}`);
+
+    // If switching back to available and there's an active placement, complete it + notify employer
     if (newStatus === "available" && helper.id) {
       const { data: activePlacement } = await supabase
         .from("placements")
@@ -274,6 +292,7 @@ const HelperProfile = () => {
       }
     }
     setShowAvailConfirm(false);
+    setPendingStatus(null);
   };
 
   const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
