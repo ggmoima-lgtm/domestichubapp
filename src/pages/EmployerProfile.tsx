@@ -27,7 +27,6 @@ import EditJobSheet from "@/components/EditJobSheet";
 import CreditWalletCard from "@/components/CreditWalletCard";
 import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
-import NotificationPreferences from "@/components/NotificationPreferences";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
@@ -487,12 +486,13 @@ const EmployerProfile = () => {
 
       {/* Sticky Save Button when editing */}
       {isEditing && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}><X size={16} /></Button>
-            <span className="text-sm font-semibold">Household Info</span>
-          </div>
-          <Button size="sm" onClick={handleSave} disabled={saving}><Save size={16} /> {saving ? "Saving..." : "Save"}</Button>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center justify-end gap-2 shadow-md">
+          <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditData(employer || {}); }} disabled={saving}>
+            <X size={16} /> Cancel
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={saving}>
+            <Save size={16} /> {saving ? "Saving..." : "Save"}
+          </Button>
         </div>
       )}
 

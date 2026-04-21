@@ -10,7 +10,6 @@ import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import HelperHomeView from "@/components/HelperHomeView";
 import EmployerHomeView from "@/components/EmployerHomeView";
 import HelperApplicationsHub from "@/components/HelperApplicationsHub";
-import PushNotificationDialog from "@/components/PushNotificationDialog";
 import FloatingChatButton from "@/components/support/FloatingChatButton";
 import SupportPage from "@/pages/SupportPage";
 import { Worker } from "@/data/mockWorkers";
@@ -40,7 +39,6 @@ const Index = () => {
   const [employerName, setEmployerName] = useState<string>("");
   const [newApplicantCount, setNewApplicantCount] = useState(0);
   const [profileViewCount, setProfileViewCount] = useState(0);
-  const [showPushDialog, setShowPushDialog] = useState(false);
   const permissionsPromptedRef = useRef(false);
 
   // Sync activeTab when search params change (e.g. navigating from another page)
@@ -51,7 +49,7 @@ const Index = () => {
     }
   }, [searchParams]);
 
-  // Prompt for push notifications and location on first load
+  // Request location on first load
   useEffect(() => {
     if (!user || permissionsPromptedRef.current) return;
     permissionsPromptedRef.current = true;
@@ -60,13 +58,7 @@ const Index = () => {
     if (prompted) return;
     localStorage.setItem("dh_permissions_prompted", "true");
 
-    // Delay slightly so UI settles
     setTimeout(() => {
-      // Request push notifications
-      if ("Notification" in window && Notification.permission === "default") {
-        setShowPushDialog(true);
-      }
-      // Request location
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           () => {},
@@ -434,11 +426,8 @@ const Index = () => {
         </div>
       )}
 
-      {/* Push Notification Permission Dialog */}
-      <PushNotificationDialog open={showPushDialog} onOpenChange={setShowPushDialog} />
-
-      {/* Floating FAQ Chat Button */}
-      <FloatingChatButton />
+      {/* Floating FAQ Chat Button — only show on Support tab */}
+      {activeTab === "support" && <FloatingChatButton />}
     </div>
   );
 };

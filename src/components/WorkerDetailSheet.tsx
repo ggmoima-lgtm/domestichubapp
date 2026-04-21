@@ -263,7 +263,7 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
 
       const { error: updateError } = await supabase
         .from("helpers")
-        .update({ availability_status: "unavailable" })
+        .update({ availability_status: "hired_platform" })
         .eq("id", worker.id);
       if (updateError) throw updateError;
 

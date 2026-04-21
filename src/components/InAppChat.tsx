@@ -247,9 +247,9 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
       });
       if (placementError) throw placementError;
 
-      // Update helper status via security definer function
+      // Update helper status to hired_platform via security definer function
       const { data: updated, error: updateError } = await supabase
-        .rpc("update_helper_availability", { p_helper_id: helperId, p_status: "unavailable" });
+        .rpc("update_helper_availability", { p_helper_id: helperId, p_status: "hired_platform" });
       if (updateError) throw updateError;
       if (!updated) throw new Error("Failed to update helper status");
 
@@ -258,7 +258,7 @@ const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHire
         sender_id: user.id,
         receiver_id: helper.user_id,
         helper_id: helperId,
-        content: "✅ I've marked you as hired! Congratulations — your profile is now set to 'Hired' status.",
+        content: "I've marked you as hired. Congratulations — your profile is now set to 'Hired' status.",
       });
 
       toast.success(`${helperName} has been marked as hired!`);

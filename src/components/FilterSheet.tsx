@@ -75,7 +75,7 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up max-h-[90vh] flex flex-col">
+      <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-float animate-slide-up h-[85vh] flex flex-col pb-[env(safe-area-inset-bottom)]">
         <div className="sticky top-0 bg-card pt-3 pb-2 flex justify-center z-10 rounded-t-3xl">
           <div className="w-10 h-1 bg-muted rounded-full" />
         </div>
@@ -89,7 +89,7 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-5 pb-6 space-y-6">
+        <div className="overflow-y-auto flex-1 px-5 pb-10 space-y-6">
           {/* Toggles */}
           <div className="space-y-2">
             <div className="flex items-center justify-between p-3 bg-primary/5 rounded-2xl">

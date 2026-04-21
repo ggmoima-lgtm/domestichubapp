@@ -21,7 +21,6 @@ import {
   FileText, Calendar, DollarSign, Users, Shield
 } from "lucide-react";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
-import NotificationPreferences from "@/components/NotificationPreferences";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
 
 const startShuftiVerification = async (userId: string, helperId: string) => {
