@@ -27,7 +27,6 @@ import EditJobSheet from "@/components/EditJobSheet";
 import CreditWalletCard from "@/components/CreditWalletCard";
 import InvoiceHistory from "@/components/InvoiceHistory";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
-import NotificationPreferences from "@/components/NotificationPreferences";
 import WorkerDetailSheet from "@/components/WorkerDetailSheet";
 import ApplicationPreviewSheet from "@/components/ApplicationPreviewSheet";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
