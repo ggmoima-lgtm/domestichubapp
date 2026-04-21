@@ -133,27 +133,6 @@ const FAQ_DATA: { category: string; questions: { q: string; a: string }[] }[] = 
     ],
   },
   {
-    category: "Notifications",
-    questions: [
-      {
-        q: "How do I enable push notifications?",
-        a: "When you first log in, you'll be prompted to enable push notifications. If you dismissed it, go to your device's Settings → find Domestic Hub → enable Notifications. In-app notification preferences can be managed from Profile → Notification Preferences.",
-      },
-      {
-        q: "What notifications will I receive?",
-        a: "You can receive notifications for: new messages, profile unlocks, credit transactions, hire updates, interview requests, reviews, and admin actions. Customise which ones you receive from Profile → Notification Preferences.",
-      },
-      {
-        q: "How do I turn off notifications?",
-        a: "Go to Profile → Notification Preferences. Toggle off the notification types you don't want to receive. You can also disable push notifications entirely from your device settings.",
-      },
-      {
-        q: "I'm not receiving notifications",
-        a: "Check that push notifications are enabled in your device settings for Domestic Hub. Also verify your preferences in Profile → Notification Preferences. If issues persist, try logging out and back in, or contact support.",
-      },
-    ],
-  },
-  {
     category: "Reporting & Safety",
     questions: [
       {
@@ -201,7 +180,7 @@ const WELCOME_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi 👋 I'm the Domestic Hub Support Assistant. I can help with common questions about credits, profiles, verification, hiring, payments, notifications, account settings, and more.\n\nChoose a category below or type your question:",
+    "Hi 👋 I'm the Domestic Hub Support Assistant. I can help with common questions about credits, profiles, verification, hiring, payments, account settings, and more.\n\nChoose a category below or type your question:",
 };
 
 const CATEGORIES = FAQ_DATA.map((c) => c.category);
@@ -226,16 +205,12 @@ const findAnswer = (input: string): string | null => {
   if (lower.includes("delete") && lower.includes("account")) return FAQ_DATA[4].questions[0].a;
   if (lower.includes("reset") && lower.includes("password")) return FAQ_DATA[4].questions[1].a;
   if (lower.includes("switch") && lower.includes("role")) return FAQ_DATA[4].questions[3].a;
-  if (lower.includes("notif") && lower.includes("enable")) return FAQ_DATA[5].questions[0].a;
-  if (lower.includes("notif") && (lower.includes("off") || lower.includes("turn"))) return FAQ_DATA[5].questions[2].a;
-  if (lower.includes("notif") && lower.includes("not receiv")) return FAQ_DATA[5].questions[3].a;
-  if (lower.includes("notification")) return FAQ_DATA[5].questions[1].a;
-  if (lower.includes("update") && lower.includes("app")) return FAQ_DATA[7].questions[0].a;
-  if (lower.includes("not loading") || lower.includes("won't load")) return FAQ_DATA[7].questions[1].a;
-  if (lower.includes("browser") && lower.includes("support")) return FAQ_DATA[7].questions[2].a;
-  if (lower.includes("install") || lower.includes("home screen")) return FAQ_DATA[7].questions[3].a;
-  if (lower.includes("block") && lower.includes("user")) return FAQ_DATA[6].questions[2].a;
-  if (lower.includes("flag") && lower.includes("video")) return FAQ_DATA[6].questions[3].a;
+  if (lower.includes("update") && lower.includes("app")) return FAQ_DATA[6].questions[0].a;
+  if (lower.includes("not loading") || lower.includes("won't load")) return FAQ_DATA[6].questions[1].a;
+  if (lower.includes("browser") && lower.includes("support")) return FAQ_DATA[6].questions[2].a;
+  if (lower.includes("install") || lower.includes("home screen")) return FAQ_DATA[6].questions[3].a;
+  if (lower.includes("block") && lower.includes("user")) return FAQ_DATA[5].questions[2].a;
+  if (lower.includes("flag") && lower.includes("video")) return FAQ_DATA[5].questions[3].a;
   if (lower.includes("post") && lower.includes("job")) return FAQ_DATA[1].questions[4].a;
   if (lower.includes("application") && (lower.includes("review") || lower.includes("view"))) return FAQ_DATA[1].questions[5].a;
   if ((lower.includes("photo") || lower.includes("picture")) && lower.includes("profile")) return FAQ_DATA[3].questions[2].a;

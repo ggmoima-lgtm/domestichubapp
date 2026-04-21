@@ -57,12 +57,10 @@ const ComponentSummary = () => {
       category: "👤 Profile & Settings",
       items: [
         { name: "BadgeDisplay", file: "src/components/BadgeDisplay.tsx", desc: "Displays trust/performance/activity badges with colored icons." },
-        { name: "HelperHomeView", file: "src/components/HelperHomeView.tsx", desc: "Helper's home tab showing active job listings with search, apply functionality, push notifications to employers." },
+        { name: "HelperHomeView", file: "src/components/HelperHomeView.tsx", desc: "Helper's home tab showing active job listings with search and apply functionality." },
         { name: "CreateJobSheet", file: "src/components/CreateJobSheet.tsx", desc: "Job posting form for employers." },
         { name: "ApplicationPreviewSheet", file: "src/components/ApplicationPreviewSheet.tsx", desc: "Preview of job applications received." },
-        { name: "NotificationPreferences", file: "src/components/NotificationPreferences.tsx", desc: "Toggle notification types (messages, credits, reviews, etc.)." },
         { name: "ChangePhoneSheet", file: "src/components/ChangePhoneSheet.tsx", desc: "Phone number change flow." },
-        { name: "PushNotificationDialog", file: "src/components/PushNotificationDialog.tsx", desc: "Push notification permission request dialog." },
       ],
     },
     {
