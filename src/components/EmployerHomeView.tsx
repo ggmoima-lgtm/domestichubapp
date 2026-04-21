@@ -39,7 +39,20 @@ const EmployerHomeView = ({
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [filters, setFilters] = useState<FilterState>(() => {
+    try {
+      const saved = localStorage.getItem("employer_filters");
+      return saved ? { ...defaultFilters, ...JSON.parse(saved) } : defaultFilters;
+    } catch {
+      return defaultFilters;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("employer_filters", JSON.stringify(filters));
+    } catch {}
+  }, [filters]);
   const [showUnavailable, setShowUnavailable] = useState(false);
   const [employerAvatar, setEmployerAvatar] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -220,7 +233,12 @@ const EmployerHomeView = ({
           )}
         </button>
         <button
-          onClick={() => navigate("/home?tab=profile#saved-helpers")}
+          onClick={() => {
+            onTabChange("profile");
+            setTimeout(() => {
+              document.getElementById("saved-helpers")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 200);
+          }}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-border text-sm font-medium text-foreground whitespace-nowrap hover:bg-muted transition-colors"
         >
           <Heart size={14} /> Saved

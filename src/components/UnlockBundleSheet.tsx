@@ -126,7 +126,7 @@ const UnlockBundleSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked }
           <div className="bg-muted/40 rounded-2xl p-4 mb-5">
             <p className="text-xs font-bold text-foreground mb-2 uppercase tracking-wide">What's included</p>
             <div className="grid grid-cols-2 gap-2">
-              {["Full name & phone", "Work history & references", "Intro video (full)", "Availability details", "Salary expectation", "Languages & experience"].map((item) => (
+              {["Full name & phone", "Work history", "Intro video (full)", "Availability details", "Salary expectation", "Languages & experience"].map((item) => (
                 <div key={item} className="flex items-center gap-1.5">
                   <CheckCircle size={12} className="text-primary shrink-0" />
                   <span className="text-xs text-muted-foreground">{item}</span>

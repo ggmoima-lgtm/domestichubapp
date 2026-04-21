@@ -111,7 +111,6 @@ const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked,
                     "Watch intro video",
                     "Work history & reviews",
                     "Chat directly",
-                    "Connect outside the app",
                   ].map((item) => (
                     <div key={item} className="flex items-center gap-2">
                       <CheckCircle size={14} className="text-primary shrink-0" />

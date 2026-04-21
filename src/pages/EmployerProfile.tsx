@@ -1003,9 +1003,6 @@ const EmployerProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Notifications */}
-      <NotificationPreferences />
-
       {/* Settings */}
       <Card>
         <CardHeader>

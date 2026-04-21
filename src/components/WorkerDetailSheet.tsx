@@ -671,11 +671,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
               {/* Phone number hidden per spec - no call feature */}
 
               {/* Phone number hidden per spec - no call feature */}
-              {/* Work History / References - UNLOCKED */}
+              {/* Work History - UNLOCKED */}
               <div className="mb-5">
                 <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                   <Briefcase size={16} className="text-primary" />
-                  Work History & References ({completedPlacements.length})
+                  Work History ({completedPlacements.length})
                 </h3>
                 {completedPlacements.length > 0 ? (
                   <div className="space-y-2">
@@ -805,15 +805,11 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
                     <Check size={16} className="text-primary shrink-0" />
-                    Work history, references & reviews
+                    Work history & reviews
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground">
                     <Check size={16} className="text-primary shrink-0" />
                     Chat directly
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-foreground">
-                    <Check size={16} className="text-primary shrink-0" />
-                    Connect outside the app
                   </li>
                 </ul>
                 <p className="text-xs text-muted-foreground text-center mb-4">

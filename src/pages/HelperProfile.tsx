@@ -843,10 +843,6 @@ const HelperProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Notifications */}
-      <div id="notification-preferences" className="scroll-mt-20">
-        <NotificationPreferences userRole="helper" />
-      </div>
 
       {/* Account Controls */}
       <Card>
