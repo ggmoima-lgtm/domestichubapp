@@ -210,6 +210,7 @@ const HelperProfile = () => {
   };
 
   const [showAvailConfirm, setShowAvailConfirm] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!helper || newStatus === helper.availability_status) return;
