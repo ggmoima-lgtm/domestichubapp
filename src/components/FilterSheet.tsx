@@ -23,7 +23,7 @@ export const defaultFilters: FilterState = {
   jobTypes: [],
   skills: [],
   experienceMin: 0,
-  salaryRange: [0, 15000],
+  salaryRange: [0, 30000],
   nearMe: false,
   unlockedOnly: false,
   languages: [],
@@ -67,7 +67,7 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
 
   const activeCount =
     local.locations.length + local.jobTypes.length + local.skills.length + local.languages.length +
-    (local.experienceMin > 0 ? 1 : 0) + (local.salaryRange[0] > 0 || local.salaryRange[1] < 15000 ? 1 : 0) +
+    (local.experienceMin > 0 ? 1 : 0) + (local.salaryRange[0] > 0 || local.salaryRange[1] < 30000 ? 1 : 0) +
     (local.nearMe ? 1 : 0) + (local.unlockedOnly ? 1 : 0) + (local.verifiedOnly ? 1 : 0) + (local.minRating > 0 ? 1 : 0);
 
   if (!isOpen) return null;
@@ -172,7 +172,7 @@ const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) =>
           <div>
             <h3 className="font-bold text-foreground mb-2 flex items-center gap-2 text-sm"><DollarSign size={16} className="text-primary" /> Salary Range (ZAR/month)</h3>
             <div className="px-1 pt-2">
-              <Slider min={0} max={15000} step={500} value={local.salaryRange} onValueChange={(v) => setLocal((p) => ({ ...p, salaryRange: v as [number, number] }))} />
+              <Slider min={0} max={30000} step={500} value={local.salaryRange} onValueChange={(v) => setLocal((p) => ({ ...p, salaryRange: v as [number, number] }))} />
               <div className="flex justify-between text-xs text-muted-foreground mt-2">
                 <span>R{local.salaryRange[0]}</span>
                 <span>R{local.salaryRange[1]}</span>
