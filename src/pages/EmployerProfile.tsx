@@ -71,6 +71,25 @@ interface EmployerData {
   place_id: string | null;
 }
 
+const toLocationData = (profile: Partial<EmployerData> | null | undefined): LocationData | null => {
+  const formattedAddress = profile?.formatted_address || profile?.location || "";
+
+  if (!formattedAddress) {
+    return null;
+  }
+
+  return {
+    latitude: profile?.latitude ?? 0,
+    longitude: profile?.longitude ?? 0,
+    suburb: profile?.suburb || "",
+    city: profile?.city || "",
+    province: profile?.province || "",
+    country: profile?.country || "",
+    formatted_address: formattedAddress,
+    place_id: profile?.place_id || "",
+  };
+};
+
 const EmployerProfile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -113,11 +132,15 @@ const EmployerProfile = () => {
   const fetchData = async () => {
     if (!user) return;
 
-    const { data } = await supabase
+    const { data, error: employerError } = await supabase
       .from("employer_profiles")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    if (employerError) {
+      console.error("[employer_profiles]", employerError.message);
+    }
 
     if (data) {
       const normalizedData = {
@@ -126,11 +149,14 @@ const EmployerProfile = () => {
       } as EmployerData;
       setEmployer(normalizedData);
       setEditData(normalizedData);
+      setEditLocationData(toLocationData(normalizedData));
     } else {
+      setEmployer(null);
       setEditData({
         email: user.email || "",
         availability: [],
       });
+      setEditLocationData(null);
     }
 
     const { count: unlocks } = await supabase
@@ -175,7 +201,6 @@ const EmployerProfile = () => {
     setJobCount(jobs || 0);
     setActiveJobs(jobsData || []);
 
-    // Fetch unlocked profiles with helper details
     const { data: unlocksData } = await supabase
       .from("profile_unlocks")
       .select("*, helpers(id, full_name, avatar_url, category, availability_status, service_type)")
@@ -184,13 +209,11 @@ const EmployerProfile = () => {
       .order("unlocked_at", { ascending: false });
     setUnlockedProfiles(unlocksData || []);
 
-    // Fetch applications for employer's jobs
     const { data: jobPosts } = await supabase
       .from("job_posts")
       .select("id, title")
       .eq("employer_id", user.id);
 
-    // Fetch placements (hired helpers)
     const { data: placementsData } = await supabase
       .from("placements")
       .select("id, helper_id, employer_name, job_type, job_category, status, hired_at, ended_at, helpers(id, full_name, avatar_url, category, availability_status)")
@@ -202,17 +225,16 @@ const EmployerProfile = () => {
     setHireCount(placementsData?.length || 0);
 
     if (jobPosts && jobPosts.length > 0) {
-      const jobIds = jobPosts.map(j => j.id);
-      const { data: apps, count: appCount } = await supabase
+      const jobIds = jobPosts.map((j) => j.id);
+      const { data: apps } = await supabase
         .from("job_applications")
         .select("*, helpers(id, user_id, full_name, avatar_url, category, phone, bio, languages, availability, intro_video_url, availability_status, available_from, skills, experience_years, hourly_rate, is_verified, email)", { count: "exact" })
         .in("job_id", jobIds)
         .order("created_at", { ascending: false });
 
-      // Filter out helpers who have been hired (have active placements)
-      const enrichedApps = (apps || []).filter(app => !hiredHelperIds.includes(app.helper_id)).map(app => ({
+      const enrichedApps = (apps || []).filter((app) => !hiredHelperIds.includes(app.helper_id)).map((app) => ({
         ...app,
-        job_title: jobPosts.find(j => j.id === app.job_id)?.title || "Unknown Job",
+        job_title: jobPosts.find((j) => j.id === app.job_id)?.title || "Unknown Job",
       }));
       setApplications(enrichedApps);
       setApplicationCount(enrichedApps.length);
@@ -267,22 +289,46 @@ const EmployerProfile = () => {
         place_id: editData.place_id || null,
       };
 
-      let error;
+      let error = null;
+      let savedEmployer: EmployerData | null = null;
+
       if (employer) {
-        ({ error } = await supabase
+        const { data: updatedEmployer, error: updateError } = await supabase
           .from("employer_profiles")
           .update(payload)
-          .eq("user_id", user.id));
+          .eq("user_id", user.id)
+          .select("*")
+          .maybeSingle();
+
+        error = updateError;
+        savedEmployer = (updatedEmployer as EmployerData | null) ?? null;
       } else {
-        ({ error } = await supabase
+        const { data: insertedEmployer, error: insertError } = await supabase
           .from("employer_profiles")
-          .insert({ ...payload, user_id: user.id }));
+          .insert({ ...payload, user_id: user.id })
+          .select("*")
+          .single();
+
+        error = insertError;
+        savedEmployer = insertedEmployer as EmployerData;
       }
 
       if (error) {
         toast.error("Failed to update profile: " + error.message);
         return;
       }
+
+      const normalizedSavedEmployer = {
+        ...(employer || {}),
+        ...(savedEmployer || {}),
+        ...payload,
+        user_id: employer?.user_id || savedEmployer?.user_id || user.id,
+        email: (savedEmployer?.email || resolvedEmail) ?? null,
+      } as EmployerData;
+
+      setEmployer(normalizedSavedEmployer);
+      setEditData(normalizedSavedEmployer);
+      setEditLocationData(toLocationData(normalizedSavedEmployer));
 
       const { error: profileSyncError } = await supabase
         .from("profiles")
