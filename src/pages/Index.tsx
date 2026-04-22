@@ -292,11 +292,10 @@ const Index = () => {
     const pendingToast = toast.loading("Confirming your payment…");
 
     let cancelled = false;
-    const startBalance = creditBalance;
-    const maxAttempts = 10; // ~20s total
     let attempt = 0;
+    const maxAttempts = 10; // ~20s total
 
-    const poll = async () => {
+    const poll = async (startBalance: number) => {
       if (cancelled) return;
       attempt += 1;
 
@@ -306,12 +305,15 @@ const Index = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
+      if (error) console.error("[payment poll]", error.message);
+
       const newBalance = data?.balance ?? 0;
 
       if (!error && newBalance > startBalance) {
         toast.success("Payment confirmed — credits added to your wallet.", { id: pendingToast });
         setCreditBalance(newBalance);
         setUnlockRefresh((r) => r + 1);
+        paymentProcessedRef.current = false;
         return;
       }
 
@@ -321,14 +323,24 @@ const Index = () => {
           description: "Credits should appear shortly. Refresh if they don't arrive in a minute.",
         });
         setUnlockRefresh((r) => r + 1);
+        paymentProcessedRef.current = false;
         return;
       }
 
-      setTimeout(poll, 2000);
+      setTimeout(() => poll(startBalance), 2000);
     };
 
-    // Initial small delay to give the webhook a head start
-    const t = setTimeout(poll, 1500);
+    // Fetch actual current balance FIRST, then begin polling
+    const t = setTimeout(async () => {
+      if (cancelled) return;
+      const { data } = await supabase
+        .from("credit_wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const baseline = data?.balance ?? 0;
+      poll(baseline);
+    }, 1500);
 
     return () => {
       cancelled = true;
