@@ -259,7 +259,9 @@ const Index = () => {
       });
   }, [user, unlockRefresh]);
 
-  // Handle payment callback — credits are added server-side by the webhook
+  // Handle payment callback — credits are added server-side by the Paystack webhook.
+  // We don't trust the URL param alone: poll the wallet balance to confirm the
+  // webhook actually credited the account before showing a success toast.
   useEffect(() => {
     if (paymentProcessedRef.current) return;
     if (!user) return;
@@ -271,18 +273,57 @@ const Index = () => {
 
     paymentProcessedRef.current = true;
 
-    // Navigate to profile tab
     if (tabParam === "profile") {
       setActiveTab("profile");
     }
 
     setSearchParams({}, { replace: true });
 
-    toast.success("Payment received! Your credits will appear shortly.");
-    // Refresh balance after a short delay to allow webhook processing
-    setTimeout(() => {
-      setUnlockRefresh((r) => r + 1);
-    }, 3000);
+    const pendingToast = toast.loading("Confirming your payment…");
+
+    let cancelled = false;
+    const startBalance = creditBalance;
+    const maxAttempts = 10; // ~20s total
+    let attempt = 0;
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempt += 1;
+
+      const { data, error } = await supabase
+        .from("credit_wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const newBalance = data?.balance ?? 0;
+
+      if (!error && newBalance > startBalance) {
+        toast.success("Payment confirmed — credits added to your wallet.", { id: pendingToast });
+        setCreditBalance(newBalance);
+        setUnlockRefresh((r) => r + 1);
+        return;
+      }
+
+      if (attempt >= maxAttempts) {
+        toast.message("Still processing your payment", {
+          id: pendingToast,
+          description: "Credits should appear shortly. Refresh if they don't arrive in a minute.",
+        });
+        setUnlockRefresh((r) => r + 1);
+        return;
+      }
+
+      setTimeout(poll, 2000);
+    };
+
+    // Initial small delay to give the webhook a head start
+    const t = setTimeout(poll, 1500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, [user, searchParams]);
 
 
