@@ -592,6 +592,7 @@ export type Database = {
           created_at: string
           helper_id: string
           id: string
+          moderation_status: string
           read: boolean
           receiver_id: string
           sender_id: string
@@ -601,6 +602,7 @@ export type Database = {
           created_at?: string
           helper_id: string
           id?: string
+          moderation_status?: string
           read?: boolean
           receiver_id: string
           sender_id: string
@@ -610,6 +612,7 @@ export type Database = {
           created_at?: string
           helper_id?: string
           id?: string
+          moderation_status?: string
           read?: boolean
           receiver_id?: string
           sender_id?: string

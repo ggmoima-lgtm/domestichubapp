@@ -84,10 +84,23 @@ Respond ONLY with a JSON object. No markdown, no code fences.
       console.error("Failed to parse AI response:", rawText);
     }
 
-    // If flagged, log to audit_logs
+    // If flagged, log to audit_logs AND mark the message itself as flagged
+    // so the receiver's RLS policy hides it.
     if (result.flagged) {
       const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
       const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+      // Mark the message as flagged so receivers stop seeing it
+      await fetch(`${SUPABASE_URL}/rest/v1/messages?id=eq.${message_id}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ moderation_status: "flagged" }),
+      });
 
       await fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
         method: "POST",

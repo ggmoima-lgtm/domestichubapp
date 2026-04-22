@@ -6,6 +6,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Internal-only guard: this function may only be invoked with the project's
+// service-role key. The Paystack webhook (server-side) holds it; the client
+// browser bundle never does. Blocks anyone trying to spoof invoices by
+// calling supabase.functions.invoke('send-invoice-email') from the client.
+function isInternalCaller(req: Request): boolean {
+  const auth = req.headers.get("authorization") || "";
+  const token = auth.replace(/^Bearer\s+/i, "").trim();
+  const serviceRole = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "").trim();
+  return Boolean(serviceRole) && token === serviceRole;
+}
+
 const LOGO_URL = "https://qlvcirkyharrarblgdue.supabase.co/storage/v1/object/public/avatars/logo.jpg";
 
 const COMPANY_DETAILS = {
@@ -132,6 +143,14 @@ function generateInvoiceHtml(invoice: {
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Reject any non-internal caller (anything not bearing the service-role key).
+  if (!isInternalCaller(req)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
