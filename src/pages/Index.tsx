@@ -200,7 +200,7 @@ const Index = () => {
       setHelpersLoading(false);
     };
     fetchHelpers();
-  }, [user, unlockRefresh]);
+  }, [user]); // helpers list doesn't change when an unlock happens
 
   // Fetch unlocked helper IDs and full helper profiles
   useEffect(() => {
