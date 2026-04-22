@@ -274,7 +274,8 @@ const Index = () => {
       .select("balance")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error: walletError }) => {
+        if (walletError) console.error("[credit_wallets]", walletError.message);
         setCreditBalance(data?.balance ?? 0);
       });
   }, [user, unlockRefresh]);
