@@ -169,13 +169,13 @@ const Index = () => {
   useEffect(() => {
     if (!user) return;
     const fetchHelpers = async () => {
-      const { data: helpers, error } = await supabase
+      const { data: helpers, error: helpersError } = await supabase
         .from("helpers_public")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) console.error("[helpers_public]", error.message);
+      if (helpersError) console.error("[helpers_public]", helpersError.message);
       
       const mapped: Worker[] = (helpers || []).map((h: any) => ({
         id: h.id,
@@ -212,22 +212,26 @@ const Index = () => {
   useEffect(() => {
     if (!user) return;
     const fetchUnlocks = async () => {
-      const { data: unlocks } = await supabase
+      const { data: unlocks, error: unlocksError } = await supabase
         .from("profile_unlocks")
         .select("helper_id")
         .eq("employer_id", user.id)
         .gt("expires_at", new Date().toISOString());
-      
+
+      if (unlocksError) console.error("[profile_unlocks]", unlocksError.message);
+
       const dbIds = (unlocks || []).map((d) => d.helper_id);
       setUnlockedIds(dbIds);
 
       if (dbIds.length > 0) {
         // Explicit column list — phone/email are sensitive and only fetched here
         // because the employer has an active unlock (enforced by RLS).
-        const { data: helpers } = await supabase
+        const { data: helpers, error: helpersError } = await supabase
           .from("helpers")
           .select("id, user_id, full_name, category, service_type, age, gender, nationality, living_arrangement, bio, experience_years, hourly_rate, availability, availability_status, available_from, skills, skills_domestic, skills_gardening, has_tools, has_work_permit, languages, avatar_url, intro_video_url, is_verified, verification_status, location, phone, email")
           .in("id", dbIds);
+
+        if (helpersError) console.error("[helpers unlock]", helpersError.message);
         
         const mapped: Worker[] = (helpers || []).map((h) => ({
           id: h.id,
@@ -270,7 +274,8 @@ const Index = () => {
       .select("balance")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error: walletError }) => {
+        if (walletError) console.error("[credit_wallets]", walletError.message);
         setCreditBalance(data?.balance ?? 0);
       });
   }, [user, unlockRefresh]);
