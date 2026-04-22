@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Locate, Loader2 } from "lucide-react";
+import { MapPin, Locate, Loader2, Settings } from "lucide-react";
+import { isMedianApp, openAppSettings } from "@/lib/medianBridge";
 
 type PlacesMode = "new" | "legacy" | null;
 
@@ -335,12 +336,25 @@ const LocationAutocomplete = ({ value, onChange, placeholder }: LocationAutocomp
             Location permission was denied.
           </p>
           <p className="text-xs text-muted-foreground">
-            To use precise location, allow location access in your browser or device settings, then try again.
+            {isMedianApp()
+              ? "To use precise location, open Settings and enable Location for Domestic Hub, then come back and try again."
+              : "To use precise location, allow location access in your browser or device settings, then try again."}
           </p>
           <div className="flex gap-2">
             <Button size="sm" onClick={doGeolocate} className="flex-1">
               Try again
             </Button>
+            {isMedianApp() && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={openAppSettings}
+                className="flex-1"
+              >
+                <Settings size={14} className="mr-1" />
+                Open Settings
+              </Button>
+            )}
             <Button size="sm" variant="outline" onClick={() => setShowPermissionPrompt(false)} className="flex-1">
               Dismiss
             </Button>
