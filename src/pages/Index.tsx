@@ -153,10 +153,12 @@ const Index = () => {
           .eq("user_id", user.id)
           .maybeSingle();
         if (!helperData) { setProfileViewCount(0); return; }
-        const { count } = await supabase
+        const { count, error } = await supabase
           .from("profile_unlocks")
           .select("id", { count: "exact", head: true })
-          .eq("helper_id", helperData.id);
+          .eq("helper_id", helperData.id)
+          .gt("expires_at", new Date().toISOString());
+        if (error) console.error("[profile_unlocks count]", error.message);
         setProfileViewCount(count || 0);
       }
     };
