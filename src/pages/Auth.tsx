@@ -261,7 +261,7 @@ const Auth = () => {
         handleSignupComplete();
       }, 500);
     } catch (error: any) {
-      toast({ title: "Verification failed", description: error.message, variant: "destructive" });
+      toast({ title: "Invalid code", description: error.message || "That code didn't work. Please try again.", variant: "destructive" });
     } finally {
       setOtpLoading(false);
     }
