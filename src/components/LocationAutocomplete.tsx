@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useGoogleMaps } from "@/hooks/useGoogleMaps";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Locate, Loader2 } from "lucide-react";
+import { MapPin, Locate, Loader2, Settings } from "lucide-react";
+import { isMedianApp, openAppSettings } from "@/lib/medianBridge";
 
 type PlacesMode = "new" | "legacy" | null;
 
