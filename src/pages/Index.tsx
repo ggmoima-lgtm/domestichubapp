@@ -89,9 +89,19 @@ const Index = () => {
         return;
       }
 
+      // Resolve role strictly: profile.role first, then auth metadata, then auth metadata only
+      // if it's a known value. Never silently default to "employer" — that grants
+      // browse/unlock capabilities to anyone with a malformed profile.
       const metadataRole = user.user_metadata?.role;
-      const fallbackRole = metadataRole === "helper" || metadataRole === "employer" ? metadataRole : "employer";
-      const resolvedRole = data?.role || fallbackRole;
+      const profileRole = (data as any)?.role;
+      const candidate = profileRole || metadataRole;
+      const resolvedRole = candidate === "helper" || candidate === "employer" ? candidate : null;
+
+      if (!resolvedRole) {
+        // Profile exists but has no valid role — send to onboarding to repair.
+        navigate("/onboarding", { replace: true });
+        return;
+      }
 
       setUserRole(resolvedRole);
       setEmployerName(data?.full_name?.split(" ")[0] || "");
