@@ -1204,6 +1204,7 @@ export type Database = {
           experience_years: number | null
           full_name: string | null
           gender: string | null
+          has_tools: boolean | null
           has_work_permit: boolean | null
           hourly_rate: number | null
           id: string | null
@@ -1211,10 +1212,15 @@ export type Database = {
           is_verified: boolean | null
           languages: string[] | null
           living_arrangement: string | null
+          location: string | null
           nationality: string | null
+          service_type: string | null
           skills: string[] | null
+          skills_domestic: string[] | null
+          skills_gardening: string[] | null
           updated_at: string | null
           user_id: string | null
+          verification_status: string | null
           video_flagged: boolean | null
           video_moderation_status: string | null
         }
@@ -1230,6 +1236,7 @@ export type Database = {
           experience_years?: number | null
           full_name?: string | null
           gender?: string | null
+          has_tools?: boolean | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string | null
@@ -1237,10 +1244,15 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
+          location?: string | null
           nationality?: string | null
+          service_type?: string | null
           skills?: string[] | null
+          skills_domestic?: string[] | null
+          skills_gardening?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+          verification_status?: string | null
           video_flagged?: boolean | null
           video_moderation_status?: string | null
         }
@@ -1256,6 +1268,7 @@ export type Database = {
           experience_years?: number | null
           full_name?: string | null
           gender?: string | null
+          has_tools?: boolean | null
           has_work_permit?: boolean | null
           hourly_rate?: number | null
           id?: string | null
@@ -1263,10 +1276,15 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string[] | null
           living_arrangement?: string | null
+          location?: string | null
           nationality?: string | null
+          service_type?: string | null
           skills?: string[] | null
+          skills_domestic?: string[] | null
+          skills_gardening?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+          verification_status?: string | null
           video_flagged?: boolean | null
           video_moderation_status?: string | null
         }
