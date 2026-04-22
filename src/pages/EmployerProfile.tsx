@@ -418,7 +418,19 @@ const EmployerProfile = () => {
     );
   }
 
-  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.avatar_url;
+  const isProfileIncomplete = !employer?.full_name || !employer?.location || !employer?.avatar_url || !employer?.category;
+
+  const handlePostJobClick = () => {
+    if (isProfileIncomplete) {
+      toast.error("Complete your profile first", {
+        description: "Add a profile photo, verified location, name, and category before posting a job.",
+      });
+      setIsEditing(true);
+      setTimeout(() => document.getElementById("household-info")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+      return;
+    }
+    setShowCreateJob(true);
+  };
 
   return (
     <div className="pb-28 space-y-4">
@@ -668,7 +680,13 @@ const EmployerProfile = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">Job Management</CardTitle>
-          <Button size="sm" onClick={() => setShowCreateJob(true)} className="gap-1">
+          <Button
+            size="sm"
+            onClick={handlePostJobClick}
+            className="gap-1"
+            aria-disabled={isProfileIncomplete}
+            title={isProfileIncomplete ? "Complete your profile to post jobs" : undefined}
+          >
             <Plus size={14} /> Post Job
           </Button>
         </CardHeader>
