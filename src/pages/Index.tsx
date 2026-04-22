@@ -167,9 +167,13 @@ const Index = () => {
   useEffect(() => {
     if (!user) return;
     const fetchHelpers = async () => {
-      const { data: helpers } = await supabase
+      const { data: helpers, error } = await supabase
         .from("helpers_public")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) console.error("[helpers_public]", error.message);
       
       const mapped: Worker[] = (helpers || []).map((h: any) => ({
         id: h.id,
