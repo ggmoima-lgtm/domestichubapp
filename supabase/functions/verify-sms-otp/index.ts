@@ -15,8 +15,8 @@ Deno.serve(async (req) => {
     const { phone, code, purpose = "phone_change" } = await req.json();
 
     if (!phone || !code || typeof code !== "string" || code.length !== 6) {
-      return new Response(JSON.stringify({ error: "Invalid request" }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: "Please enter the full 6-digit code." }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -81,15 +81,15 @@ Deno.serve(async (req) => {
 
     if (fetchError || !otpRecord) {
       return new Response(
-        JSON.stringify({ error: "No valid OTP found. Please request a new code." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Code expired or not found. Tap 'Resend code' to get a new one." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (otpRecord.attempts >= otpRecord.max_attempts) {
       return new Response(
-        JSON.stringify({ error: "Too many attempts. Please request a new code." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Too many incorrect attempts. Please request a new code." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -100,9 +100,12 @@ Deno.serve(async (req) => {
 
     if (otpRecord.code !== code) {
       const remaining = otpRecord.max_attempts - (otpRecord.attempts + 1);
+      const msg = remaining > 0
+        ? `Incorrect code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`
+        : "Incorrect code. Please request a new one.";
       return new Response(
-        JSON.stringify({ error: `Invalid code. ${remaining} attempt(s) remaining.` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: msg }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
