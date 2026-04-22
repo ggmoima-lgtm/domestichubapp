@@ -206,9 +206,17 @@ const Index = () => {
       setUnlockedIds(dbIds);
 
       if (dbIds.length > 0) {
+        // Explicit column list — phone/email are sensitive and only fetched here
+        // because the employer has an active unlock (enforced by RLS).
         const { data: helpers } = await supabase
           .from("helpers")
-          .select("*")
+          .select(
+            "id, user_id, full_name, category, service_type, age, gender, nationality, " +
+            "living_arrangement, bio, experience_years, hourly_rate, availability, " +
+            "availability_status, available_from, skills, skills_domestic, skills_gardening, " +
+            "has_tools, has_work_permit, languages, avatar_url, intro_video_url, " +
+            "is_verified, verification_status, location, phone, email"
+          )
           .in("id", dbIds);
         
         const mapped: Worker[] = (helpers || []).map((h) => ({
