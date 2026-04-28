@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 import { Checkbox } from "./ui/checkbox";
 
@@ -17,6 +18,7 @@ interface UnlockConfirmSheetProps {
 }
 
 const UnlockConfirmSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked, onBuyCredits }: UnlockConfirmSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);

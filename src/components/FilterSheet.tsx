@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 export interface FilterState {
   locations: string[];
@@ -56,6 +57,7 @@ const RATING_OPTIONS = [
 ];
 
 const FilterSheet = ({ isOpen, onClose, filters, onApply }: FilterSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const [local, setLocal] = useState<FilterState>(filters);
 
   const toggle = (key: "locations" | "jobTypes" | "skills" | "languages", value: string) => {

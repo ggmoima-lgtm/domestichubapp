@@ -4,6 +4,7 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useState } from "react";
 
 interface CartSheetProps {
@@ -16,6 +17,7 @@ const MIN_CHECKOUT_AMOUNT = 150;
 const MIN_PROFILES = MIN_CHECKOUT_AMOUNT / PRICE_PER_PROFILE; // 3
 
 const CartSheet = ({ isOpen, onClose }: CartSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { items, removeItem, clearCart, itemCount } = useCart();
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);

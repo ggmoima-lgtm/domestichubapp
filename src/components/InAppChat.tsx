@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Message {
   id: string;
@@ -26,6 +27,7 @@ interface InAppChatProps {
 }
 
 const InAppChat = ({ isOpen, onClose, helperId, helperName, helperAvatar, onHired, isHired }: InAppChatProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");

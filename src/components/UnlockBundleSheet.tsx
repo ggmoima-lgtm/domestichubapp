@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Bundle {
   id: string;
@@ -56,6 +57,7 @@ interface UnlockBundleSheetProps {
 }
 
 const UnlockBundleSheet = ({ isOpen, onClose, helperName, helperId, onUnlocked }: UnlockBundleSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [selectedBundle, setSelectedBundle] = useState<string>("bundle_5");
   const [isProcessing, setIsProcessing] = useState(false);
