@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
