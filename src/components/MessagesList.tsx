@@ -19,9 +19,26 @@ const MessagesList = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [openChat, setOpenChat] = useState<Conversation | null>(null);
+  const [isHelper, setIsHelper] = useState(false);
 
   useEffect(() => {
-    if (user) fetchConversations();
+    if (user) {
+      const role =
+        (user.user_metadata as any)?.role ||
+        (user.app_metadata as any)?.role;
+      if (role === "helper") {
+        setIsHelper(true);
+      } else {
+        // Fallback: check profiles table
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle()
+          .then(({ data }) => setIsHelper(data?.role === "helper"));
+      }
+      fetchConversations();
+    }
   }, [user]);
 
   const fetchConversations = async () => {
