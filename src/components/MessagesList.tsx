@@ -139,8 +139,10 @@ const MessagesList = () => {
             <MessageCircle size={28} className="text-muted-foreground" />
           </div>
           <h4 className="font-semibold text-foreground mb-1">No messages yet</h4>
-          <p className="text-sm text-muted-foreground max-w-[240px]">
-            When you unlock a helper's profile, you can start chatting with them here.
+          <p className="text-sm text-muted-foreground max-w-[260px]">
+            {isHelper
+              ? "When an employer messages you about a job, your conversations will appear here."
+              : "When you unlock a helper's profile, you can start chatting with them here."}
           </p>
         </div>
       ) : (
