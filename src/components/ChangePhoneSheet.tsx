@@ -6,6 +6,7 @@ import { Label } from "./ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface ChangePhoneSheetProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface ChangePhoneSheetProps {
 }
 
 const ChangePhoneSheet = ({ isOpen, onClose, currentPhone, onChanged }: ChangePhoneSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [step, setStep] = useState<"enter" | "verify">("enter");
   const [newPhone, setNewPhone] = useState("");

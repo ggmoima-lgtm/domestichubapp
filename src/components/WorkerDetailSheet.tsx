@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -134,6 +135,9 @@ const WorkerDetailSheet = ({ worker, isOpen, onClose, onHired }: WorkerDetailShe
   const [remainingUnlocks, setRemainingUnlocks] = useState(0);
 
   const isValidUuid = worker ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(worker.id) : false;
+
+  // Close on Escape key
+  useEscapeKey(isOpen, onClose);
 
   // Check unlock status
   useEffect(() => {

@@ -5,6 +5,7 @@ import { Label } from "./ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { Flag, Ban, X } from "lucide-react";
 
 interface ReportBlockSheetProps {
@@ -24,6 +25,7 @@ const REPORT_REASONS = [
 ];
 
 const ReportBlockSheet = ({ isOpen, onClose, targetUserId, targetName }: ReportBlockSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [mode, setMode] = useState<"menu" | "report">("menu");
   const [selectedReason, setSelectedReason] = useState("");

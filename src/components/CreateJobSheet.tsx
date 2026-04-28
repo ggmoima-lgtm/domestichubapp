@@ -10,6 +10,7 @@ import LocationAutocomplete, { LocationData } from "./LocationAutocomplete";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { X, Plus, Briefcase } from "lucide-react";
 import { maskContactInfo } from "@/lib/contactMasking";
 
@@ -38,6 +39,7 @@ const GARDENING_DUTIES = [
 ];
 
 const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");

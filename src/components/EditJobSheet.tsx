@@ -8,6 +8,7 @@ import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { X, Briefcase } from "lucide-react";
 import { maskContactInfo } from "@/lib/contactMasking";
 
@@ -37,6 +38,7 @@ const GARDENING_DUTIES = [
 ];
 
 const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");

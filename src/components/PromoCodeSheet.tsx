@@ -5,6 +5,7 @@ import { X, Gift, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface PromoCodeSheetProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface PromoCodeSheetProps {
 }
 
 const PromoCodeSheet = ({ isOpen, onClose }: PromoCodeSheetProps) => {
+  useEscapeKey(isOpen, onClose);
   const { user } = useAuth();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
