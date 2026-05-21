@@ -88,6 +88,25 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // For password reset, verify the phone number is registered before sending an OTP
+    if (purpose === "password_reset" && channel === "sms") {
+      const sanitizedPhone = identifier;
+      const cleanPhone = phone.replace(/\D/g, "");
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .or(`phone.eq.${sanitizedPhone},phone.eq.${cleanPhone}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!existing?.user_id) {
+        return new Response(
+          JSON.stringify({ error: "No account found for this phone number. Please sign up first." }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // Cleanup expired OTPs, then rate limit
     const nowIso = new Date().toISOString();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
