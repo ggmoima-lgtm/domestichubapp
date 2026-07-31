@@ -211,20 +211,37 @@ Deno.serve(async (req) => {
           sendOptions: { testMode: false },
           messages: [
             {
-              destination: identifier,
+              destination: smsDestination,
               content: `Your Domestic Hub verification code is: ${code}. It expires in 10 minutes. Do not share this code.`,
             },
           ],
         }),
       });
 
+      const smsBody = await smsResponse.text();
+
       if (!smsResponse.ok) {
-        const smsError = await smsResponse.text();
-        console.error("SMSPortal send error:", smsError);
+        console.error("SMSPortal send error:", smsBody);
         return new Response(JSON.stringify({ error: "Failed to send SMS" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      }
+
+      console.log("SMSPortal response:", smsBody);
+
+      try {
+        const parsed = JSON.parse(smsBody);
+        const failed = (parsed?.messages ?? []).filter((m: any) => m?.accepted === false);
+        if (failed.length > 0) {
+          console.error("SMSPortal rejected message:", JSON.stringify(failed));
+          return new Response(
+            JSON.stringify({ error: "SMS could not be delivered to this number. Please check it and try again." }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch (_) {
+        // non-JSON body, ignore
       }
     } else {
       // Send email via Resend API
