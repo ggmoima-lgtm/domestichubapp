@@ -73,6 +73,8 @@ Deno.serve(async (req) => {
       ? phone.replace(/[^\d+\s]/g, "").trim()
       : email.trim().toLowerCase();
 
+    // E.164 destination for SMSPortal (defaults to South Africa +27)
+    let smsDestination = "";
     if (channel === "sms") {
       const sanitizedPhone = identifier;
       if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
@@ -81,7 +83,24 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      let digits = phone.replace(/\D/g, "");
+      if (digits.startsWith("00")) digits = digits.slice(2);
+      if (digits.length === 10 && digits.startsWith("0")) {
+        digits = `27${digits.slice(1)}`;
+      } else if (digits.length === 9) {
+        digits = `27${digits}`;
+      }
+      smsDestination = `+${digits}`;
+
+      if (digits.length < 10 || digits.length > 15) {
+        return new Response(JSON.stringify({ error: "Invalid phone number format" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
+
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
