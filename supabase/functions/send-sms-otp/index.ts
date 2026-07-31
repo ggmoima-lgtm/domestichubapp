@@ -232,9 +232,11 @@ Deno.serve(async (req) => {
 
       try {
         const parsed = JSON.parse(smsBody);
-        const failed = (parsed?.messages ?? []).filter((m: any) => m?.accepted === false);
-        if (failed.length > 0) {
-          console.error("SMSPortal rejected message:", JSON.stringify(failed));
+        const faults = parsed?.errorReport?.faults ?? [];
+        const noNetwork = parsed?.errorReport?.noNetwork ?? 0;
+        if (faults.length > 0 || noNetwork > 0) {
+          console.error("SMSPortal rejected message:", JSON.stringify(parsed?.errorReport));
+
           return new Response(
             JSON.stringify({ error: "SMS could not be delivered to this number. Please check it and try again." }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
