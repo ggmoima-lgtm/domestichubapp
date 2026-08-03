@@ -72,13 +72,18 @@ Deno.serve(async (req) => {
       .select("*")
       .in("phone", variants)
       .in("purpose", ["signup_verify", "phone_verify", "phone_change"])
-      .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
     const otpRecord = rows?.[0];
+    const now = Date.now();
+    const expiresAt = otpRecord ? new Date(otpRecord.expires_at).getTime() : 0;
+    const createdAt = otpRecord ? new Date(otpRecord.created_at).getTime() : 0;
+    const isRetryWindow = Boolean(
+      otpRecord?.verified && Number.isFinite(createdAt) && now - createdAt <= 10 * 60 * 1000,
+    );
 
-    if (fetchError || !otpRecord) {
+    if (fetchError || !otpRecord || (expiresAt <= now && !isRetryWindow)) {
       console.log("verify-worker-signup-otp: no matching OTP", JSON.stringify({
         variants, fetchError: fetchError?.message ?? null,
       }));
