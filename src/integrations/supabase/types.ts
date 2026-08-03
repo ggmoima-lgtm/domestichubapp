@@ -892,6 +892,8 @@ export type Database = {
           phone: string | null
           phone_e164: string | null
           phone_verified_at: string | null
+          pin_hash: string | null
+          pin_set_at: string | null
           primary_role: string | null
           role: string | null
           role_assigned_at: string | null
@@ -920,6 +922,8 @@ export type Database = {
           phone?: string | null
           phone_e164?: string | null
           phone_verified_at?: string | null
+          pin_hash?: string | null
+          pin_set_at?: string | null
           primary_role?: string | null
           role?: string | null
           role_assigned_at?: string | null
@@ -948,6 +952,8 @@ export type Database = {
           phone?: string | null
           phone_e164?: string | null
           phone_verified_at?: string | null
+          pin_hash?: string | null
+          pin_set_at?: string | null
           primary_role?: string | null
           role?: string | null
           role_assigned_at?: string | null
