@@ -178,37 +178,50 @@ const Index = () => {
         .limit(50);
 
       if (helpersError) console.error("[helpers_public]", helpersError.message);
-      
-      const mapped: Worker[] = (helpers || []).map((h: any) => ({
-        id: h.id,
-        name: h.full_name,
-        role: h.category,
-        location: "",
-        rating: 0,
-        reviews: 0,
-        experience: `${h.experience_years || 0} yrs`,
-        monthlyRate: h.hourly_rate ? `R${h.hourly_rate}` : "Negotiable",
-        verified: h.is_verified || false,
-        avatar: h.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-        skills: h.skills || [],
-        bio: h.bio || undefined,
-        languages: h.languages || undefined,
-        availability: h.availability || undefined,
-        introVideo: h.intro_video_url || undefined,
-        availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
-        availableFrom: h.available_from || null,
-        phone: undefined,
-        email: undefined,
-        serviceType: "domestic",
-        skillsDomestic: [],
-        skillsGardening: [],
-        hasTools: false,
-      }));
+
+      // Content fields come from the new schema; the legacy view only supplies
+      // the linking id plus media/moderation state.
+      const profileIds = (helpers || []).map((h: any) => h.user_id).filter(Boolean) as string[];
+      const overlays = await fetchWorkerOverlays(profileIds);
+
+      const mapped: Worker[] = (helpers || []).map((h: any) => {
+        const o = overlays.get(h.user_id);
+        return {
+          id: h.id,
+          name: o?.fullName || h.full_name,
+          role: o?.categories.length ? o.categories.map((c) => c.name).join(", ") : h.category,
+          location: o?.publicArea || "",
+          rating: 0,
+          reviews: 0,
+          experience: `${o?.yearsExperience ?? h.experience_years ?? 0} yrs`,
+          monthlyRate: o?.expectedSalary
+            ? `R${o.expectedSalary}`
+            : h.hourly_rate
+              ? `R${h.hourly_rate}`
+              : "Negotiable",
+          verified: h.is_verified || false,
+          avatar: h.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+          skills: o?.skills.length ? o.skills : h.skills || [],
+          bio: o?.biography || undefined,
+          languages: o?.languages.length ? o.languages : h.languages || undefined,
+          availability: o?.employmentTypes.length ? o.employmentTypes.join(", ") : h.availability || undefined,
+          introVideo: h.intro_video_url || undefined,
+          availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
+          availableFrom: h.available_from || null,
+          phone: undefined,
+          email: undefined,
+          serviceType: (o?.categories[0]?.slug === "gardening" ? "gardening" : "domestic") as Worker["serviceType"],
+          skillsDomestic: [],
+          skillsGardening: [],
+          hasTools: h.has_tools || false,
+        };
+      });
       setDbHelpers(mapped);
       setHelpersLoading(false);
     };
     fetchHelpers();
   }, [user]); // helpers list doesn't change when an unlock happens
+
 
   // Fetch unlocked helper IDs and full helper profiles
   useEffect(() => {
