@@ -302,3 +302,61 @@ export async function saveWorkerProfile(
 
   return { error: null };
 }
+
+export interface WorkerOverlay {
+  fullName: string | null;
+  biography: string | null;
+  yearsExperience: number | null;
+  expectedSalary: string | null;
+  skills: string[];
+  languages: string[];
+  publicArea: string | null;
+  employmentTypes: string[];
+  categories: WorkerCategory[];
+  status: string | null;
+}
+
+/**
+ * New-schema content for a set of profile ids, keyed by profile id.
+ * Used to overlay the public browse list (which is served by the legacy
+ * masked view for media/status only).
+ */
+export async function fetchWorkerOverlays(
+  profileIds: string[],
+): Promise<Map<string, WorkerOverlay>> {
+  const map = new Map<string, WorkerOverlay>();
+  if (profileIds.length === 0) return map;
+
+  const [{ data: profiles }, { data: workers }, { data: availabilities }, categoryMap] =
+    await Promise.all([
+      supabase.from("profiles").select("user_id, first_name, last_name, full_name, surname, area").in("user_id", profileIds),
+      supabase.from("worker_profiles").select("*").in("profile_id", profileIds),
+      supabase.from("worker_availability").select("*").in("worker_profile_id", profileIds),
+      fetchCategoryMap(profileIds),
+    ]);
+
+  const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+  const availMap = new Map((availabilities || []).map((a: any) => [a.worker_profile_id, a]));
+
+  for (const pid of profileIds) {
+    const w: any = (workers || []).find((x: any) => x.profile_id === pid);
+    const p: any = profileMap.get(pid);
+    const a: any = availMap.get(pid);
+    if (!w && !p) continue;
+    map.set(pid, {
+      fullName: p ? displayName(p, null) : null,
+      biography: w?.biography ?? null,
+      yearsExperience: w?.years_experience ?? null,
+      expectedSalary: w?.expected_salary ?? null,
+      skills: w?.skills_text
+        ? String(w.skills_text).split(",").map((s: string) => s.trim()).filter(Boolean)
+        : [],
+      languages: w?.languages ?? [],
+      publicArea: w?.public_area ?? p?.area ?? null,
+      employmentTypes: a?.employment_types ?? [],
+      categories: categoryMap.get(pid) || [],
+      status: w?.status ?? null,
+    });
+  }
+  return map;
+}
