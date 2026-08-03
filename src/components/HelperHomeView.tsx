@@ -88,25 +88,35 @@ const HelperHomeView = () => {
   useEffect(() => {
     fetchJobs();
     if (user) {
-      supabase
-        .from("helpers")
-        .select("id, full_name, availability_status, avatar_url, is_verified, bio, experience_years, skills, languages, intro_video_url")
-        .eq("user_id", user.id)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            setHelperProfile(data);
-            supabase
-              .from("job_applications")
-              .select("job_id")
-              .eq("helper_id", data.id)
-              .then(({ data: apps }) => {
-                if (apps) setAppliedJobIds(new Set(apps.map((a) => a.job_id)));
-              });
-          }
-        });
+      fetchWorkerByProfileId(user.id).then((record) => {
+        if (!record) return;
+        setHelperProfile({
+          id: record.helperId || record.profileId,
+          full_name: record.fullName,
+          availability_status: record.availabilityStatus,
+          avatar_url: record.avatarUrl,
+          is_verified: record.isVerified,
+          bio: record.biography,
+          experience_years: record.yearsExperience,
+          skills: record.skillsText
+            ? record.skillsText.split(",").map((s) => s.trim()).filter(Boolean)
+            : [],
+          languages: record.languages,
+          intro_video_url: record.introVideoUrl,
+        } as any);
+        if (record.helperId) {
+          supabase
+            .from("job_applications")
+            .select("job_id")
+            .eq("helper_id", record.helperId)
+            .then(({ data: apps }) => {
+              if (apps) setAppliedJobIds(new Set(apps.map((a) => a.job_id)));
+            });
+        }
+      });
     }
   }, [user]);
+
 
    const fetchJobs = async () => {
     const { data, error } = await supabase
