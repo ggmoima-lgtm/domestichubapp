@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchWorkerByProfileId } from "@/lib/workerData";
+
 import {
   MapPin, Clock, Search, Home, X, Briefcase, User,
   Settings2, ListChecks, PenSquare, Zap, Globe, Wrench, MoreHorizontal,
