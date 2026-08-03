@@ -109,13 +109,24 @@ const Index = () => {
       setEmployerName(data?.full_name?.split(" ")[0] || "");
 
       if (resolvedRole === "helper") {
-        const { data: helperProfile } = await supabase
-          .from("helpers")
-          .select("id")
-          .eq("user_id", user.id)
+        const { data: workerProfile } = await supabase
+          .from("worker_profiles")
+          .select("profile_id")
+          .eq("profile_id", user.id)
           .maybeSingle();
-        setHasHelperProfile(Boolean(helperProfile));
+        if (workerProfile) {
+          setHasHelperProfile(true);
+        } else {
+          // legacy fallback for accounts created before the new schema
+          const { data: legacy } = await supabase
+            .from("helpers")
+            .select("id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          setHasHelperProfile(Boolean(legacy));
+        }
       } else {
+
         setHasHelperProfile(null);
       }
     };
