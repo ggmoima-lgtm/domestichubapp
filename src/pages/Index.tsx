@@ -224,41 +224,42 @@ const Index = () => {
       setUnlockedIds(dbIds);
 
       if (dbIds.length > 0) {
-        // Explicit column list — phone/email are sensitive and only fetched here
-        // because the employer has an active unlock (enforced by RLS).
-        const { data: helpers, error: helpersError } = await supabase
-          .from("helpers")
-          .select("id, user_id, full_name, category, service_type, age, gender, nationality, living_arrangement, bio, experience_years, hourly_rate, availability, availability_status, available_from, skills, skills_domestic, skills_gardening, has_tools, has_work_permit, languages, avatar_url, intro_video_url, is_verified, verification_status, location, phone, email")
-          .in("id", dbIds);
+        // Reads come from the new schema (profiles + worker_profiles +
+        // worker_availability + categories). Contact details stay on the legacy
+        // row and are only visible because the employer has an active unlock.
+        const workers = await fetchWorkersByHelperIds(dbIds);
 
-        if (helpersError) console.error("[helpers unlock]", helpersError.message);
-        
-        const mapped: Worker[] = (helpers || []).map((h) => ({
-          id: h.id,
-          name: h.full_name,
-          role: h.category,
-          location: (h as any).location || "",
+        const mapped: Worker[] = workers.map((w) => ({
+          id: w.helperId || w.profileId,
+          name: w.fullName,
+          role: w.categories.map((c) => c.name).join(", "),
+          location: w.publicArea || "",
           rating: 0,
           reviews: 0,
-          experience: `${h.experience_years || 0} yrs`,
-          monthlyRate: h.hourly_rate ? `R${h.hourly_rate}` : "Negotiable",
-          verified: h.is_verified || false,
-          avatar: h.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-          skills: h.skills || [],
-          bio: h.bio || undefined,
-          languages: h.languages || undefined,
-          availability: h.availability || undefined,
-          introVideo: h.intro_video_url || undefined,
-          availabilityStatus: (h.availability_status as Worker["availabilityStatus"]) || "available",
-          availableFrom: h.available_from || null,
-          phone: h.phone || undefined,
-          email: h.email || undefined,
-          serviceType: (h as any).service_type || "domestic",
-          skillsDomestic: (h as any).skills_domestic || [],
-          skillsGardening: (h as any).skills_gardening || [],
-          hasTools: (h as any).has_tools || false,
+          experience: `${w.yearsExperience} yrs`,
+          monthlyRate: w.expectedSalary
+            ? `R${w.expectedSalary}`
+            : w.hourlyRate
+              ? `R${w.hourlyRate}`
+              : "Negotiable",
+          verified: w.isVerified,
+          avatar: w.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+          skills: w.skillsText ? w.skillsText.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          bio: w.biography || undefined,
+          languages: w.languages.length ? w.languages : undefined,
+          availability: w.employmentTypes.join(", ") || undefined,
+          introVideo: w.introVideoUrl || undefined,
+          availabilityStatus: (w.availabilityStatus as Worker["availabilityStatus"]) || "available",
+          availableFrom: w.availableFrom,
+          phone: w.phone || undefined,
+          email: w.email || undefined,
+          serviceType: (w.categories[0]?.slug === "gardening" ? "gardening" : "domestic") as Worker["serviceType"],
+          skillsDomestic: [],
+          skillsGardening: [],
+          hasTools: w.hasTools || false,
         }));
         setUnlockedHelpers(mapped);
+
       } else {
         setUnlockedHelpers([]);
       }
