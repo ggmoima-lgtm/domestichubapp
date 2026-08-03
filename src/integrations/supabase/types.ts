@@ -1388,12 +1388,17 @@ export type Database = {
           documentation_declared_at: string | null
           documentation_terms_version: string | null
           expected_salary: string | null
+          intro_video_path: string | null
+          intro_video_url: string | null
           languages: string[]
           last_availability_confirmed_at: string | null
           private_exact_area: string | null
           profile_completion: number
           profile_id: string
+          profile_photo_path: string | null
+          profile_photo_url: string | null
           public_area: string | null
+          published_at: string | null
           searchable_at: string | null
           skills_text: string | null
           status: string
@@ -1407,12 +1412,17 @@ export type Database = {
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
           expected_salary?: string | null
+          intro_video_path?: string | null
+          intro_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
           private_exact_area?: string | null
           profile_completion?: number
           profile_id: string
+          profile_photo_path?: string | null
+          profile_photo_url?: string | null
           public_area?: string | null
+          published_at?: string | null
           searchable_at?: string | null
           skills_text?: string | null
           status?: string
@@ -1426,12 +1436,17 @@ export type Database = {
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
           expected_salary?: string | null
+          intro_video_path?: string | null
+          intro_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
           private_exact_area?: string | null
           profile_completion?: number
           profile_id?: string
+          profile_photo_path?: string | null
+          profile_photo_url?: string | null
           public_area?: string | null
+          published_at?: string | null
           searchable_at?: string | null
           skills_text?: string | null
           status?: string
