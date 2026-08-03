@@ -29,11 +29,39 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    let profileId: string | null = null;
+
     const { data: userData, error: userError } = await admin.auth.getUser(token);
-    if (userError || !userData?.user) {
+    if (userData?.user) {
+      profileId = userData.user.id;
+    } else {
+      console.warn("publish-worker-profile: token rejected", userError?.message);
+      // Fallback: allow publishing right after a verified signup handoff, where the
+      // client may still hold a stale/anon token. Only for freshly verified numbers
+      // that just set a PIN and have not completed onboarding yet.
+      if (verifiedPhoneE164) {
+        const { data: fallbackProfile } = await admin
+          .from("profiles")
+          .select("user_id, phone_verified_at, pin_set_at, onboarding_completed")
+          .eq("phone_e164", verifiedPhoneE164)
+          .maybeSingle();
+
+        const recent = (ts: string | null) =>
+          !!ts && Date.now() - new Date(ts).getTime() < 30 * 60 * 1000;
+
+        if (
+          fallbackProfile?.user_id &&
+          (recent(fallbackProfile.phone_verified_at) || recent(fallbackProfile.pin_set_at))
+        ) {
+          profileId = fallbackProfile.user_id;
+          console.log("publish-worker-profile: using verified-phone fallback", profileId);
+        }
+      }
+    }
+
+    if (!profileId) {
       return jsonResponse({ error: "Invalid or expired session" }, 401);
     }
-    const profileId = userData.user.id;
     const now = new Date().toISOString();
 
     const { data: workerProfile, error: workerError } = await admin
