@@ -12,9 +12,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, code, purpose = "phone_change" } = await req.json();
+    const body = await req.json();
+    const { phone, code, purpose = "phone_change" } = body;
+
+    console.log("verify-sms-otp request:", JSON.stringify({
+      phone,
+      purpose,
+      codeLength: typeof code === "string" ? code.length : null,
+      hasAuthHeader: !!req.headers.get("Authorization"),
+    }));
 
     if (!phone || !code || typeof code !== "string" || code.length !== 6) {
+      console.log("verify-sms-otp rejected: malformed phone/code");
       return new Response(JSON.stringify({ error: "Please enter the full 6-digit code." }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

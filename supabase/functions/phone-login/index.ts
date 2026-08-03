@@ -97,9 +97,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const parsed = PhoneLoginSchema.safeParse(await req.json());
+    const rawBody = await req.json();
+    console.log("phone-login request:", JSON.stringify({
+      phone: rawBody?.phone,
+      countryCode: rawBody?.countryCode,
+      hasPassword: !!rawBody?.password,
+    }));
+
+    const parsed = PhoneLoginSchema.safeParse(rawBody);
 
     if (!parsed.success) {
+      console.log("phone-login rejected: schema validation failed");
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -108,8 +116,10 @@ Deno.serve(async (req) => {
 
     const { phone, password, countryCode } = parsed.data;
     const phoneCandidates = normalizePhoneCandidates(phone, countryCode);
+    console.log("phone-login candidates:", JSON.stringify(phoneCandidates));
 
     if (phoneCandidates.length === 0) {
+      console.log("phone-login 404: no valid phone candidates derived");
       return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -181,7 +191,7 @@ Deno.serve(async (req) => {
           }
         }
       }
-
+      console.log("phone-login 404: no profiles/helpers row matched candidates");
       return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -208,10 +218,17 @@ Deno.serve(async (req) => {
       candidateEmails.add(`${candidate}@helper.domestichub.co.za`);
     }
 
+    console.log("phone-login candidate emails:", candidateEmails.size);
+
     for (const email of candidateEmails) {
       const { data, error } = await authClient.auth.signInWithPassword({ email, password });
 
+      if (error) {
+        console.log("phone-login signIn failed for candidate:", error.message);
+      }
+
       if (!error && data.session) {
+        console.log("phone-login success");
         return new Response(
           JSON.stringify({
             success: true,
@@ -234,6 +251,7 @@ Deno.serve(async (req) => {
     }
 
     // Phone exists but password is wrong
+    console.log("phone-login 401: all candidate emails rejected the password");
     return new Response(JSON.stringify({ error: "Incorrect password. Please try again or reset your password." }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
