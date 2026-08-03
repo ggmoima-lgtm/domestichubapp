@@ -181,16 +181,48 @@ Deno.serve(async (request) => {
   if (body.role === "worker") {
     const workerStatus = requestedWorkerStatus || "active_available";
     const isSearchable = workerStatus === "active_available";
-    const { data: categories, error: categoryError } = await client
+    const normalizedSlugs = [
+      ...new Set(
+        categorySlugs.map((slug) =>
+          slug.toLowerCase().trim().replace(/[\s-]+/g, "_"),
+        ),
+      ),
+    ];
+
+    const { data: existingCategories, error: categoryError } = await client
       .from("worker_categories")
       .select("id, slug")
-      .in("slug", categorySlugs)
-      .eq("is_active", true);
+      .in("slug", normalizedSlugs);
 
     if (categoryError) return jsonResponse({ error: categoryError.message }, 422);
-    if ((categories ?? []).length !== categorySlugs.length) {
-      return jsonResponse({ error: "One of the selected worker categories is not available." }, 422);
+
+    let categories = existingCategories ?? [];
+    const missing = normalizedSlugs.filter(
+      (slug) => !categories.some((category) => category.slug === slug),
+    );
+
+    if (missing.length > 0) {
+      console.log("complete-onboarding: creating missing worker categories", missing);
+      const { data: created, error: createCategoryError } = await client
+        .from("worker_categories")
+        .insert(
+          missing.map((slug) => ({
+            slug,
+            name: slug
+              .split("_")
+              .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+              .join(" "),
+            is_active: true,
+          })),
+        )
+        .select("id, slug");
+
+      if (createCategoryError) {
+        return jsonResponse({ error: createCategoryError.message }, 422);
+      }
+      categories = [...categories, ...(created ?? [])];
     }
+
 
     const { error: workerProfileError } = await client.from("worker_profiles").upsert(
       {
