@@ -153,6 +153,7 @@ Deno.serve(async (req) => {
       .delete()
       .lt("expires_at", new Date().toISOString());
 
+    console.log("verify-sms-otp: verified OK", JSON.stringify({ identifier, purpose }));
     return new Response(
       JSON.stringify({ success: true, verified: true }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
