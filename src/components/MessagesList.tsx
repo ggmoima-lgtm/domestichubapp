@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchWorkersByHelperIds } from "@/lib/workerData";
+
 import InAppChat from "./InAppChat";
 
 interface Conversation {
