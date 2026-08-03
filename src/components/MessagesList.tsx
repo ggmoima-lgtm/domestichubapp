@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchWorkersByHelperIds } from "@/lib/workerData";
+
 import InAppChat from "./InAppChat";
 
 interface Conversation {
@@ -66,16 +68,17 @@ const MessagesList = () => {
       helperMap.get(msg.helper_id)!.push(msg);
     }
 
-    // Get helper details for each conversation
+    // Worker details come from the new schema (profiles + worker_profiles)
     const helperIds = Array.from(helperMap.keys());
-    const { data: helpers } = await supabase
-      .from("helpers")
-      .select("id, full_name, avatar_url")
-      .in("id", helperIds);
+    const workers = await fetchWorkersByHelperIds(helperIds);
 
-    const helperLookup = new Map(
-      (helpers || []).map((h) => [h.id, h])
+    const helperLookup = new Map<string, { full_name: string; avatar_url: string | null }>(
+      workers
+        .filter((w) => w.helperId)
+        .map((w) => [w.helperId as string, { full_name: w.fullName, avatar_url: w.avatarUrl }] as const)
     );
+
+
 
     const convos: Conversation[] = helperIds.map((helperId) => {
       const msgs = helperMap.get(helperId)!;
