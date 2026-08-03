@@ -12,20 +12,26 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-/** Build the likely stored variants of a SA phone number. */
-function phoneVariants(raw: string): string[] {
-  const trimmed = raw.trim();
-  let digits = trimmed.replace(/\D/g, "");
+/** Normalize a SA phone number to E.164 (+27...). */
+function toE164(raw: string): string {
+  let digits = raw.trim().replace(/\D/g, "");
   if (digits.startsWith("00")) digits = digits.slice(2);
   if (digits.length === 10 && digits.startsWith("0")) digits = `27${digits.slice(1)}`;
   if (digits.length === 9) digits = `27${digits}`;
+  return `+${digits}`;
+}
 
+/** Build the likely stored variants of a SA phone number. */
+function phoneVariants(raw: string): string[] {
+  const trimmed = raw.trim();
+  const e164 = toE164(trimmed);
+  const digits = e164.slice(1);
   const local = digits.startsWith("27") ? `0${digits.slice(2)}` : digits;
   const set = new Set([
     trimmed,
     trimmed.replace(/[^\d+\s]/g, "").trim(),
     digits,
-    `+${digits}`,
+    e164,
     local,
   ]);
   return [...set].filter(Boolean);
@@ -40,13 +46,18 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const phone: string = body.phone ?? body.phoneNumber ?? body.msisdn ?? "";
     const code: string = String(body.code ?? body.otp ?? body.otpCode ?? "").trim();
+    const role: string = (body.role ?? "worker").toString();
 
     console.log("verify-worker-signup-otp request:", JSON.stringify({
-      phone, codeLength: code.length,
+      phone, codeLength: code.length, role,
     }));
 
     if (!phone || !/^\d{6}$/.test(code)) {
       return json({ success: false, error: "Please enter the full 6-digit code." }, 400);
+    }
+
+    if (!["worker", "employer"].includes(role)) {
+      return json({ success: false, error: "Invalid role." }, 400);
     }
 
     const supabase = createClient(
@@ -105,9 +116,80 @@ Deno.serve(async (req) => {
       .update({ verified: true, expires_at: new Date().toISOString() })
       .eq("id", otpRecord.id);
 
-    console.log("verify-worker-signup-otp: verified OK", JSON.stringify({ phone: otpRecord.phone }));
+    // --- Create or find the auth user for this phone ---
+    const phoneE164 = toE164(phone);
+    const localDigits = phoneE164.slice(1);
+    const email = `${localDigits}@helper.domestichub.co.za`;
 
-    return json({ success: true, verified: true, phone: otpRecord.phone });
+    let userId: string | null = null;
+
+    // Try to find an existing profile row that maps this phone to a user
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("user_id, email")
+      .in("phone", variants)
+      .limit(1)
+      .maybeSingle();
+
+    let authEmail = email;
+
+    if (existingProfile?.user_id) {
+      userId = existingProfile.user_id;
+      const { data: existingUser } = await supabase.auth.admin.getUserById(userId);
+      if (existingUser?.user?.email) authEmail = existingUser.user.email;
+    }
+
+    if (!userId) {
+      const { data: created, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        phone: phoneE164,
+        email_confirm: true,
+        phone_confirm: true,
+        user_metadata: { role, phone_e164: phoneE164 },
+      });
+
+      if (createError) {
+        // Most likely the user already exists — locate them by email
+        console.log("createUser failed, looking up existing:", createError.message);
+        const { data: list } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const match = list?.users?.find(
+          (u) => u.email === email || u.phone === localDigits || u.phone === phoneE164,
+        );
+        if (!match) {
+          console.error("verify-worker-signup-otp: unable to create or find auth user");
+          return json({ success: false, error: "Could not create your account. Please try again." }, 500);
+        }
+        userId = match.id;
+        authEmail = match.email ?? email;
+      } else {
+        userId = created.user!.id;
+        authEmail = created.user!.email ?? email;
+      }
+    }
+
+    // --- Generate a magic link so the client can establish a session ---
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
+      email: authEmail,
+    });
+
+    if (linkError || !linkData?.properties?.hashed_token) {
+      console.error("verify-worker-signup-otp: generateLink failed", linkError?.message);
+      return json({ success: false, error: "Could not start your session. Please try again." }, 500);
+    }
+
+    console.log("verify-worker-signup-otp: verified OK", JSON.stringify({ phoneE164, role, userId }));
+
+    return json({
+      status: "verified",
+      success: true,
+      verified: true,
+      phoneE164,
+      email: authEmail,
+      tokenHash: linkData.properties.hashed_token,
+      role,
+      userId,
+    });
   } catch (error) {
     console.error("verify-worker-signup-otp error:", error);
     return json({ success: false, error: "Internal server error" }, 500);
