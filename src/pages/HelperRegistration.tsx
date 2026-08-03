@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchWorkerCategories } from "@/lib/workerData";
+
 
 const serviceTypeOptions = [
   { id: "domestic", label: "Domestic Work", icon: "domestic" },
