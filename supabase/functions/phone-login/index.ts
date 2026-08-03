@@ -116,8 +116,10 @@ Deno.serve(async (req) => {
 
     const { phone, password, countryCode } = parsed.data;
     const phoneCandidates = normalizePhoneCandidates(phone, countryCode);
+    console.log("phone-login candidates:", JSON.stringify(phoneCandidates));
 
     if (phoneCandidates.length === 0) {
+      console.log("phone-login 404: no valid phone candidates derived");
       return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
