@@ -213,11 +213,14 @@ export type Database = {
           location: string | null
           longitude: number | null
           place_id: string | null
+          private_exact_address: string | null
+          profile_id: string | null
           province: string | null
+          public_area: string | null
           suburb: string | null
           type_of_need: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           availability?: string[] | null
@@ -236,11 +239,14 @@ export type Database = {
           location?: string | null
           longitude?: number | null
           place_id?: string | null
+          private_exact_address?: string | null
+          profile_id?: string | null
           province?: string | null
+          public_area?: string | null
           suburb?: string | null
           type_of_need?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           availability?: string[] | null
@@ -259,11 +265,14 @@ export type Database = {
           location?: string | null
           longitude?: number | null
           place_id?: string | null
+          private_exact_address?: string | null
+          profile_id?: string | null
           province?: string | null
+          public_area?: string | null
           suburb?: string | null
           type_of_need?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -676,6 +685,42 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_sessions: {
+        Row: {
+          completed_at: string | null
+          completed_steps: string[]
+          created_at: string
+          current_step: string | null
+          draft: Json | null
+          profile_id: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_steps?: string[]
+          created_at?: string
+          current_step?: string | null
+          draft?: Json | null
+          profile_id: string
+          role: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_steps?: string[]
+          created_at?: string
+          current_step?: string | null
+          draft?: Json | null
+          profile_id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           attempts: number
@@ -828,49 +873,88 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepted_acceptable_use_version: string | null
+          accepted_privacy_version: string | null
+          accepted_terms_version: string | null
+          age_checked_at: string | null
           area: string | null
           city: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
-          full_name: string
+          email_verified_at: string | null
+          first_name: string | null
+          full_name: string | null
           id: string
           is_blocked: boolean
+          last_name: string | null
           onboarding_completed: boolean
-          phone: string
-          role: string
+          phone: string | null
+          phone_e164: string | null
+          phone_verified_at: string | null
+          primary_role: string | null
+          role: string | null
+          role_assigned_at: string | null
+          status: string
           surname: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          accepted_acceptable_use_version?: string | null
+          accepted_privacy_version?: string | null
+          accepted_terms_version?: string | null
+          age_checked_at?: string | null
           area?: string | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
-          full_name: string
+          email_verified_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
           id?: string
           is_blocked?: boolean
+          last_name?: string | null
           onboarding_completed?: boolean
-          phone: string
-          role: string
+          phone?: string | null
+          phone_e164?: string | null
+          phone_verified_at?: string | null
+          primary_role?: string | null
+          role?: string | null
+          role_assigned_at?: string | null
+          status?: string
           surname?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          accepted_acceptable_use_version?: string | null
+          accepted_privacy_version?: string | null
+          accepted_terms_version?: string | null
+          age_checked_at?: string | null
           area?: string | null
           city?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
-          full_name?: string
+          email_verified_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
           id?: string
           is_blocked?: boolean
+          last_name?: string | null
           onboarding_completed?: boolean
-          phone?: string
-          role?: string
+          phone?: string | null
+          phone_e164?: string | null
+          phone_verified_at?: string | null
+          primary_role?: string | null
+          role?: string | null
+          role_assigned_at?: string | null
+          status?: string
           surname?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1192,6 +1276,164 @@ export type Database = {
           },
         ]
       }
+      worker_availability: {
+        Row: {
+          areas_willing_to_work: string[]
+          created_at: string
+          employment_types: string[]
+          updated_at: string
+          worker_profile_id: string
+        }
+        Insert: {
+          areas_willing_to_work?: string[]
+          created_at?: string
+          employment_types?: string[]
+          updated_at?: string
+          worker_profile_id: string
+        }
+        Update: {
+          areas_willing_to_work?: string[]
+          created_at?: string
+          employment_types?: string[]
+          updated_at?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_availability_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: true
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      worker_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      worker_category_memberships: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          worker_profile_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          worker_profile_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_category_memberships_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "worker_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_category_memberships_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      worker_profiles: {
+        Row: {
+          biography: string | null
+          created_at: string
+          documentation_declaration: string | null
+          documentation_declared_at: string | null
+          documentation_terms_version: string | null
+          expected_salary: string | null
+          languages: string[]
+          last_availability_confirmed_at: string | null
+          private_exact_area: string | null
+          profile_completion: number
+          profile_id: string
+          public_area: string | null
+          searchable_at: string | null
+          skills_text: string | null
+          status: string
+          updated_at: string
+          years_experience: number
+        }
+        Insert: {
+          biography?: string | null
+          created_at?: string
+          documentation_declaration?: string | null
+          documentation_declared_at?: string | null
+          documentation_terms_version?: string | null
+          expected_salary?: string | null
+          languages?: string[]
+          last_availability_confirmed_at?: string | null
+          private_exact_area?: string | null
+          profile_completion?: number
+          profile_id: string
+          public_area?: string | null
+          searchable_at?: string | null
+          skills_text?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number
+        }
+        Update: {
+          biography?: string | null
+          created_at?: string
+          documentation_declaration?: string | null
+          documentation_declared_at?: string | null
+          documentation_terms_version?: string | null
+          expected_salary?: string | null
+          languages?: string[]
+          last_availability_confirmed_at?: string | null
+          private_exact_area?: string | null
+          profile_completion?: number
+          profile_id?: string
+          public_area?: string | null
+          searchable_at?: string | null
+          skills_text?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       helpers_public: {
@@ -1308,6 +1550,7 @@ export type Database = {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
+      ensure_employer_wallet: { Args: { employer: string }; Returns: undefined }
       get_employer_names: {
         Args: { p_employer_ids: string[] }
         Returns: {
