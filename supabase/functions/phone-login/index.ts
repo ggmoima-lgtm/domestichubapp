@@ -251,6 +251,7 @@ Deno.serve(async (req) => {
     }
 
     // Phone exists but password is wrong
+    console.log("phone-login 401: all candidate emails rejected the password");
     return new Response(JSON.stringify({ error: "Incorrect password. Please try again or reset your password." }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
