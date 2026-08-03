@@ -83,6 +83,11 @@ Deno.serve(async (req) => {
     await admin.from("profiles").update({ avatar_url: avatarUrl }).eq("user_id", userId);
     await admin.from("helpers").update({ avatar_url: avatarUrl }).eq("user_id", userId);
     await admin.from("employer_profiles").update({ avatar_url: avatarUrl }).eq("user_id", userId);
+    await admin
+      .from("worker_profiles")
+      .update({ profile_photo_path: path, profile_photo_url: avatarUrl })
+      .eq("profile_id", userId);
+
 
     console.log("upload-avatar: stored", path, fileBytes.byteLength, "bytes");
     return jsonResponse({ success: true, path, avatarUrl });
