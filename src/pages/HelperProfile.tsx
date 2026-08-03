@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import ChangePhoneSheet from "@/components/ChangePhoneSheet";
 import LocationAutocomplete, { type LocationData } from "@/components/LocationAutocomplete";
+import { fetchWorkerByProfileId, saveWorkerProfile, type WorkerRecord } from "@/lib/workerData";
+
 
 const startShuftiVerification = async (userId: string, helperId: string) => {
   const { data, error } = await supabase.functions.invoke("shufti-verify", {
