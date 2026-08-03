@@ -369,6 +369,55 @@ const HelperRegistration = () => {
         setIsSubmitting(false); return;
       }
 
+      // === new schema (source of truth for reads) ===
+      const publicArea =
+        locationData?.formatted_address ||
+        [formData.area, formData.city].filter(Boolean).join(", ") ||
+        null;
+
+      const { error: workerError } = await supabase.from("worker_profiles").upsert(
+        {
+          profile_id: userId,
+          status: "active",
+          public_area: publicArea,
+          private_exact_area: locationData?.formatted_address || null,
+          biography: formData.bio || null,
+          years_experience: formData.experience ? parseInt(formData.experience) : 0,
+          expected_salary: formData.monthlyRate || null,
+          skills_text: allSkills.join(", ") || null,
+          languages: selectedLanguages,
+          profile_completion: 100,
+        },
+        { onConflict: "profile_id" },
+      );
+      if (workerError) console.error("worker_profiles error:", workerError);
+
+      await supabase.from("worker_availability").upsert(
+        {
+          worker_profile_id: userId,
+          employment_types: formData.availability ? [formData.availability] : [],
+          areas_willing_to_work: publicArea ? [publicArea] : [],
+        },
+        { onConflict: "worker_profile_id" },
+      );
+
+      try {
+        const categories = await fetchWorkerCategories();
+        const wanted = resolvedCategory.toLowerCase();
+        const matches = categories.filter(
+          (c) => wanted.includes(c.slug.split("_")[0]) || wanted.includes(c.name.toLowerCase()),
+        );
+        if (matches.length > 0) {
+          await supabase.from("worker_category_memberships").upsert(
+            matches.map((c) => ({ worker_profile_id: userId, category_id: c.id })),
+            { onConflict: "worker_profile_id,category_id" },
+          );
+        }
+      } catch (err) {
+        console.error("category membership error:", err);
+      }
+
+
       // Terms acceptance (non-blocking)
       supabase.from('terms_acceptances').insert({
         user_id: userId,
