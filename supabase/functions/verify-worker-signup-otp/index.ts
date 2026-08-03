@@ -72,14 +72,18 @@ Deno.serve(async (req) => {
       .select("*")
       .in("phone", variants)
       .in("purpose", ["signup_verify", "phone_verify", "phone_change"])
-      .eq("verified", false)
-      .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
     const otpRecord = rows?.[0];
+    const now = Date.now();
+    const expiresAt = otpRecord ? new Date(otpRecord.expires_at).getTime() : 0;
+    const createdAt = otpRecord ? new Date(otpRecord.created_at).getTime() : 0;
+    const isRetryWindow = Boolean(
+      otpRecord?.verified && Number.isFinite(createdAt) && now - createdAt <= 10 * 60 * 1000,
+    );
 
-    if (fetchError || !otpRecord) {
+    if (fetchError || !otpRecord || (expiresAt <= now && !isRetryWindow)) {
       console.log("verify-worker-signup-otp: no matching OTP", JSON.stringify({
         variants, fetchError: fetchError?.message ?? null,
       }));
@@ -89,19 +93,20 @@ Deno.serve(async (req) => {
       }, 400);
     }
 
-    if (otpRecord.attempts >= otpRecord.max_attempts) {
+    if (!otpRecord.verified && otpRecord.attempts >= otpRecord.max_attempts) {
       return json({
         success: false,
         error: "Too many incorrect attempts. Please request a new code.",
       }, 400);
     }
 
-    await supabase
-      .from("otp_codes")
-      .update({ attempts: otpRecord.attempts + 1 })
-      .eq("id", otpRecord.id);
-
     if (otpRecord.code !== code) {
+      if (!otpRecord.verified) {
+        await supabase
+          .from("otp_codes")
+          .update({ attempts: otpRecord.attempts + 1 })
+          .eq("id", otpRecord.id);
+      }
       const remaining = otpRecord.max_attempts - (otpRecord.attempts + 1);
       return json({
         success: false,
@@ -111,10 +116,16 @@ Deno.serve(async (req) => {
       }, 400);
     }
 
-    await supabase
-      .from("otp_codes")
-      .update({ verified: true, expires_at: new Date().toISOString() })
-      .eq("id", otpRecord.id);
+    if (!otpRecord.verified) {
+      await supabase
+        .from("otp_codes")
+        .update({ verified: true })
+        .eq("id", otpRecord.id);
+    } else {
+      console.log("verify-worker-signup-otp: retrying previously verified code", JSON.stringify({
+        phoneE164: toE164(phone), role,
+      }));
+    }
 
     // --- Create or find the auth user for this phone ---
     const phoneE164 = toE164(phone);
