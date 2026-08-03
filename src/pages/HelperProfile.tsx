@@ -80,6 +80,8 @@ const HelperProfile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [helper, setHelper] = useState<HelperData | null>(null);
+  const [workerRecord, setWorkerRecord] = useState<WorkerRecord | null>(null);
+
   const [reviews, setReviews] = useState<ReviewData[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<HelperData>>({});
