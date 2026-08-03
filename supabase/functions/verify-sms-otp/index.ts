@@ -89,6 +89,9 @@ Deno.serve(async (req) => {
     const { data: otpRecord, error: fetchError } = await query.single();
 
     if (fetchError || !otpRecord) {
+      console.log("verify-sms-otp: no matching OTP row", JSON.stringify({
+        identifier, purpose, userId, fetchError: fetchError?.message ?? null,
+      }));
       return new Response(
         JSON.stringify({ error: "Code expired or not found. Tap 'Resend code' to get a new one." }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
