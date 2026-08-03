@@ -97,9 +97,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const parsed = PhoneLoginSchema.safeParse(await req.json());
+    const rawBody = await req.json();
+    console.log("phone-login request:", JSON.stringify({
+      phone: rawBody?.phone,
+      countryCode: rawBody?.countryCode,
+      hasPassword: !!rawBody?.password,
+    }));
+
+    const parsed = PhoneLoginSchema.safeParse(rawBody);
 
     if (!parsed.success) {
+      console.log("phone-login rejected: schema validation failed");
       return new Response(JSON.stringify({ error: "Invalid request" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
