@@ -66,16 +66,16 @@ const MessagesList = () => {
       helperMap.get(msg.helper_id)!.push(msg);
     }
 
-    // Get helper details for each conversation
+    // Worker details come from the new schema (profiles + worker_profiles)
     const helperIds = Array.from(helperMap.keys());
-    const { data: helpers } = await supabase
-      .from("helpers")
-      .select("id, full_name, avatar_url")
-      .in("id", helperIds);
+    const workers = await fetchWorkersByHelperIds(helperIds);
 
     const helperLookup = new Map(
-      (helpers || []).map((h) => [h.id, h])
+      workers
+        .filter((w) => w.helperId)
+        .map((w) => [w.helperId as string, { full_name: w.fullName, avatar_url: w.avatarUrl }])
     );
+
 
     const convos: Conversation[] = helperIds.map((helperId) => {
       const msgs = helperMap.get(helperId)!;
