@@ -167,28 +167,71 @@ Deno.serve(async (req) => {
       }
     }
 
-    // --- Generate a magic link so the client can establish a session ---
+    // --- Establish a session server-side so the client doesn't have to verify ---
+    const anon = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+
+    let accessToken: string | null = null;
+    let refreshToken: string | null = null;
+
+    const { data: sessionLink } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
+      email: authEmail,
+    });
+
+    if (sessionLink?.properties?.hashed_token) {
+      const { data: verified, error: verifyErr } = await anon.auth.verifyOtp({
+        type: "magiclink",
+        token_hash: sessionLink.properties.hashed_token,
+      });
+      if (verifyErr) {
+        console.error("verify-worker-signup-otp: server-side verifyOtp failed", verifyErr.message);
+      } else {
+        accessToken = verified.session?.access_token ?? null;
+        refreshToken = verified.session?.refresh_token ?? null;
+      }
+    }
+
+    // --- A second, unconsumed magic link for clients that verify themselves ---
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: authEmail,
     });
 
-    if (linkError || !linkData?.properties?.hashed_token) {
+    if ((linkError || !linkData?.properties?.hashed_token) && !accessToken) {
       console.error("verify-worker-signup-otp: generateLink failed", linkError?.message);
       return json({ success: false, error: "Could not start your session. Please try again." }, 500);
     }
 
-    console.log("verify-worker-signup-otp: verified OK", JSON.stringify({ phoneE164, role, userId }));
+    const tokenHash = linkData?.properties?.hashed_token ?? null;
+
+    console.log("verify-worker-signup-otp: verified OK", JSON.stringify({
+      phoneE164, role, userId, hasSession: !!accessToken,
+    }));
 
     return json({
       status: "verified",
       success: true,
       verified: true,
       phoneE164,
+      phone: phoneE164,
       email: authEmail,
-      tokenHash: linkData.properties.hashed_token,
+      tokenHash,
+      token_hash: tokenHash,
+      type: "magiclink",
       role,
       userId,
+      user_id: userId,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      accessToken,
+      refreshToken,
+      session: accessToken && refreshToken
+        ? { access_token: accessToken, refresh_token: refreshToken }
+        : null,
     });
   } catch (error) {
     console.error("verify-worker-signup-otp error:", error);
