@@ -15,7 +15,7 @@ import SupportPage from "@/pages/SupportPage";
 import { Worker } from "@/data/mockWorkers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchWorkersByHelperIds } from "@/lib/workerData";
+import { fetchWorkersByHelperIds, fetchWorkerOverlays } from "@/lib/workerData";
 
 import { toast } from "sonner";
 import logo from "@/assets/logo.jpg";
