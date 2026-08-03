@@ -120,35 +120,61 @@ const HelperProfile = () => {
   const fetchHelperData = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from("helpers")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (error) {
+    let record: WorkerRecord | null = null;
+    try {
+      record = await fetchWorkerByProfileId(user.id);
+    } catch (err) {
       toast.error("Failed to load profile");
       setLoading(false);
       return;
     }
 
-    if (data) {
-      setHelper(data);
-      setEditData(data);
+    if (record && (record.helperId || record.profileId)) {
+      setWorkerRecord(record);
+      const mapped: HelperData = {
+        id: record.helperId || record.profileId,
+        full_name: record.fullName,
+        email: record.email || "",
+        phone: record.phone || "",
+        category: record.categories[0]?.name || "",
+        bio: record.biography,
+        avatar_url: record.avatarUrl,
+        skills: record.skillsText
+          ? record.skillsText.split(",").map((s) => s.trim()).filter(Boolean)
+          : [],
+        languages: record.languages,
+        experience_years: record.yearsExperience,
+        hourly_rate: record.expectedSalary ? parseFloat(record.expectedSalary) || null : record.hourlyRate,
+        availability: record.employmentTypes.join(", ") || null,
+        availability_status: record.availabilityStatus,
+        available_from: record.availableFrom,
+        is_verified: record.isVerified,
+        intro_video_url: record.introVideoUrl,
+        has_work_permit: record.hasWorkPermit,
+        age: record.age,
+        gender: record.gender,
+        nationality: record.nationality,
+        living_arrangement: record.livingArrangement,
+        verification_status: record.verificationStatus || undefined,
+        location: record.publicArea,
+      };
+      setHelper(mapped);
+      setEditData(mapped);
+
+      if (record.helperId) {
+        const { data: reviewData } = await supabase
+          .from("reviews")
+          .select("*")
+          .eq("helper_id", record.helperId)
+          .order("created_at", { ascending: false });
+        setReviews(reviewData || []);
+      } else {
+        setReviews([]);
+      }
     } else {
+      setWorkerRecord(null);
       setHelper(null);
       setEditData({});
-    }
-
-    if (data?.id) {
-      const { data: reviewData } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("helper_id", data.id)
-        .order("created_at", { ascending: false });
-
-      if (reviewData) setReviews(reviewData);
-    } else {
       setReviews([]);
     }
 
@@ -156,7 +182,7 @@ const HelperProfile = () => {
   };
 
   const handleSave = async () => {
-    if (!helper || saving) {
+    if (!helper || saving || !user) {
       toast.error("No helper profile found");
       return;
     }
@@ -170,44 +196,46 @@ const HelperProfile = () => {
     setSaving(true);
 
     try {
-      const updatePayload: any = {
-        full_name: fullName,
-        bio: editData.bio?.trim() || null,
-        skills: editData.skills || [],
-        languages: editData.languages || [],
-        experience_years: editData.experience_years ?? 0,
-        hourly_rate: editData.hourly_rate ?? null,
-        availability: editData.availability || null,
-        has_work_permit: !!editData.has_work_permit,
-        location: editData.location?.trim() || null,
-      };
-
-      const { error } = await supabase
-        .from("helpers")
-        .update(updatePayload)
-        .eq("id", helper.id);
+      const { error } = await saveWorkerProfile(
+        user.id,
+        {
+          biography: editData.bio?.trim() || null,
+          years_experience: editData.experience_years ?? 0,
+          expected_salary: editData.hourly_rate != null ? String(editData.hourly_rate) : null,
+          skills_text: (editData.skills || []).join(", ") || null,
+          languages: editData.languages || [],
+          public_area: editData.location?.trim() || null,
+        },
+        {
+          helperId: workerRecord?.helperId,
+          fullName,
+          // legacy-only fields kept for backward compatibility
+          legacyPatch: {
+            skills: editData.skills || [],
+            hourly_rate: editData.hourly_rate ?? null,
+            availability: editData.availability || null,
+            has_work_permit: !!editData.has_work_permit,
+          },
+        },
+      );
 
       if (error) {
-        console.error("Helper save error:", error);
-        toast.error("Failed to update profile: " + error.message);
+        console.error("Worker save error:", error);
+        toast.error("Failed to update profile: " + error);
         return;
       }
-
-      await supabase
-        .from("profiles")
-        .update({ full_name: fullName })
-        .eq("user_id", user?.id);
 
       toast.success("Profile updated!");
       setIsEditing(false);
       await fetchHelperData();
     } catch (err: any) {
-      console.error("Helper save exception:", err);
+      console.error("Worker save exception:", err);
       toast.error("Failed to update: " + (err?.message || "Unknown error"));
     } finally {
       setSaving(false);
     }
   };
+
 
   const [showAvailConfirm, setShowAvailConfirm] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
