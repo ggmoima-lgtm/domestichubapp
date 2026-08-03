@@ -191,7 +191,7 @@ Deno.serve(async (req) => {
           }
         }
       }
-
+      console.log("phone-login 404: no profiles/helpers row matched candidates");
       return new Response(JSON.stringify({ error: "Phone number not found. Please check the number or sign up." }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -218,10 +218,17 @@ Deno.serve(async (req) => {
       candidateEmails.add(`${candidate}@helper.domestichub.co.za`);
     }
 
+    console.log("phone-login candidate emails:", candidateEmails.size);
+
     for (const email of candidateEmails) {
       const { data, error } = await authClient.auth.signInWithPassword({ email, password });
 
+      if (error) {
+        console.log("phone-login signIn failed for candidate:", error.message);
+      }
+
       if (!error && data.session) {
+        console.log("phone-login success");
         return new Response(
           JSON.stringify({
             success: true,
