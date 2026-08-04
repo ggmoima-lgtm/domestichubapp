@@ -31,6 +31,76 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    const reqTypeEarly = req.headers.get("content-type") ?? "";
+    if (reqTypeEarly.includes("application/json")) {
+      // Peek at the body once; reuse it below.
+      const raw = await req.text();
+      const parsed = raw ? JSON.parse(raw) : {};
+
+      // Signed-URL mode: React Native uploads large videos far more reliably by
+      // PUTting the file straight to a pre-signed storage URL.
+      if (parsed?.mode === "signed-url" || parsed?.signedUrl === true) {
+        const isVideoReq =
+          parsed.kind === "video" || String(parsed.contentType ?? "").startsWith("video/");
+        const bucketName = isVideoReq ? "helper-videos" : "avatars";
+        const extReq = String(parsed.filename ?? (isVideoReq ? "video.mp4" : "photo.jpg"))
+          .split(".")
+          .pop()!
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+        const objectPath = `${userId}/${isVideoReq ? "intro-video" : "photo"}-${Date.now()}.${extReq}`;
+
+        const admin2 = admin;
+        const { data: signed, error: signErr } = await admin2.storage
+          .from(bucketName)
+          .createSignedUploadUrl(objectPath);
+
+        if (signErr || !signed) {
+          return jsonResponse({ error: signErr?.message ?? "Could not create upload URL" }, 400);
+        }
+
+        const { data: pubUrl } = admin2.storage.from(bucketName).getPublicUrl(objectPath);
+
+        if (isVideoReq) {
+          await admin2
+            .from("worker_profiles")
+            .update({ intro_video_path: objectPath, intro_video_url: pubUrl.publicUrl })
+            .eq("profile_id", userId);
+          await admin2
+            .from("helpers")
+            .update({ intro_video_url: pubUrl.publicUrl })
+            .eq("user_id", userId);
+        } else {
+          await admin2
+            .from("worker_profiles")
+            .update({ profile_photo_path: objectPath, profile_photo_url: pubUrl.publicUrl })
+            .eq("profile_id", userId);
+          await admin2.from("profiles").update({ avatar_url: pubUrl.publicUrl }).eq("user_id", userId);
+          await admin2.from("helpers").update({ avatar_url: pubUrl.publicUrl }).eq("user_id", userId);
+        }
+
+        return jsonResponse({
+          success: true,
+          mode: "signed-url",
+          bucket: bucketName,
+          path: objectPath,
+          token: signed.token,
+          signedUrl: signed.signedUrl,
+          uploadUrl: `${SUPABASE_URL}/storage/v1/${signed.path ?? `object/upload/sign/${bucketName}/${objectPath}`}`,
+          url: pubUrl.publicUrl,
+          publicUrl: pubUrl.publicUrl,
+        });
+      }
+
+      // Re-attach the already-read body for the normal base64 path below.
+      req = new Request(req.url, {
+        method: "POST",
+        headers: req.headers,
+        body: raw,
+      });
+    }
+
+
     let fileBytes: Uint8Array | null = null;
     let contentType = "video/mp4";
     let filename = "intro-video.mp4";
