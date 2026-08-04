@@ -1,0 +1,1 @@
+update public.profiles set pin_hash = '82337acea3b71a618ec3eb79909e9e742ef03e4fa05b3257b7e96c28dd5af9d8', phone_e164 = '+27710001002' where user_id = '119a388d-b6ec-4eb6-8846-6291908e2e84';
