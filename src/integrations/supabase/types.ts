@@ -599,7 +599,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
-          helper_id: string
+          helper_id: string | null
           id: string
           moderation_status: string
           read: boolean
@@ -609,7 +609,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
-          helper_id: string
+          helper_id?: string | null
           id?: string
           moderation_status?: string
           read?: boolean
@@ -619,29 +619,14 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
-          helper_id?: string
+          helper_id?: string | null
           id?: string
           moderation_status?: string
           read?: boolean
           receiver_id?: string
           sender_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_helper_id_fkey"
-            columns: ["helper_id"]
-            isOneToOne: false
-            referencedRelation: "helpers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_helper_id_fkey"
-            columns: ["helper_id"]
-            isOneToOne: false
-            referencedRelation: "helpers_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       notification_preferences: {
         Row: {
