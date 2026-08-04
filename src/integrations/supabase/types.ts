@@ -1390,6 +1390,10 @@ export type Database = {
           expected_salary: string | null
           intro_video_path: string | null
           intro_video_url: string | null
+          introduction_photo_path: string | null
+          introduction_photo_url: string | null
+          introduction_video_path: string | null
+          introduction_video_url: string | null
           languages: string[]
           last_availability_confirmed_at: string | null
           private_exact_area: string | null
@@ -1414,6 +1418,10 @@ export type Database = {
           expected_salary?: string | null
           intro_video_path?: string | null
           intro_video_url?: string | null
+          introduction_photo_path?: string | null
+          introduction_photo_url?: string | null
+          introduction_video_path?: string | null
+          introduction_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
           private_exact_area?: string | null
@@ -1438,6 +1446,10 @@ export type Database = {
           expected_salary?: string | null
           intro_video_path?: string | null
           intro_video_url?: string | null
+          introduction_photo_path?: string | null
+          introduction_photo_url?: string | null
+          introduction_video_path?: string | null
+          introduction_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
           private_exact_area?: string | null
