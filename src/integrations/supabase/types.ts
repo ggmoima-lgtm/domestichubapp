@@ -1390,6 +1390,8 @@ export type Database = {
       worker_availability: {
         Row: {
           areas_willing_to_work: string[]
+          available_from: string | null
+          available_immediately: boolean
           created_at: string
           employment_types: string[]
           travel_radius: string | null
@@ -1398,6 +1400,8 @@ export type Database = {
         }
         Insert: {
           areas_willing_to_work?: string[]
+          available_from?: string | null
+          available_immediately?: boolean
           created_at?: string
           employment_types?: string[]
           travel_radius?: string | null
@@ -1406,6 +1410,8 @@ export type Database = {
         }
         Update: {
           areas_willing_to_work?: string[]
+          available_from?: string | null
+          available_immediately?: boolean
           created_at?: string
           employment_types?: string[]
           travel_radius?: string | null
