@@ -477,6 +477,62 @@ export type Database = {
         }
         Relationships: []
       }
+      job_alerts: {
+        Row: {
+          category: string | null
+          created_at: string
+          employment_type: string | null
+          frequency: string
+          id: string
+          location: string | null
+          paused_at: string | null
+          push_enabled: boolean
+          salary_preference: string | null
+          title: string | null
+          updated_at: string
+          work_arrangement: string | null
+          worker_profile_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          employment_type?: string | null
+          frequency?: string
+          id?: string
+          location?: string | null
+          paused_at?: string | null
+          push_enabled?: boolean
+          salary_preference?: string | null
+          title?: string | null
+          updated_at?: string
+          work_arrangement?: string | null
+          worker_profile_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          employment_type?: string | null
+          frequency?: string
+          id?: string
+          location?: string | null
+          paused_at?: string | null
+          push_enabled?: boolean
+          salary_preference?: string | null
+          title?: string | null
+          updated_at?: string
+          work_arrangement?: string | null
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_alerts_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           created_at: string
