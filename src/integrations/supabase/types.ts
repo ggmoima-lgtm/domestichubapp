@@ -1217,6 +1217,41 @@ export type Database = {
           },
         ]
       }
+      skills: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "worker_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       terms_acceptances: {
         Row: {
           accepted_at: string
@@ -1357,6 +1392,7 @@ export type Database = {
           areas_willing_to_work: string[]
           created_at: string
           employment_types: string[]
+          travel_radius: string | null
           updated_at: string
           worker_profile_id: string
         }
@@ -1364,6 +1400,7 @@ export type Database = {
           areas_willing_to_work?: string[]
           created_at?: string
           employment_types?: string[]
+          travel_radius?: string | null
           updated_at?: string
           worker_profile_id: string
         }
@@ -1371,6 +1408,7 @@ export type Database = {
           areas_willing_to_work?: string[]
           created_at?: string
           employment_types?: string[]
+          travel_radius?: string | null
           updated_at?: string
           worker_profile_id?: string
         }
@@ -1392,6 +1430,7 @@ export type Database = {
           is_active: boolean
           name: string
           slug: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
@@ -1401,6 +1440,7 @@ export type Database = {
           is_active?: boolean
           name: string
           slug: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
@@ -1410,6 +1450,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           slug?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -1450,6 +1491,44 @@ export type Database = {
           },
         ]
       }
+      worker_documents: {
+        Row: {
+          created_at: string
+          document_type: string | null
+          file_path: string | null
+          file_url: string | null
+          id: string
+          updated_at: string
+          worker_profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type?: string | null
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          updated_at?: string
+          worker_profile_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string | null
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          updated_at?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_documents_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       worker_profiles: {
         Row: {
           biography: string | null
@@ -1457,7 +1536,9 @@ export type Database = {
           documentation_declaration: string | null
           documentation_declared_at: string | null
           documentation_terms_version: string | null
+          driver_licence: boolean
           expected_salary: string | null
+          gender: string | null
           intro_video_path: string | null
           intro_video_url: string | null
           introduction_photo_path: string | null
@@ -1466,17 +1547,25 @@ export type Database = {
           introduction_video_url: string | null
           languages: string[]
           last_availability_confirmed_at: string | null
+          nationality: string | null
           private_exact_area: string | null
           profile_completion: number
           profile_id: string
           profile_photo_path: string | null
           profile_photo_url: string | null
           public_area: string | null
+          public_holidays: boolean
           published_at: string | null
+          salary_type: string | null
           searchable_at: string | null
           skills_text: string | null
           status: string
+          travel_radius: string | null
           updated_at: string
+          vehicle_available: boolean
+          weekends: boolean
+          willing_to_travel: boolean
+          work_arrangement: string | null
           years_experience: number
         }
         Insert: {
@@ -1485,7 +1574,9 @@ export type Database = {
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
+          driver_licence?: boolean
           expected_salary?: string | null
+          gender?: string | null
           intro_video_path?: string | null
           intro_video_url?: string | null
           introduction_photo_path?: string | null
@@ -1494,17 +1585,25 @@ export type Database = {
           introduction_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
+          nationality?: string | null
           private_exact_area?: string | null
           profile_completion?: number
           profile_id: string
           profile_photo_path?: string | null
           profile_photo_url?: string | null
           public_area?: string | null
+          public_holidays?: boolean
           published_at?: string | null
+          salary_type?: string | null
           searchable_at?: string | null
           skills_text?: string | null
           status?: string
+          travel_radius?: string | null
           updated_at?: string
+          vehicle_available?: boolean
+          weekends?: boolean
+          willing_to_travel?: boolean
+          work_arrangement?: string | null
           years_experience?: number
         }
         Update: {
@@ -1513,7 +1612,9 @@ export type Database = {
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
+          driver_licence?: boolean
           expected_salary?: string | null
+          gender?: string | null
           intro_video_path?: string | null
           intro_video_url?: string | null
           introduction_photo_path?: string | null
@@ -1522,20 +1623,167 @@ export type Database = {
           introduction_video_url?: string | null
           languages?: string[]
           last_availability_confirmed_at?: string | null
+          nationality?: string | null
           private_exact_area?: string | null
           profile_completion?: number
           profile_id?: string
           profile_photo_path?: string | null
           profile_photo_url?: string | null
           public_area?: string | null
+          public_holidays?: boolean
           published_at?: string | null
+          salary_type?: string | null
           searchable_at?: string | null
           skills_text?: string | null
           status?: string
+          travel_radius?: string | null
           updated_at?: string
+          vehicle_available?: boolean
+          weekends?: boolean
+          willing_to_travel?: boolean
+          work_arrangement?: string | null
           years_experience?: number
         }
         Relationships: []
+      }
+      worker_qualifications: {
+        Row: {
+          certificate_document_id: string | null
+          created_at: string
+          id: string
+          institution: string | null
+          qualification: string | null
+          updated_at: string
+          worker_profile_id: string
+          year: number | null
+        }
+        Insert: {
+          certificate_document_id?: string | null
+          created_at?: string
+          id?: string
+          institution?: string | null
+          qualification?: string | null
+          updated_at?: string
+          worker_profile_id: string
+          year?: number | null
+        }
+        Update: {
+          certificate_document_id?: string | null
+          created_at?: string
+          id?: string
+          institution?: string | null
+          qualification?: string | null
+          updated_at?: string
+          worker_profile_id?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_qualifications_certificate_document_id_fkey"
+            columns: ["certificate_document_id"]
+            isOneToOne: false
+            referencedRelation: "worker_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_qualifications_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      worker_references: {
+        Row: {
+          created_at: string
+          email: string | null
+          employer_name: string | null
+          id: string
+          phone: string | null
+          reference_name: string | null
+          relationship: string | null
+          updated_at: string
+          worker_profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          employer_name?: string | null
+          id?: string
+          phone?: string | null
+          reference_name?: string | null
+          relationship?: string | null
+          updated_at?: string
+          worker_profile_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          employer_name?: string | null
+          id?: string
+          phone?: string | null
+          reference_name?: string | null
+          relationship?: string | null
+          updated_at?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_references_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      worker_work_experiences: {
+        Row: {
+          created_at: string
+          employer_name: string | null
+          end_date: string | null
+          id: string
+          is_current: boolean
+          responsibilities: string | null
+          role_title: string | null
+          start_date: string | null
+          updated_at: string
+          worker_profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          employer_name?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          responsibilities?: string | null
+          role_title?: string | null
+          start_date?: string | null
+          updated_at?: string
+          worker_profile_id: string
+        }
+        Update: {
+          created_at?: string
+          employer_name?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          responsibilities?: string | null
+          role_title?: string | null
+          start_date?: string | null
+          updated_at?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_work_experiences_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
       }
     }
     Views: {
