@@ -138,6 +138,125 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_members: {
+        Row: {
+          archived_at: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          last_read_at: string | null
+          muted_at: string | null
+          profile_id: string
+          role: Database["public"]["Enums"]["app_role"] | null
+        }
+        Insert: {
+          archived_at?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          muted_at?: string | null
+          profile_id: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+        }
+        Update: {
+          archived_at?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          muted_at?: string | null
+          profile_id?: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_from_unlock_id: string | null
+          employer_profile_id: string | null
+          id: string
+          job_id: string | null
+          last_message_at: string | null
+          related_application_id: string | null
+          status: string
+          updated_at: string
+          worker_profile_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_from_unlock_id?: string | null
+          employer_profile_id?: string | null
+          id?: string
+          job_id?: string | null
+          last_message_at?: string | null
+          related_application_id?: string | null
+          status?: string
+          updated_at?: string
+          worker_profile_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_from_unlock_id?: string | null
+          employer_profile_id?: string | null
+          id?: string
+          job_id?: string | null
+          last_message_at?: string | null
+          related_application_id?: string | null
+          status?: string
+          updated_at?: string
+          worker_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_created_from_unlock_id_fkey"
+            columns: ["created_from_unlock_id"]
+            isOneToOne: false
+            referencedRelation: "profile_unlocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_employer_profile_id_fkey"
+            columns: ["employer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "employer_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "conversations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_related_application_id_fkey"
+            columns: ["related_application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -653,36 +772,90 @@ export type Database = {
       }
       messages: {
         Row: {
-          content: string
+          body: string | null
+          contact_warning_acknowledged: boolean
+          content: string | null
+          conversation_id: string | null
           created_at: string
+          deleted_at: string | null
+          delivered_at: string | null
+          failed_at: string | null
           helper_id: string | null
           id: string
+          masked_at: string | null
+          message_type: string
+          moderation_state: Database["public"]["Enums"]["message_moderation_state"]
           moderation_status: string
+          original_body_hash: string | null
           read: boolean
-          receiver_id: string
-          sender_id: string
+          read_at: string | null
+          receiver_id: string | null
+          reply_to_message_id: string | null
+          sender_id: string | null
+          sender_profile_id: string | null
         }
         Insert: {
-          content: string
+          body?: string | null
+          contact_warning_acknowledged?: boolean
+          content?: string | null
+          conversation_id?: string | null
           created_at?: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          failed_at?: string | null
           helper_id?: string | null
           id?: string
+          masked_at?: string | null
+          message_type?: string
+          moderation_state?: Database["public"]["Enums"]["message_moderation_state"]
           moderation_status?: string
+          original_body_hash?: string | null
           read?: boolean
-          receiver_id: string
-          sender_id: string
+          read_at?: string | null
+          receiver_id?: string | null
+          reply_to_message_id?: string | null
+          sender_id?: string | null
+          sender_profile_id?: string | null
         }
         Update: {
-          content?: string
+          body?: string | null
+          contact_warning_acknowledged?: boolean
+          content?: string | null
+          conversation_id?: string | null
           created_at?: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          failed_at?: string | null
           helper_id?: string | null
           id?: string
+          masked_at?: string | null
+          message_type?: string
+          moderation_state?: Database["public"]["Enums"]["message_moderation_state"]
           moderation_status?: string
+          original_body_hash?: string | null
           read?: boolean
-          receiver_id?: string
-          sender_id?: string
+          read_at?: string | null
+          receiver_id?: string | null
+          reply_to_message_id?: string | null
+          sender_id?: string | null
+          sender_profile_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
@@ -1903,11 +2076,54 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_conversation_accept_messages: {
+        Args: { conversation: string; sender: string }
+        Returns: boolean
+      }
+      contains_contact_detail: { Args: { body: string }; Returns: boolean }
+      create_direct_conversation: {
+        Args: { job?: string; other_profile: string }
+        Returns: {
+          archived_at: string | null
+          created_at: string
+          created_from_unlock_id: string | null
+          employer_profile_id: string | null
+          id: string
+          job_id: string | null
+          last_message_at: string | null
+          related_application_id: string | null
+          status: string
+          updated_at: string
+          worker_profile_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "conversations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       deduct_credits_for_unlock: {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
       ensure_employer_wallet: { Args: { employer: string }; Returns: undefined }
+      get_authorized_conversations: {
+        Args: never
+        Returns: {
+          archived: boolean
+          context: string
+          id: string
+          last_message_at: string
+          last_message_preview: string
+          muted: boolean
+          other_name: string
+          other_profile_id: string
+          other_role: string
+          status: string
+          unread_count: number
+        }[]
+      }
       get_employer_names: {
         Args: { p_employer_ids: string[] }
         Returns: {
@@ -1934,8 +2150,81 @@ export type Database = {
         Args: { p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
+      is_blocked_between: { Args: { a: string; b: string }; Returns: boolean }
+      is_conversation_member: {
+        Args: { conversation: string }
+        Returns: boolean
+      }
+      is_profile_active: { Args: { profile: string }; Returns: boolean }
       lookup_email_by_phone: { Args: { p_phone: string }; Returns: string }
+      mark_conversation_read: {
+        Args: { conversation: string }
+        Returns: undefined
+      }
+      mask_contact_details: { Args: { body: string }; Returns: string }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      send_conversation_message: {
+        Args: {
+          acknowledged_contact_warning?: boolean
+          body: string
+          conversation: string
+        }
+        Returns: {
+          body: string | null
+          contact_warning_acknowledged: boolean
+          content: string | null
+          conversation_id: string | null
+          created_at: string
+          deleted_at: string | null
+          delivered_at: string | null
+          failed_at: string | null
+          helper_id: string | null
+          id: string
+          masked_at: string | null
+          message_type: string
+          moderation_state: Database["public"]["Enums"]["message_moderation_state"]
+          moderation_status: string
+          original_body_hash: string | null
+          read: boolean
+          read_at: string | null
+          receiver_id: string | null
+          reply_to_message_id: string | null
+          sender_id: string | null
+          sender_profile_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      start_unlocked_conversation: {
+        Args: {
+          related_application?: string
+          related_job?: string
+          worker: string
+        }
+        Returns: {
+          archived_at: string | null
+          created_at: string
+          created_from_unlock_id: string | null
+          employer_profile_id: string | null
+          id: string
+          job_id: string | null
+          last_message_at: string | null
+          related_application_id: string | null
+          status: string
+          updated_at: string
+          worker_profile_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "conversations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_helper_availability: {
         Args: { p_helper_id: string; p_status: string }
         Returns: boolean
@@ -1943,6 +2232,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      message_moderation_state: "clean" | "masked" | "flagged" | "removed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2071,6 +2361,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      message_moderation_state: ["clean", "masked", "flagged", "removed"],
     },
   },
 } as const
