@@ -2248,6 +2248,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_employer_wallet_state: { Args: never; Returns: Json }
       get_helper_ids_for_user: {
         Args: { p_user_id: string }
         Returns: string[]
