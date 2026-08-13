@@ -2256,6 +2256,7 @@ export type Database = {
         Args: { p_employer_id: string }
         Returns: string[]
       }
+      get_worker_unlock_state: { Args: { worker: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2397,25 +2398,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      unlock_worker_profile: {
-        Args: { worker: string }
-        Returns: {
-          amount_paid: number
-          bundle_type: string
-          created_at: string
-          employer_id: string
-          expires_at: string
-          helper_id: string
-          id: string
-          unlocked_at: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "profile_unlocks"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      unlock_worker_profile: { Args: { worker: string }; Returns: Json }
       update_helper_availability: {
         Args: { p_helper_id: string; p_status: string }
         Returns: boolean
