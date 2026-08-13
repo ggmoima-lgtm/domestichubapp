@@ -2151,6 +2151,33 @@ export type Database = {
         }
         Returns: boolean
       }
+      apply_credit_ledger_entry: {
+        Args: {
+          actor?: string
+          credit_delta: number
+          employer: string
+          entry_type: string
+          reason?: string
+          reference_id?: string
+          store_transaction?: string
+        }
+        Returns: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          type: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "credit_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       can_conversation_accept_messages: {
         Args: { conversation: string; sender: string }
         Returns: boolean
@@ -2182,7 +2209,22 @@ export type Database = {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
       }
-      ensure_employer_wallet: { Args: { employer: string }; Returns: undefined }
+      ensure_employer_wallet: {
+        Args: { employer: string }
+        Returns: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "credit_wallets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_authorized_conversations: {
         Args: never
         Returns: {
@@ -2351,6 +2393,25 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "conversations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      unlock_worker_profile: {
+        Args: { worker: string }
+        Returns: {
+          amount_paid: number
+          bundle_type: string
+          created_at: string
+          employer_id: string
+          expires_at: string
+          helper_id: string
+          id: string
+          unlocked_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profile_unlocks"
           isOneToOne: true
           isSetofReturn: false
         }
