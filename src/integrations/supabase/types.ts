@@ -2256,6 +2256,15 @@ export type Database = {
         Returns: undefined
       }
       mask_contact_details: { Args: { body: string }; Returns: string }
+      record_verified_store_purchase: {
+        Args: {
+          package_id: string
+          platform_name: string
+          provider_transaction: string
+          receipt_hash: string
+        }
+        Returns: Json
+      }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
       search_worker_previews: {
         Args: {
