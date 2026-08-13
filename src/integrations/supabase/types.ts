@@ -257,6 +257,39 @@ export type Database = {
           },
         ]
       }
+      credit_packages: {
+        Row: {
+          created_at: string
+          credits: number
+          currency: string
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          currency?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          currency?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
