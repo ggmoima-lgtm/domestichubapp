@@ -1095,6 +1095,7 @@ export type Database = {
           city: string | null
           created_at: string
           date_of_birth: string | null
+          deleted_at: string | null
           email: string | null
           email_verified_at: string | null
           first_name: string | null
@@ -1125,6 +1126,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           email_verified_at?: string | null
           first_name?: string | null
@@ -1155,6 +1157,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
           email?: string | null
           email_verified_at?: string | null
           first_name?: string | null
@@ -1387,6 +1390,39 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "job_posts"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_worker_profiles: {
+        Row: {
+          employer_profile_id: string
+          saved_at: string
+          worker_profile_id: string
+        }
+        Insert: {
+          employer_profile_id: string
+          saved_at?: string
+          worker_profile_id: string
+        }
+        Update: {
+          employer_profile_id?: string
+          saved_at?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_worker_profiles_employer_profile_id_fkey"
+            columns: ["employer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "employer_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "saved_worker_profiles_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -1716,6 +1752,8 @@ export type Database = {
           documentation_declared_at: string | null
           documentation_terms_version: string | null
           driver_licence: boolean
+          expected_rate_max: number | null
+          expected_rate_min: number | null
           expected_salary: string | null
           gender: string | null
           intro_video_path: string | null
@@ -1754,6 +1792,8 @@ export type Database = {
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
           driver_licence?: boolean
+          expected_rate_max?: number | null
+          expected_rate_min?: number | null
           expected_salary?: string | null
           gender?: string | null
           intro_video_path?: string | null
@@ -1792,6 +1832,8 @@ export type Database = {
           documentation_declared_at?: string | null
           documentation_terms_version?: string | null
           driver_licence?: boolean
+          expected_rate_max?: number | null
+          expected_rate_min?: number | null
           expected_salary?: string | null
           gender?: string | null
           intro_video_path?: string | null
@@ -2156,6 +2198,25 @@ export type Database = {
         Returns: boolean
       }
       is_profile_active: { Args: { profile: string }; Returns: boolean }
+      list_unlocked_worker_profiles: {
+        Args: never
+        Returns: {
+          availability_status: string
+          avatar_url: string
+          expected_rate_max: number
+          expected_rate_min: number
+          expires_at: string
+          first_name: string
+          phone_verified: boolean
+          primary_category: string
+          public_area: string
+          skills: string
+          surname_initial: string
+          unlocked_at: string
+          worker_profile_id: string
+          years_experience: number
+        }[]
+      }
       lookup_email_by_phone: { Args: { p_phone: string }; Returns: string }
       mark_conversation_read: {
         Args: { conversation: string }
@@ -2163,6 +2224,33 @@ export type Database = {
       }
       mask_contact_details: { Args: { body: string }; Returns: string }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      search_worker_previews: {
+        Args: {
+          category_slug?: string
+          limit_count?: number
+          location_text?: string
+          search_text?: string
+        }
+        Returns: {
+          availability_status: string
+          avatar_url: string
+          biography: string
+          expected_rate_max: number
+          expected_rate_min: number
+          first_name: string
+          last_active_at: string
+          phone_verified: boolean
+          primary_category: string
+          primary_category_slug: string
+          public_area: string
+          saved: boolean
+          skills: string
+          surname_initial: string
+          unlocked: boolean
+          worker_profile_id: string
+          years_experience: number
+        }[]
+      }
       send_conversation_message: {
         Args: {
           acknowledged_contact_warning?: boolean
