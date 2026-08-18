@@ -2286,6 +2286,7 @@ export type Database = {
           first_name: string
           phone_verified: boolean
           primary_category: string
+          primary_category_slug: string
           public_area: string
           skills: string
           surname_initial: string
