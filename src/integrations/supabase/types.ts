@@ -255,6 +255,13 @@ export type Database = {
             referencedRelation: "worker_profiles"
             referencedColumns: ["profile_id"]
           },
+          {
+            foreignKeyName: "conversations_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       credit_packages: {
@@ -681,6 +688,13 @@ export type Database = {
             columns: ["worker_profile_id"]
             isOneToOne: false
             referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "job_alerts_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
             referencedColumns: ["profile_id"]
           },
         ]
@@ -1457,6 +1471,13 @@ export type Database = {
             referencedRelation: "worker_profiles"
             referencedColumns: ["profile_id"]
           },
+          {
+            foreignKeyName: "saved_worker_profiles_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       skills: {
@@ -1668,6 +1689,13 @@ export type Database = {
             referencedRelation: "worker_profiles"
             referencedColumns: ["profile_id"]
           },
+          {
+            foreignKeyName: "worker_availability_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: true
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       worker_categories: {
@@ -1737,6 +1765,13 @@ export type Database = {
             referencedRelation: "worker_profiles"
             referencedColumns: ["profile_id"]
           },
+          {
+            foreignKeyName: "worker_category_memberships_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       worker_documents: {
@@ -1773,6 +1808,13 @@ export type Database = {
             columns: ["worker_profile_id"]
             isOneToOne: false
             referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "worker_documents_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
             referencedColumns: ["profile_id"]
           },
         ]
@@ -1946,6 +1988,13 @@ export type Database = {
             referencedRelation: "worker_profiles"
             referencedColumns: ["profile_id"]
           },
+          {
+            foreignKeyName: "worker_qualifications_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       worker_references: {
@@ -1988,6 +2037,13 @@ export type Database = {
             columns: ["worker_profile_id"]
             isOneToOne: false
             referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "worker_references_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
             referencedColumns: ["profile_id"]
           },
         ]
@@ -2035,6 +2091,13 @@ export type Database = {
             columns: ["worker_profile_id"]
             isOneToOne: false
             referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "worker_work_experiences_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
             referencedColumns: ["profile_id"]
           },
         ]
@@ -2137,6 +2200,75 @@ export type Database = {
           verification_status?: string | null
           video_flagged?: boolean | null
           video_moderation_status?: string | null
+        }
+        Relationships: []
+      }
+      worker_profiles_public: {
+        Row: {
+          biography: string | null
+          created_at: string | null
+          expected_rate_max: number | null
+          expected_rate_min: number | null
+          expected_salary: string | null
+          intro_video_url: string | null
+          introduction_photo_url: string | null
+          introduction_video_url: string | null
+          languages: string[] | null
+          last_availability_confirmed_at: string | null
+          profile_completion: number | null
+          profile_id: string | null
+          profile_photo_url: string | null
+          public_area: string | null
+          salary_type: string | null
+          searchable_at: string | null
+          skills_text: string | null
+          status: string | null
+          updated_at: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          biography?: string | null
+          created_at?: string | null
+          expected_rate_max?: number | null
+          expected_rate_min?: number | null
+          expected_salary?: string | null
+          intro_video_url?: string | null
+          introduction_photo_url?: string | null
+          introduction_video_url?: string | null
+          languages?: string[] | null
+          last_availability_confirmed_at?: string | null
+          profile_completion?: number | null
+          profile_id?: string | null
+          profile_photo_url?: string | null
+          public_area?: string | null
+          salary_type?: string | null
+          searchable_at?: string | null
+          skills_text?: string | null
+          status?: string | null
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          biography?: string | null
+          created_at?: string | null
+          expected_rate_max?: number | null
+          expected_rate_min?: number | null
+          expected_salary?: string | null
+          intro_video_url?: string | null
+          introduction_photo_url?: string | null
+          introduction_video_url?: string | null
+          languages?: string[] | null
+          last_availability_confirmed_at?: string | null
+          profile_completion?: number | null
+          profile_id?: string | null
+          profile_photo_url?: string | null
+          public_area?: string | null
+          salary_type?: string | null
+          searchable_at?: string | null
+          skills_text?: string | null
+          status?: string | null
+          updated_at?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -2275,6 +2407,7 @@ export type Database = {
         Returns: boolean
       }
       is_profile_active: { Args: { profile: string }; Returns: boolean }
+      is_worker_searchable: { Args: { worker: string }; Returns: boolean }
       list_unlocked_worker_profiles: {
         Args: never
         Returns: {

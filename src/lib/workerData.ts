@@ -330,7 +330,12 @@ export async function fetchWorkerOverlays(
   const [{ data: profiles }, { data: workers }, { data: availabilities }, categoryMap] =
     await Promise.all([
       supabase.from("profiles").select("user_id, first_name, last_name, full_name, surname, area").in("user_id", profileIds),
-      supabase.from("worker_profiles").select("*").in("profile_id", profileIds),
+      // Public-safe view: private fields (exact area, documentation, storage
+      // paths) are never exposed through browse overlays.
+      supabase
+        .from("worker_profiles_public")
+        .select("profile_id, status, public_area, biography, years_experience, expected_salary, skills_text, languages")
+        .in("profile_id", profileIds),
       supabase.from("worker_availability").select("*").in("worker_profile_id", profileIds),
       fetchCategoryMap(profileIds),
     ]);
