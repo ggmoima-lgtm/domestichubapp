@@ -12,6 +12,25 @@ function normalizePhone(input: string) {
   return `+${digits}`;
 }
 
+function toBase64(bytes: Uint8Array) {
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
+async function pbkdf2Pin(pin: string, salt: string, iterations: number) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(pin), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: encoder.encode(salt), iterations },
+    key,
+    256,
+  );
+  return toBase64(new Uint8Array(bits));
+}
+
 async function hashPin(pin: string, salt: string) {
   const data = new TextEncoder().encode(`${salt}:${pin}`);
   const digest = await crypto.subtle.digest("SHA-256", data);
@@ -77,6 +96,26 @@ Deno.serve(async (req) => {
     });
     if (passwordError) {
       console.error("create-pin: password sync skipped", passwordError.message);
+    }
+
+    // Store the modern PBKDF2 credential used by PIN sign-in.
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const credentialProfileId = String(profileRow?.id ?? userId);
+    const pbkdf2Salt = crypto.randomUUID();
+    const pbkdf2Iterations = 100000;
+    const { error: credentialError } = await admin.from("profile_pin_credentials").upsert({
+      profile_id: credentialProfileId,
+      pin_hash: await pbkdf2Pin(pin, pbkdf2Salt, pbkdf2Iterations),
+      salt: pbkdf2Salt,
+      iterations: pbkdf2Iterations,
+      updated_at: now,
+    });
+    if (credentialError) {
+      console.error("create-pin: credential upsert failed", credentialError.message);
     }
 
     // Mark onboarding complete now that the PIN step is done.
