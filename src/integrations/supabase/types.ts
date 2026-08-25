@@ -1021,6 +1021,27 @@ export type Database = {
         }
         Relationships: []
       }
+      pin_auth_attempts: {
+        Row: {
+          failed_count: number
+          locked_until: string | null
+          phone_e164: string
+          updated_at: string
+        }
+        Insert: {
+          failed_count?: number
+          locked_until?: string | null
+          phone_e164: string
+          updated_at?: string
+        }
+        Update: {
+          failed_count?: number
+          locked_until?: string | null
+          phone_e164?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       placements: {
         Row: {
           created_at: string
@@ -1083,6 +1104,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profile_pin_credentials: {
+        Row: {
+          created_at: string
+          iterations: number
+          pin_hash: string
+          profile_id: string
+          salt: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          iterations?: number
+          pin_hash: string
+          profile_id: string
+          salt: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          iterations?: number
+          pin_hash?: string
+          profile_id?: string
+          salt?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profile_unlocks: {
         Row: {
@@ -1479,6 +1527,33 @@ export type Database = {
             referencedColumns: ["profile_id"]
           },
         ]
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          phone_e164: string | null
+          profile_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          phone_e164?: string | null
+          profile_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          phone_e164?: string | null
+          profile_id?: string | null
+        }
+        Relationships: []
       }
       skills: {
         Row: {
