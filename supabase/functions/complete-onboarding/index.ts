@@ -88,6 +88,10 @@ Deno.serve(async (request) => {
   const privateExactAddress = asText(body.privateExactAddress);
   const yearsExperience = Number(body.yearsExperience ?? 0);
   const requestedWorkerStatus = asText(body.workerProfileStatus);
+  const rawTravelRadius = body.travelRadius;
+  const travelRadiusProvided =
+    rawTravelRadius !== undefined && rawTravelRadius !== null && asText(rawTravelRadius) !== "";
+  const travelRadiusValue = travelRadiusProvided ? Number(asText(String(rawTravelRadius))) : null;
 
   const errors: string[] = [];
   if (!allowedRoles.has(body.role)) errors.push("Invalid role.");
@@ -117,6 +121,12 @@ Deno.serve(async (request) => {
       errors.push("Choose your documentation declaration.");
     }
     if (!body.documentationDeclarationAccepted) errors.push("Confirm the documentation declaration.");
+    if (
+      travelRadiusProvided &&
+      (!Number.isFinite(travelRadiusValue) || (travelRadiusValue as number) < 0 || (travelRadiusValue as number) > 500)
+    ) {
+      errors.push("Travel radius must be a number between 0 and 500 km.");
+    }
     if (requestedWorkerStatus && !workerProfileStatuses.has(requestedWorkerStatus)) {
       errors.push("Worker profile status is not supported.");
     }
@@ -241,6 +251,9 @@ Deno.serve(async (request) => {
         documentation_terms_version: policyVersion,
         last_availability_confirmed_at: now,
         searchable_at: isSearchable ? now : null,
+        ...(travelRadiusProvided
+          ? { travel_radius: String(travelRadiusValue), willing_to_travel: (travelRadiusValue as number) > 0 }
+          : {}),
       },
       { onConflict: "profile_id" },
     );
@@ -252,6 +265,7 @@ Deno.serve(async (request) => {
         worker_profile_id: profileId,
         employment_types: selectedWorkArrangements,
         areas_willing_to_work: areasWillingToWork,
+        ...(travelRadiusProvided ? { travel_radius: String(travelRadiusValue) } : {}),
         updated_at: now,
       },
       { onConflict: "worker_profile_id" },
