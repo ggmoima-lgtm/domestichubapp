@@ -114,7 +114,16 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
 
-    const { error: updateError } = await client.auth.admin.updateUserById(userId, { password });
+    // Older accounts may have been created without a confirmed email, which
+    // makes signInWithPassword fail with "Email not confirmed". Confirm it
+    // here — SMS ownership has already been proven above.
+    const { error: updateError } = await client.auth.admin.updateUserById(userId, {
+      password,
+      email_confirm: true,
+      phone: phoneE164,
+      phone_confirm: true,
+      user_metadata: metadata
+    });
     if (updateError) {
       console.error("[verify-worker-signup-otp] password reset failed", { userId, status: updateError.status, message: updateError.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
