@@ -83,8 +83,9 @@ Deno.serve(async (request) => {
     phone_verified_at: new Date().toISOString()
   };
   const signInStartFailedMessage = "Your mobile number is verified, but sign-in could not start. Please try again.";
+  const phoneTaken = (message?: string) => /users_phone_key|duplicate key/i.test(message ?? "");
 
-  const { data: createData, error: createError } = await client.auth.admin.createUser({
+  let { data: createData, error: createError } = await client.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -92,6 +93,18 @@ Deno.serve(async (request) => {
     phone_confirm: true,
     user_metadata: metadata
   });
+
+  // The number may already be attached to an older/legacy auth account. The
+  // canonical identity here is the phone-derived email, so fall back to
+  // creating the account without the auth-level phone field.
+  if (createError && phoneTaken(createError.message)) {
+    ({ data: createData, error: createError } = await client.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: metadata
+    }));
+  }
 
   let userId = createData?.user?.id ?? "";
 
@@ -117,18 +130,29 @@ Deno.serve(async (request) => {
     // Older accounts may have been created without a confirmed email, which
     // makes signInWithPassword fail with "Email not confirmed". Confirm it
     // here — SMS ownership has already been proven above.
-    const { error: updateError } = await client.auth.admin.updateUserById(userId, {
+    let { error: updateError } = await client.auth.admin.updateUserById(userId, {
       password,
       email_confirm: true,
       phone: phoneE164,
       phone_confirm: true,
       user_metadata: metadata
     });
+
+    // Phone already claimed by another (legacy) auth row — retry without it.
+    if (updateError && phoneTaken(updateError.message)) {
+      ({ error: updateError } = await client.auth.admin.updateUserById(userId, {
+        password,
+        email_confirm: true,
+        user_metadata: metadata
+      }));
+    }
+
     if (updateError) {
       console.error("[verify-worker-signup-otp] password reset failed", { userId, status: updateError.status, message: updateError.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
   }
+
 
   if (!anonKey) {
     console.error("[verify-worker-signup-otp] SUPABASE_ANON_KEY is not configured for this function");
