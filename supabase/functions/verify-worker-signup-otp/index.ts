@@ -97,6 +97,7 @@ Deno.serve(async (request) => {
 
   if (createError) {
     if (!/already|exists|registered|duplicate/i.test(createError.message)) {
+      console.error("[verify-worker-signup-otp] createUser failed", { email, status: createError.status, message: createError.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
 
@@ -109,16 +110,21 @@ Deno.serve(async (request) => {
     const { data: lookupData, error: lookupError } = await client.auth.admin.generateLink({ type: "magiclink", email });
     userId = lookupData?.user?.id ?? "";
     if (lookupError || !userId) {
+      console.error("[verify-worker-signup-otp] existing-user lookup failed", { email, status: lookupError?.status, message: lookupError?.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
 
     const { error: updateError } = await client.auth.admin.updateUserById(userId, { password });
     if (updateError) {
+      console.error("[verify-worker-signup-otp] password reset failed", { userId, status: updateError.status, message: updateError.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
   }
 
-  if (!anonKey) return jsonResponse({ error: "Server configuration missing" }, 500);
+  if (!anonKey) {
+    console.error("[verify-worker-signup-otp] SUPABASE_ANON_KEY is not configured for this function");
+    return jsonResponse({ error: "Server configuration missing" }, 500);
+  }
 
   // Sign in server-side with the anon client to obtain a real, refreshable
   // session directly, rather than relying on a magic-link token exchange
@@ -126,8 +132,10 @@ Deno.serve(async (request) => {
   const anonClient = createClient(supabaseUrl, anonKey);
   const { data: signInData, error: signInError } = await anonClient.auth.signInWithPassword({ email, password });
   if (signInError || !signInData.session) {
+    console.error("[verify-worker-signup-otp] signInWithPassword failed", { email, userId, status: signInError?.status, message: signInError?.message, name: signInError?.name });
     return jsonResponse({ error: signInStartFailedMessage }, 500);
   }
+
 
   return jsonResponse({
     status: "verified",
