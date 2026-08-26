@@ -185,7 +185,22 @@ Deno.serve(async (request) => {
   );
 
   if (profileError) {
-    return jsonResponse({ error: databaseErrorMessage(profileError.message) }, 422);
+    const message = databaseErrorMessage(profileError.message);
+    const isIdentityConflict =
+      profileError.message.includes("profiles_phone_unique") ||
+      profileError.message.includes("idx_profiles_email_unique_lower");
+
+    console.error("[complete-onboarding] profile upsert failed", {
+      profileId,
+      code: profileError.code,
+      constraint: profileError.details,
+      message,
+    });
+
+    return jsonResponse(
+      { error: message, code: isIdentityConflict ? "identity_conflict" : "profile_save_failed" },
+      isIdentityConflict ? 409 : 422,
+    );
   }
 
   if (body.role === "worker") {
