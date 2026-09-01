@@ -2607,6 +2607,32 @@ export type Database = {
         Returns: undefined
       }
       mask_contact_details: { Args: { body: string }; Returns: string }
+      publish_job: {
+        Args: { p_job_id: string }
+        Returns: {
+          category_id: string | null
+          created_at: string
+          duties: string | null
+          employer_profile_id: string
+          employment_type: string | null
+          id: string
+          private_exact_address: string | null
+          public_area: string | null
+          salary_max: number | null
+          salary_min: number | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          work_arrangement: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "jobs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       record_verified_store_purchase: {
         Args: {
           package_id: string
