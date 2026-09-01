@@ -751,6 +751,35 @@ export type Database = {
           },
         ]
       }
+      job_category_details: {
+        Row: {
+          created_at: string
+          detail: Json
+          job_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          job_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          job_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_category_details_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: true
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_posts: {
         Row: {
           category: string
@@ -816,6 +845,75 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      jobs: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          duties: string | null
+          employer_profile_id: string
+          employment_type: string | null
+          id: string
+          private_exact_address: string | null
+          public_area: string | null
+          salary_max: number | null
+          salary_min: number | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          work_arrangement: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          duties?: string | null
+          employer_profile_id: string
+          employment_type?: string | null
+          id?: string
+          private_exact_address?: string | null
+          public_area?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          work_arrangement?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          duties?: string | null
+          employer_profile_id?: string
+          employment_type?: string | null
+          id?: string
+          private_exact_address?: string | null
+          public_area?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          work_arrangement?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "worker_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_employer_profile_id_fkey"
+            columns: ["employer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "employer_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
       }
       messages: {
         Row: {
