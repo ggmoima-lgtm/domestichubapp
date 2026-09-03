@@ -1829,7 +1829,9 @@ export type Database = {
           available_from: string | null
           available_immediately: boolean
           created_at: string
+          days_available: string[]
           employment_types: string[]
+          hours_available: string | null
           travel_radius: string | null
           updated_at: string
           worker_profile_id: string
@@ -1839,7 +1841,9 @@ export type Database = {
           available_from?: string | null
           available_immediately?: boolean
           created_at?: string
+          days_available?: string[]
           employment_types?: string[]
+          hours_available?: string | null
           travel_radius?: string | null
           updated_at?: string
           worker_profile_id: string
@@ -1849,7 +1853,9 @@ export type Database = {
           available_from?: string | null
           available_immediately?: boolean
           created_at?: string
+          days_available?: string[]
           employment_types?: string[]
+          hours_available?: string | null
           travel_radius?: string | null
           updated_at?: string
           worker_profile_id?: string
