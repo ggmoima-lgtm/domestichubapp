@@ -2013,6 +2013,8 @@ export type Database = {
           languages: string[]
           last_availability_confirmed_at: string | null
           nationality: string | null
+          own_tools: boolean
+          own_transport: boolean
           private_exact_area: string | null
           profile_completion: number
           profile_id: string
@@ -2053,6 +2055,8 @@ export type Database = {
           languages?: string[]
           last_availability_confirmed_at?: string | null
           nationality?: string | null
+          own_tools?: boolean
+          own_transport?: boolean
           private_exact_area?: string | null
           profile_completion?: number
           profile_id: string
@@ -2093,6 +2097,8 @@ export type Database = {
           languages?: string[]
           last_availability_confirmed_at?: string | null
           nationality?: string | null
+          own_tools?: boolean
+          own_transport?: boolean
           private_exact_area?: string | null
           profile_completion?: number
           profile_id?: string
