@@ -92,6 +92,17 @@ Deno.serve(async (request) => {
   const travelRadiusProvided =
     rawTravelRadius !== undefined && rawTravelRadius !== null && asText(rawTravelRadius) !== "";
   const travelRadiusValue = travelRadiusProvided ? Number(asText(String(rawTravelRadius))) : null;
+  // These were captured in the signup form but the client never actually
+  // sent them here, so nothing wrote them anywhere - the worker account
+  // screen showed them blank after signup even though the value was
+  // typed once already during onboarding.
+  const gender = asText(body.gender);
+  const availableDays = asTextArray(body.availableDays);
+  const workingHours = asText(body.workingHours);
+  const availableImmediately = body.availableImmediately === true;
+  const availableFrom = asText(body.availableFrom);
+  const ownTransport = body.ownTransport === true;
+  const ownTools = body.ownTools === true;
 
   const errors: string[] = [];
   if (!allowedRoles.has(body.role)) errors.push("Invalid role.");
@@ -152,6 +163,14 @@ Deno.serve(async (request) => {
   const token = authHeader.replace(/^Bearer\s+/i, "");
   const { data: userData, error } = await client.auth.getUser(token);
   if (error || !userData.user) {
+    console.error("[complete-onboarding] getUser(token) rejected the bearer token", {
+      role: body.role,
+      tokenLength: token.length,
+      tokenPrefix: token.slice(0, 12),
+      status: error?.status,
+      message: error?.message,
+      name: error?.name,
+    });
     return jsonResponse({ error: "Invalid session" }, 401);
   }
 
@@ -219,7 +238,14 @@ Deno.serve(async (request) => {
       .select("id, slug")
       .in("slug", normalizedSlugs);
 
-    if (categoryError) return jsonResponse({ error: categoryError.message }, 422);
+    if (categoryError) {
+      console.error("[complete-onboarding] worker_categories lookup failed", {
+        profileId,
+        code: categoryError.code,
+        message: categoryError.message,
+      });
+      return jsonResponse({ error: categoryError.message }, 422);
+    }
 
     let categories = existingCategories ?? [];
     const missing = normalizedSlugs.filter(
@@ -243,6 +269,12 @@ Deno.serve(async (request) => {
         .select("id, slug");
 
       if (createCategoryError) {
+        console.error("[complete-onboarding] worker_categories insert failed", {
+          profileId,
+          missing,
+          code: createCategoryError.code,
+          message: createCategoryError.message,
+        });
         return jsonResponse({ error: createCategoryError.message }, 422);
       }
       categories = [...categories, ...(created ?? [])];
@@ -266,6 +298,9 @@ Deno.serve(async (request) => {
         documentation_terms_version: policyVersion,
         last_availability_confirmed_at: now,
         searchable_at: isSearchable ? now : null,
+        own_transport: ownTransport,
+        own_tools: ownTools,
+        ...(gender ? { gender } : {}),
         ...(travelRadiusProvided
           ? { travel_radius: String(travelRadiusValue), willing_to_travel: (travelRadiusValue as number) > 0 }
           : {}),
@@ -273,27 +308,52 @@ Deno.serve(async (request) => {
       { onConflict: "profile_id" },
     );
 
-    if (workerProfileError) return jsonResponse({ error: workerProfileError.message }, 422);
+    if (workerProfileError) {
+      console.error("[complete-onboarding] worker_profiles upsert failed", {
+        profileId,
+        code: workerProfileError.code,
+        message: workerProfileError.message,
+      });
+      return jsonResponse({ error: workerProfileError.message }, 422);
+    }
 
     const { error: availabilityError } = await client.from("worker_availability").upsert(
       {
         worker_profile_id: profileId,
         employment_types: selectedWorkArrangements,
         areas_willing_to_work: areasWillingToWork,
+        available_immediately: availableImmediately,
+        ...(availableDays.length > 0 ? { days_available: availableDays } : {}),
+        ...(workingHours ? { hours_available: workingHours } : {}),
+        ...(!availableImmediately && availableFrom ? { available_from: availableFrom } : {}),
         ...(travelRadiusProvided ? { travel_radius: String(travelRadiusValue) } : {}),
         updated_at: now,
       },
       { onConflict: "worker_profile_id" },
     );
 
-    if (availabilityError) return jsonResponse({ error: availabilityError.message }, 422);
+    if (availabilityError) {
+      console.error("[complete-onboarding] worker_availability upsert failed", {
+        profileId,
+        code: availabilityError.code,
+        message: availabilityError.message,
+      });
+      return jsonResponse({ error: availabilityError.message }, 422);
+    }
 
     const { error: deleteMembershipError } = await client
       .from("worker_category_memberships")
       .delete()
       .eq("worker_profile_id", profileId);
 
-    if (deleteMembershipError) return jsonResponse({ error: deleteMembershipError.message }, 422);
+    if (deleteMembershipError) {
+      console.error("[complete-onboarding] worker_category_memberships delete failed", {
+        profileId,
+        code: deleteMembershipError.code,
+        message: deleteMembershipError.message,
+      });
+      return jsonResponse({ error: deleteMembershipError.message }, 422);
+    }
 
     const memberships = (categories ?? []).map((category) => ({
       worker_profile_id: profileId,
@@ -302,7 +362,14 @@ Deno.serve(async (request) => {
     const { error: membershipError } = await client
       .from("worker_category_memberships")
       .insert(memberships);
-    if (membershipError) return jsonResponse({ error: membershipError.message }, 422);
+    if (membershipError) {
+      console.error("[complete-onboarding] worker_category_memberships insert failed", {
+        profileId,
+        code: membershipError.code,
+        message: membershipError.message,
+      });
+      return jsonResponse({ error: membershipError.message }, 422);
+    }
   }
 
   if (body.role === "employer") {
@@ -316,8 +383,23 @@ Deno.serve(async (request) => {
       { onConflict: "profile_id" },
     );
 
-    if (employerProfileError) return jsonResponse({ error: employerProfileError.message }, 422);
-    await client.rpc("ensure_employer_wallet", { employer: profileId });
+    if (employerProfileError) {
+      console.error("[complete-onboarding] employer_profiles upsert failed", {
+        profileId,
+        code: employerProfileError.code,
+        message: employerProfileError.message,
+      });
+      return jsonResponse({ error: employerProfileError.message }, 422);
+    }
+
+    const { error: walletError } = await client.rpc("ensure_employer_wallet", { employer: profileId });
+    if (walletError) {
+      console.error("[complete-onboarding] ensure_employer_wallet rpc failed", {
+        profileId,
+        code: walletError.code,
+        message: walletError.message,
+      });
+    }
   }
 
   const pendingWorker = body.role === "worker" && requestedWorkerStatus === "pending_completion";
@@ -340,7 +422,14 @@ Deno.serve(async (request) => {
     { onConflict: "profile_id" },
   );
 
-  if (onboardingError) return jsonResponse({ error: onboardingError.message }, 422);
+  if (onboardingError) {
+    console.error("[complete-onboarding] onboarding_sessions upsert failed", {
+      profileId,
+      code: onboardingError.code,
+      message: onboardingError.message,
+    });
+    return jsonResponse({ error: onboardingError.message }, 422);
+  }
 
   return jsonResponse({
     status: "saved",
