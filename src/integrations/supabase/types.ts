@@ -2553,6 +2553,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_employer_unlocked_document_access: {
+        Args: { document: string }
+        Returns: {
+          bucket_id: string
+          document_id: string
+          storage_path: string
+        }[]
+      }
       get_employer_wallet_state: { Args: never; Returns: Json }
       get_helper_ids_for_user: {
         Args: { p_user_id: string }
