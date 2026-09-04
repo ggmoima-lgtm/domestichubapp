@@ -2677,6 +2677,8 @@ export type Database = {
           expected_rate_max: number
           expected_rate_min: number
           first_name: string
+          has_documents: boolean
+          has_intro_video: boolean
           last_active_at: string
           phone_verified: boolean
           primary_category: string
