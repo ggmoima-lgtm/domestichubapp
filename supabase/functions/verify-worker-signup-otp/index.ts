@@ -83,17 +83,13 @@ Deno.serve(async (request) => {
     phone_verified_at: new Date().toISOString()
   };
   const signInStartFailedMessage = "Your mobile number is verified, but sign-in could not start. Please try again.";
-  // The auth-level phone field can collide with an older/legacy account that
-  // already claims this number (unique constraint users_phone_key), and the
-  // Auth API reports that only as a generic "Error updating user". The
-  // canonical identity here is the phone-derived email, so never set the
-  // auth phone during sign-up — the verified number lives in user_metadata
-  // and in the profile tables.
 
-  let { data: createData, error: createError } = await client.auth.admin.createUser({
+  const { data: createData, error: createError } = await client.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
+    phone: phoneE164,
+    phone_confirm: true,
     user_metadata: metadata
   });
 
@@ -118,22 +114,47 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
 
-    // Older accounts may have been created without a confirmed email, which
-    // makes signInWithPassword fail with "Email not confirmed". Confirm it
-    // here — SMS ownership has already been proven above.
-    const { error: updateError } = await client.auth.admin.updateUserById(userId, {
-      password,
-      email_confirm: true,
-      user_metadata: metadata
-    });
+    // Only silently recover the session if this is genuinely an
+    // interrupted, incomplete signup. Previously this always recovered
+    // silently regardless of onboarding status, so a phone number that
+    // already had a fully completed profile only surfaced as a conflict
+    // much later, at complete-onboarding's final submit, after the whole
+    // multi-step form had been filled in again. If the profile behind
+    // this phone number is already complete, the right next step for
+    // whoever is verifying it - same person or not - is to sign in, not
+    // be silently signed into that existing session.
+    const { data: existingSession, error: sessionLookupError } = await client
+      .from("onboarding_sessions")
+      .select("status")
+      .eq("profile_id", userId)
+      .maybeSingle();
+    if (sessionLookupError) {
+      console.error("[verify-worker-signup-otp] onboarding_sessions lookup failed", {
+        userId,
+        code: sessionLookupError.code,
+        message: sessionLookupError.message
+      });
+      // Fail open here: an unexpected query error shouldn't block a
+      // legitimate resume, it just means we can't pre-empt the later
+      // duplicate check this time.
+    } else if (existingSession?.status === "completed") {
+      return jsonResponse(
+        { error: "This mobile number is already registered. Please sign in instead.", code: "identity_conflict" },
+        409
+      );
+    }
 
+    // Also confirm the email here, not just on fresh creation: an existing
+    // account may have been created earlier (e.g. by the previous magic-link
+    // based flow) without email_confirm set, which makes signInWithPassword
+    // below reject with "Email not confirmed" even after a correct password
+    // reset.
+    const { error: updateError } = await client.auth.admin.updateUserById(userId, { password, email_confirm: true });
     if (updateError) {
       console.error("[verify-worker-signup-otp] password reset failed", { userId, status: updateError.status, message: updateError.message });
       return jsonResponse({ error: signInStartFailedMessage }, 500);
     }
   }
-
-
 
   if (!anonKey) {
     console.error("[verify-worker-signup-otp] SUPABASE_ANON_KEY is not configured for this function");
@@ -146,17 +167,21 @@ Deno.serve(async (request) => {
   const anonClient = createClient(supabaseUrl, anonKey);
   const { data: signInData, error: signInError } = await anonClient.auth.signInWithPassword({ email, password });
   if (signInError || !signInData.session) {
-    console.error("[verify-worker-signup-otp] signInWithPassword failed", { email, userId, status: signInError?.status, message: signInError?.message, name: signInError?.name });
+    console.error("[verify-worker-signup-otp] signInWithPassword failed", {
+      email,
+      userId,
+      status: signInError?.status,
+      message: signInError?.message,
+      name: signInError?.name
+    });
     return jsonResponse({ error: signInStartFailedMessage }, 500);
   }
-
 
   return jsonResponse({
     status: "verified",
     phoneE164,
     email,
     role,
-    userId,
     session: {
       access_token: signInData.session.access_token,
       refresh_token: signInData.session.refresh_token
