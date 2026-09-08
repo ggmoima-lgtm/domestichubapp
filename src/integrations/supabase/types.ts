@@ -1044,6 +1044,50 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          id: string
+          metadata: Json
+          notification_type: string
+          profile_id: string
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          body?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          notification_type: string
+          profile_id: string
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          notification_type?: string
+          profile_id?: string
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_sessions: {
         Row: {
           completed_at: string | null
@@ -1684,6 +1728,59 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "worker_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          category: string
+          closed_at: string | null
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          requester_profile_id: string
+          resolved_at: string | null
+          status: string
+          subject: string
+          ticket_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string
+          requester_profile_id: string
+          resolved_at?: string | null
+          status?: string
+          subject: string
+          ticket_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string
+          requester_profile_id?: string
+          resolved_at?: string | null
+          status?: string
+          subject?: string
+          ticket_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_requester_profile_id_fkey"
+            columns: ["requester_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2522,6 +2619,29 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_support_ticket: {
+        Args: { category: string; message: string; subject: string }
+        Returns: {
+          category: string
+          closed_at: string | null
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          requester_profile_id: string
+          resolved_at: string | null
+          status: string
+          subject: string
+          ticket_number: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "support_tickets"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       deduct_credits_for_unlock: {
         Args: { p_credits: number; p_employer_id: string; p_helper_id: string }
         Returns: boolean
@@ -2686,6 +2806,18 @@ export type Database = {
         Returns: undefined
       }
       mask_contact_details: { Args: { body: string }; Returns: string }
+      next_support_ticket_number: { Args: never; Returns: string }
+      notify_profile: {
+        Args: {
+          body?: string
+          channel?: string
+          metadata?: Json
+          notification_type: string
+          target_profile: string
+          title: string
+        }
+        Returns: string
+      }
       publish_job: {
         Args: { p_job_id: string }
         Returns: {
