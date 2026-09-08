@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          id: string
+          profile_id: string
+          reason: string | null
+          reauthenticated_at: string | null
+          requested_at: string
+          status: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          reason?: string | null
+          reauthenticated_at?: string | null
+          requested_at?: string
+          status?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          reason?: string | null
+          reauthenticated_at?: string | null
+          requested_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_deletion_requests_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -2912,6 +2947,23 @@ export type Database = {
         Returns: Json
       }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      request_account_deletion: {
+        Args: { reason?: string; reauthenticated_at?: string }
+        Returns: {
+          id: string
+          profile_id: string
+          reason: string | null
+          reauthenticated_at: string | null
+          requested_at: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_deletion_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       search_public_jobs: {
         Args: {
           category_slugs?: string[]
@@ -3056,6 +3108,36 @@ export type Database = {
       update_helper_availability: {
         Args: { p_helper_id: string; p_status: string }
         Returns: boolean
+      }
+      update_notification_preferences: {
+        Args: {
+          admin_actions?: boolean
+          credits?: boolean
+          hire_updates?: boolean
+          interviews?: boolean
+          messages?: boolean
+          profile_unlocks?: boolean
+          reviews?: boolean
+        }
+        Returns: {
+          admin_actions: boolean
+          created_at: string
+          credits: boolean
+          hire_updates: boolean
+          id: string
+          interviews: boolean
+          messages: boolean
+          profile_unlocks: boolean
+          reviews: boolean
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "notification_preferences"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
