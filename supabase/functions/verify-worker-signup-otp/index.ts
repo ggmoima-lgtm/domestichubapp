@@ -84,12 +84,13 @@ Deno.serve(async (request) => {
   };
   const signInStartFailedMessage = "Your mobile number is verified, but sign-in could not start. Please try again.";
 
+  // No auth-level phone/phone_confirm here on purpose: a legacy Auth user may
+  // already own this number, which made createUser/updateUserById fail with a
+  // duplicate-phone error. The verified number lives in metadata and profiles.
   const { data: createData, error: createError } = await client.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    phone: phoneE164,
-    phone_confirm: true,
     user_metadata: metadata
   });
 
