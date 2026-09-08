@@ -2667,6 +2667,21 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      block_profile: {
+        Args: { blocked: string; reason?: string }
+        Returns: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "blocked_users"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       can_conversation_accept_messages: {
         Args: { conversation: string; sender: string }
         Returns: boolean
@@ -2947,6 +2962,29 @@ export type Database = {
         Returns: Json
       }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      report_content: {
+        Args: {
+          details?: string
+          reason: string
+          target_id: string
+          target_type: string
+        }
+        Returns: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_reports"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       request_account_deletion: {
         Args: { reason?: string; reauthenticated_at?: string }
         Returns: {
