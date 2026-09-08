@@ -2330,6 +2330,46 @@ export type Database = {
           },
         ]
       }
+      worker_skills: {
+        Row: {
+          created_at: string
+          skill_id: string
+          worker_profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          skill_id: string
+          worker_profile_id: string
+        }
+        Update: {
+          created_at?: string
+          skill_id?: string
+          worker_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_skills_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "worker_skills_worker_profile_id_fkey"
+            columns: ["worker_profile_id"]
+            isOneToOne: false
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       worker_work_experiences: {
         Row: {
           created_at: string
