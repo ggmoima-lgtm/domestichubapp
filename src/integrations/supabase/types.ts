@@ -2542,6 +2542,26 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_applicant_preview: {
+        Args: { target_application_id: string }
+        Returns: {
+          application_id: string
+          application_status: string
+          availability_status: string
+          category_name: string
+          expected_rate_max: number
+          expected_rate_min: number
+          first_name: string
+          job_id: string
+          last_availability_confirmed_at: string
+          phone_verified: boolean
+          public_area: string
+          submitted_at: string
+          surname_initial: string
+          worker_profile_id: string
+          years_experience: number
+        }[]
+      }
       get_authorized_conversations: {
         Args: never
         Returns: {
@@ -2581,6 +2601,45 @@ export type Database = {
       get_hired_helper_ids: {
         Args: { p_employer_id: string }
         Returns: string[]
+      }
+      get_job_applicant_previews: {
+        Args: { target_job_id: string }
+        Returns: {
+          application_id: string
+          application_status: string
+          availability_status: string
+          category_name: string
+          expected_rate_max: number
+          expected_rate_min: number
+          first_name: string
+          job_id: string
+          last_availability_confirmed_at: string
+          phone_verified: boolean
+          public_area: string
+          submitted_at: string
+          surname_initial: string
+          worker_profile_id: string
+          years_experience: number
+        }[]
+      }
+      get_public_job: {
+        Args: { target_job_id: string }
+        Returns: {
+          category_name: string
+          category_slug: string
+          duties: string
+          employer_phone_verified: boolean
+          employment_type: string
+          id: string
+          public_area: string
+          published_at: string
+          salary_max: number
+          salary_min: number
+          start_date: string
+          status: string
+          title: string
+          work_arrangement: string
+        }[]
       }
       get_worker_unlock_state: { Args: { worker: string }; Returns: Json }
       has_role: {
@@ -2663,6 +2722,37 @@ export type Database = {
         Returns: Json
       }
       redeem_promo_code: { Args: { p_code: string }; Returns: Json }
+      search_public_jobs: {
+        Args: {
+          category_slugs?: string[]
+          employment_types?: string[]
+          limit_count?: number
+          location_text?: string
+          offset_count?: number
+          posted_since?: string
+          regions?: string[]
+          search_text?: string
+          sort_by?: string
+          work_arrangement_filter?: string
+        }
+        Returns: {
+          category_name: string
+          category_slug: string
+          duties: string
+          employer_phone_verified: boolean
+          employment_type: string
+          id: string
+          public_area: string
+          published_at: string
+          salary_max: number
+          salary_min: number
+          start_date: string
+          status: string
+          title: string
+          total_count: number
+          work_arrangement: string
+        }[]
+      }
       search_worker_previews: {
         Args: {
           category_slug?: string
