@@ -84,9 +84,15 @@ Deno.serve(async (request) => {
   };
   const signInStartFailedMessage = "Your mobile number is verified, but sign-in could not start. Please try again.";
 
-  // No auth-level phone/phone_confirm here on purpose: a legacy Auth user may
-  // already own this number, which made createUser/updateUserById fail with a
-  // duplicate-phone error. The verified number lives in metadata and profiles.
+  // Deliberately not setting phone/phone_confirm here: if a legacy auth
+  // user already holds this number on the auth-level phone field,
+  // createUser rejects the whole call with a generic "Error updating
+  // user" message that doesn't match the already-exists regex below, so
+  // it 500s instead of routing through the recovery/conflict path - this
+  // was the exact cause of an earlier "mobile number verified but
+  // sign-in couldn't start" report. The verified number already lives in
+  // user_metadata and profiles, which is what the rest of this flow
+  // (and complete-onboarding) actually reads.
   const { data: createData, error: createError } = await client.auth.admin.createUser({
     email,
     password,
