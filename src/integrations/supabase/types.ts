@@ -2619,6 +2619,24 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_job_application: {
+        Args: { job_id: string; message?: string }
+        Returns: {
+          created_at: string
+          helper_id: string
+          id: string
+          job_id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "job_applications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_support_ticket: {
         Args: { category: string; message: string; subject: string }
         Returns: {
@@ -2946,6 +2964,24 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      shortlist_application: {
+        Args: { application_id: string }
+        Returns: {
+          created_at: string
+          helper_id: string
+          id: string
+          job_id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "job_applications"
           isOneToOne: true
           isSetofReturn: false
         }
