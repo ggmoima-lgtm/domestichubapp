@@ -162,6 +162,24 @@ Deno.serve(async (request) => {
     return jsonResponse({ error: "We couldn't create this job. Please check the form and try again." }, 500);
   }
 
+  // There is no separate "review draft, then publish" screen anywhere in
+  // the app - "Create Job" is the only action a worker-facing job ever
+  // goes through, so it must actually publish, not just insert a row that
+  // stays status='draft' forever (and therefore invisible to
+  // search_public_jobs, which correctly only returns status='published').
+  const { data: publishedJob, error: publishError } = await client.rpc("publish_job", { p_job_id: job.id });
+
+  if (publishError) {
+    console.error("create-job publish_job failed", {
+      employerProfileId,
+      jobId: job.id,
+      code: publishError.code,
+      message: publishError.message
+    });
+  } else if (publishedJob) {
+    job.status = publishedJob.status;
+  }
+
   if (uniqueCategories.length > 1) {
     const { error: detailError } = await client
       .from("job_category_details")
