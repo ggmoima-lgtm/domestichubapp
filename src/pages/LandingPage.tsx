@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mail, Shield } from "lucide-react";
 import logo from "@/assets/logo.jpg";
@@ -142,22 +142,24 @@ const LandingPage = () => {
         {/* Terms footer */}
         <p className="text-[11px] text-center text-muted-foreground pt-2 leading-relaxed">
           By clicking Continue, you agree to Domestic Hub's{" "}
-          <a href="https://domestichub.co.za/terms" className="text-primary font-medium hover:underline">User Agreement</a>,{" "}
-          <a href="https://domestichub.co.za/privacy" className="text-primary font-medium hover:underline">Privacy Policy</a>,
-          and <a href="https://domestichub.co.za/off-platform-liability" className="text-primary font-medium hover:underline">Cookie Policy</a>.
+          <Link to="/terms" className="text-primary font-medium hover:underline">User Agreement</Link>,{" "}
+          <Link to="/privacy" className="text-primary font-medium hover:underline">Privacy Policy</Link>,
+          and <Link to="/off-platform-liability" className="text-primary font-medium hover:underline">Off-Platform Liability</Link> terms.
         </p>
       </motion.div>
 
       {/* Footer with policy links */}
       <footer className="py-4 px-6 border-t border-border/50 bg-background/80">
-        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <a href="https://domestichub.co.za/privacy" className="hover:text-primary transition-colors flex items-center gap-1">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <Link to="/privacy" className="hover:text-primary transition-colors flex items-center gap-1">
             <Shield size={12} /> Privacy Policy
-          </a>
+          </Link>
           <span className="text-border">•</span>
-          <a href="https://domestichub.co.za/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+          <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
           <span className="text-border">•</span>
-          <a href="https://domestichub.co.za/refund-policy" className="hover:text-primary transition-colors">Refund Policy</a>
+          <Link to="/popia" className="hover:text-primary transition-colors">POPIA</Link>
+          <span className="text-border">•</span>
+          <Link to="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
         </div>
         <p className="text-center text-[10px] text-muted-foreground/60 mt-1">© 2026 Domestic Hub. All rights reserved.</p>
       </footer>
