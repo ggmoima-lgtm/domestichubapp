@@ -5,7 +5,7 @@ function friendlyApplyError(message: string): string {
   if (/no longer accepting applications/i.test(message)) return "This job is no longer accepting applications.";
   if (/could not be found/i.test(message)) return "This job could not be found. It may have been removed.";
   if (/complete your worker profile/i.test(message)) return "Complete your worker profile before applying for jobs.";
-  return "We couldn't submit your application right now. Please try again.";
+  return message || "We couldn't submit your application right now. Please try again.";
 }
 
 Deno.serve(async (request) => {
