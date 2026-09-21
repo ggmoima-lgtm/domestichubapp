@@ -273,7 +273,7 @@ export type Database = {
             foreignKeyName: "conversations_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
-            referencedRelation: "job_posts"
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
           {
@@ -781,7 +781,7 @@ export type Database = {
             foreignKeyName: "job_applications_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
-            referencedRelation: "job_posts"
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
         ]
