@@ -1660,7 +1660,7 @@ export type Database = {
             foreignKeyName: "saved_jobs_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
-            referencedRelation: "job_posts"
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
         ]
