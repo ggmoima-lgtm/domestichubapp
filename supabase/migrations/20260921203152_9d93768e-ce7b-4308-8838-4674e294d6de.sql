@@ -1,0 +1,2 @@
+alter table public.conversations drop constraint conversations_job_id_fkey;
+alter table public.conversations add constraint conversations_job_id_fkey foreign key (job_id) references public.jobs(id) on delete set null not valid;
