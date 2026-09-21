@@ -2856,6 +2856,7 @@ export type Database = {
           category_name: string
           category_slug: string
           duties: string
+          employer_name: string
           employer_phone_verified: boolean
           employment_type: string
           id: string
@@ -3019,6 +3020,7 @@ export type Database = {
           category_name: string
           category_slug: string
           duties: string
+          employer_name: string
           employer_phone_verified: boolean
           employment_type: string
           id: string
