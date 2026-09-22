@@ -65,7 +65,7 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
       setDuties([]);
       setSalaryMin(job.salary_min?.toString() || "");
       setSalaryMax(job.salary_max?.toString() || "");
-it      setOwnTools(false);
+setOwnTools(false);
     }
   }, [job, isOpen]);
 

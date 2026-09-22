@@ -52,13 +52,13 @@ Deno.serve(async (req) => {
 
     const userId = target_user_id;
 
-    const [{ data: helpers }, { data: jobPosts }] = await Promise.all([
+    const [{ data: helpers }, { data: jobs }] = await Promise.all([
       adminClient.from("helpers").select("id").eq("user_id", userId),
-      adminClient.from("job_posts").select("id").eq("employer_id", userId),
+      adminClient.from("jobs").select("id").eq("employer_profile_id", userId),
     ]);
 
     const helperIds = helpers?.map(h => h.id) ?? [];
-    const jobPostIds = jobPosts?.map(j => j.id) ?? [];
+    const jobPostIds = jobs?.map(j => j.id) ?? [];
 
     if (helperIds.length > 0) {
       await Promise.all([
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       runMutation("profile_unlocks", adminClient.from("profile_unlocks").delete().eq("employer_id", userId)),
       runMutation("reviews", adminClient.from("reviews").delete().eq("employer_id", userId)),
       runMutation("placements", adminClient.from("placements").delete().eq("employer_id", userId)),
-      runMutation("job_posts", adminClient.from("job_posts").delete().eq("employer_id", userId)),
+      runMutation("jobs", adminClient.from("jobs").delete().eq("employer_profile_id", userId)),
       runMutation("employer_profiles", adminClient.from("employer_profiles").delete().eq("user_id", userId)),
     ]);
 
