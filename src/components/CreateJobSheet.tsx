@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { X, Plus, Briefcase } from "lucide-react";
 import { maskContactInfo } from "@/lib/contactMasking";
+import { CATEGORY_SLUG_MAP, buildDutiesText, ensureEmployerProfile, normalizeWorkArrangement, resolveCategoryId } from "@/lib/jobAdapters";
 
 interface CreateJobSheetProps {
   isOpen: boolean;
@@ -49,6 +50,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
   const [liveInOut, setLiveInOut] = useState("");
   const [houseSize, setHouseSize] = useState("");
   const [familySize, setFamilySize] = useState("");
+  const [ownTools, setOwnTools] = useState(false);
   const [duties, setDuties] = useState<string[]>([]);
   const [hoursPerWeek, setHoursPerWeek] = useState("");
   const [daysPerWeek, setDaysPerWeek] = useState("");
@@ -87,24 +89,29 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
         if (elderMobility) extras.push(`Mobility: ${elderMobility}`);
         if (medicalNeeds) extras.push(`Medical needs: ${medicalNeeds}`);
       }
-      const finalDescription = [description, extras.length ? `\n\n${extras.join(" • ")}` : ""].join("").trim() || null;
+      if (houseSize) extras.push(`${category === "gardener" ? "Garden size" : "House size"}: ${houseSize}`);
+      if (ownTools) extras.push("Must have own tools");
+      const finalDescription = [description.trim(), extras.join(" • ")].filter(Boolean).join("\n\n") || null;
+      const dutiesText = duties.length > 0
+        ? [finalDescription, `Duties: ${duties.join(", ")}`].filter(Boolean).join("\n")
+        : finalDescription;
 
-      const { error } = await supabase.from("job_posts").insert({
-        employer_id: user.id,
+      const profileReady = await ensureEmployerProfile(user.id);
+      if (!profileReady) throw new Error("Could not confirm your employer profile. Please complete your profile and try again.");
+
+      const categoryId = await resolveCategoryId(category);
+      const { error } = await supabase.from("jobs").insert({
+        employer_profile_id: user.id,
+        category_id: categoryId,
         title,
-        category,
-        description: finalDescription,
-        location: locationData?.formatted_address || null,
-        job_type: jobType || null,
-        live_in_out: liveInOut || null,
-        house_size: houseSize || null,
-        family_size: familySize || null,
-        duties: duties.length > 0 ? duties : null,
-        hours_per_week: hoursPerWeek ? parseInt(hoursPerWeek) : null,
+        status: "published",
+        employment_type: jobType || null,
+        work_arrangement: normalizeWorkArrangement(liveInOut),
+        public_area: locationData?.formatted_address || locationData?.city || null,
         salary_min: salaryMin ? parseFloat(salaryMin) : null,
         salary_max: salaryMax ? parseFloat(salaryMax) : null,
-        negotiable,
-      });
+        duties: dutiesText,
+      } as any);
       if (error) throw error;
       toast.success("Job posted successfully!");
 
@@ -112,7 +119,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       supabase.functions.invoke("notify-helpers-new-job", {
         body: {
           job_id: "new",
-          category,
+          category: CATEGORY_SLUG_MAP[category] || category,
           location: locationData?.formatted_address || null,
           title,
           employer_id: user.id,
@@ -126,6 +133,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
       setJobType(""); setLiveInOut(""); setHouseSize(""); setFamilySize("");
       setDuties([]); setHoursPerWeek(""); setDaysPerWeek(""); setSalaryMin(""); setSalaryMax("");
       setNumChildren(""); setChildAges(""); setElderMobility(""); setMedicalNeeds("");
+      setOwnTools(false);
     } catch (err: any) {
       toast.error("Failed to post job: " + err.message);
     } finally {
@@ -296,7 +304,7 @@ const CreateJobSheet = ({ isOpen, onClose, onCreated }: CreateJobSheetProps) => 
           {category === "gardener" && (
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
               <Label className="text-sm">Must have own tools</Label>
-              <Switch checked={liveInOut === "own-tools"} onCheckedChange={(v) => setLiveInOut(v ? "own-tools" : "")} />
+              <Switch checked={ownTools} onCheckedChange={setOwnTools} />
             </div>
           )}
 

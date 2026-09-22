@@ -77,7 +77,7 @@ const AdminDashboard = () => {
       supabase.from("profile_unlocks").select("*", { count: "exact", head: true }),
       supabase.from("reviews").select("*", { count: "exact", head: true }),
       supabase.from("user_reports").select("*", { count: "exact", head: true }),
-      supabase.from("job_posts").select("*", { count: "exact", head: true }).eq("status", "active"),
+      supabase.from("jobs").select("*", { count: "exact", head: true }).eq("status", "published"),
       supabase.from("invoices").select("total").eq("status", "paid"),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
     ]);

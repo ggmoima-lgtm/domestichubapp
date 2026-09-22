@@ -139,9 +139,9 @@ const Index = () => {
     if (!user || userRole !== "employer") return;
     const fetchApplicants = async () => {
       const { data: jobs } = await supabase
-        .from("job_posts")
+        .from("jobs")
         .select("id")
-        .eq("employer_id", user.id);
+        .eq("employer_profile_id", user.id);
       if (!jobs || jobs.length === 0) { setNewApplicantCount(0); return; }
       const jobIds = jobs.map(j => j.id);
       const { count } = await supabase
