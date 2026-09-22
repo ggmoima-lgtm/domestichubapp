@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { X, Briefcase } from "lucide-react";
 import { maskContactInfo } from "@/lib/contactMasking";
+import { buildDutiesText, displayWorkArrangement, normalizeWorkArrangement, resolveCategoryId, slugToWebCategory } from "@/lib/jobAdapters";
 
 interface EditJobSheetProps {
   isOpen: boolean;
@@ -46,25 +47,25 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
   const [liveInOut, setLiveInOut] = useState("");
   const [houseSize, setHouseSize] = useState("");
   const [familySize, setFamilySize] = useState("");
+  const [ownTools, setOwnTools] = useState(false);
   const [duties, setDuties] = useState<string[]>([]);
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
-  const [negotiable, setNegotiable] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (job && isOpen) {
       setTitle(job.title || "");
-      setCategory(job.category || "");
-      setDescription(job.description || "");
-      setJobType(job.job_type || "");
-      setLiveInOut(job.live_in_out || "");
-      setHouseSize(job.house_size || "");
-      setFamilySize(job.family_size || "");
-      setDuties(job.duties || []);
+      setCategory(slugToWebCategory(job.worker_categories?.slug));
+      setDescription(job.duties || "");
+      setJobType(job.employment_type || "");
+      setLiveInOut(displayWorkArrangement(job.work_arrangement));
+      setHouseSize("");
+      setFamilySize("");
+      setDuties([]);
       setSalaryMin(job.salary_min?.toString() || "");
       setSalaryMax(job.salary_max?.toString() || "");
-      setNegotiable(job.negotiable ?? true);
+setOwnTools(false);
     }
   }, [job, isOpen]);
 
@@ -83,19 +84,22 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
     }
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("job_posts").update({
+      const extras: string[] = [];
+      if (category === "gardener") {
+        if (houseSize) extras.push(`Garden size: ${houseSize}`);
+        if (ownTools) extras.push("Must have own tools");
+      }
+      const dutiesText = buildDutiesText(description, duties, extras);
+      const categoryId = await resolveCategoryId(category);
+      const { error } = await supabase.from("jobs").update({
         title,
-        category,
-        description: description || null,
-        job_type: jobType || null,
-        live_in_out: liveInOut || null,
-        house_size: houseSize || null,
-        family_size: familySize || null,
-        duties: duties.length > 0 ? duties : null,
+        category_id: categoryId,
+        employment_type: jobType || null,
+        work_arrangement: normalizeWorkArrangement(liveInOut),
+        duties: dutiesText,
         salary_min: salaryMin ? parseFloat(salaryMin) : null,
         salary_max: salaryMax ? parseFloat(salaryMax) : null,
-        negotiable,
-      }).eq("id", job.id);
+      } as any).eq("id", job.id);
       if (error) throw error;
       toast.success("Job updated!");
       onUpdated();
@@ -208,7 +212,7 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
           {category === "gardener" && (
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
               <Label className="text-sm">Must have own tools</Label>
-              <Switch checked={liveInOut === "own-tools"} onCheckedChange={(v) => setLiveInOut(v ? "own-tools" : "")} />
+              <Switch checked={ownTools} onCheckedChange={setOwnTools} />
             </div>
           )}
 
@@ -241,11 +245,6 @@ const EditJobSheet = ({ isOpen, onClose, onUpdated, job }: EditJobSheetProps) =>
               <Label className="text-xs font-semibold text-muted-foreground">Salary Max (R)</Label>
               <Input type="number" value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} className="rounded-xl h-12" />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
-            <Label className="text-sm">Salary Negotiable</Label>
-            <Switch checked={negotiable} onCheckedChange={setNegotiable} />
           </div>
 
           <Button onClick={handleUpdate} disabled={isSubmitting} className="w-full h-12 rounded-xl font-semibold">

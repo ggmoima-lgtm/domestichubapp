@@ -79,16 +79,16 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    const [{ data: helpers, error: helpersError }, { data: jobPosts, error: jobPostsError }] = await Promise.all([
+    const [{ data: helpers, error: helpersError }, { data: jobs, error: jobsError }] = await Promise.all([
       adminClient.from("helpers").select("id").eq("user_id", userId),
-      adminClient.from("job_posts").select("id").eq("employer_id", userId),
+      adminClient.from("jobs").select("id").eq("employer_profile_id", userId),
     ]);
 
     if (helpersError) throw new Error(`Failed to load helper records: ${helpersError.message}`);
-    if (jobPostsError) throw new Error(`Failed to load job posts: ${jobPostsError.message}`);
+    if (jobsError) throw new Error(`Failed to load jobs: ${jobsError.message}`);
 
     const helperIds = helpers?.map((helper) => helper.id) ?? [];
-    const jobPostIds = jobPosts?.map((jobPost) => jobPost.id) ?? [];
+    const jobPostIds = jobs?.map((job) => job.id) ?? [];
 
     // Silent deletion only: do not invoke any email or SMS hooks here.
 
@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       runMutation("Deleting employer profile unlocks", adminClient.from("profile_unlocks").delete().eq("employer_id", userId)),
       runMutation("Deleting employer reviews", adminClient.from("reviews").delete().eq("employer_id", userId)),
       runMutation("Deleting employer placements", adminClient.from("placements").delete().eq("employer_id", userId)),
-      runMutation("Deleting job posts", adminClient.from("job_posts").delete().eq("employer_id", userId)),
+      runMutation("Deleting jobs", adminClient.from("jobs").delete().eq("employer_profile_id", userId)),
       runMutation("Deleting employer profile", adminClient.from("employer_profiles").delete().eq("user_id", userId)),
     ]);
 

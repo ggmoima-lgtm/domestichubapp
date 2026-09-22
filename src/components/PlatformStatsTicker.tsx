@@ -22,7 +22,7 @@ const PlatformStatsTicker = () => {
       const [appsRes, placementsRes, jobsRes] = await Promise.all([
         supabase.from("job_applications").select("id", { count: "exact", head: true }).gte("created_at", todayISO),
         supabase.from("placements").select("id", { count: "exact", head: true }).gte("hired_at", todayISO),
-        supabase.from("job_posts").select("id", { count: "exact", head: true }).gte("created_at", todayISO),
+        supabase.from("jobs").select("id", { count: "exact", head: true }).gte("created_at", todayISO),
       ]);
 
       setStats([

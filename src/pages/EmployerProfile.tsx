@@ -193,10 +193,10 @@ const EmployerProfile = () => {
     setSavedHelpers([...dbHelpers, ...localHelpers]);
 
     const { data: jobsData, count: jobs } = await supabase
-      .from("job_posts")
-      .select("*", { count: "exact" })
-      .eq("employer_id", user.id)
-      .eq("status", "active")
+      .from("jobs")
+      .select("*, worker_categories(name)", { count: "exact" })
+      .eq("employer_profile_id", user.id)
+      .eq("status", "published")
       .order("created_at", { ascending: false });
     setJobCount(jobs || 0);
     setActiveJobs(jobsData || []);
@@ -210,9 +210,9 @@ const EmployerProfile = () => {
     setUnlockedProfiles(unlocksData || []);
 
     const { data: jobPosts } = await supabase
-      .from("job_posts")
+      .from("jobs")
       .select("id, title")
-      .eq("employer_id", user.id);
+      .eq("employer_profile_id", user.id);
 
     const { data: placementsData } = await supabase
       .from("placements")
@@ -758,8 +758,8 @@ const EmployerProfile = () => {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold">{job.title}</p>
-                        <p className="text-xs text-muted-foreground">{job.category} · {job.job_type || "Not specified"}</p>
-                        {job.location && <p className="text-xs text-muted-foreground mt-0.5">📍 {job.location}</p>}
+                        <p className="text-xs text-muted-foreground">{job.worker_categories?.name || "Domestic work"} · {job.employment_type || "Not specified"}</p>
+                        {job.public_area && <p className="text-xs text-muted-foreground mt-0.5">📍 {job.public_area}</p>}
                         {(job.salary_min || job.salary_max) && (
                           <p className="text-xs text-muted-foreground mt-0.5">
                             💰 R{job.salary_min || 0} - R{job.salary_max || "Negotiable"}
@@ -779,7 +779,7 @@ const EmployerProfile = () => {
                         <button
                           onClick={async () => {
                             if (!confirm("Delete this job post?")) return;
-                            const { error } = await supabase.from("job_posts").delete().eq("id", job.id);
+                            const { error } = await supabase.from("jobs").delete().eq("id", job.id);
                             if (error) toast.error("Failed to delete job.");
                             else {
                               toast.success("Job deleted.");

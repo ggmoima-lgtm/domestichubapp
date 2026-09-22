@@ -52,7 +52,7 @@ const ArchitectureFlowchart = () => {
         profile_unlocks
         invoices
         messages
-        job_posts
+        jobs
         job_applications
         placements
         reviews
