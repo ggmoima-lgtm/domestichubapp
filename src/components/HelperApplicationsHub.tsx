@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Briefcase, MapPin, Clock, Home, DollarSign, CheckCircle, XCircle, Hourglass } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { displayWorkArrangementLabel } from "@/lib/jobAdapters";
 
 interface Application {
   id: string;
@@ -12,13 +13,12 @@ interface Application {
   job: {
     id: string;
     title: string;
-    category: string;
-    location: string | null;
-    job_type: string | null;
-    live_in_out: string | null;
+    category_name: string | null;
+    public_area: string | null;
+    employment_type: string | null;
+    work_arrangement: string | null;
     salary_min: number | null;
     salary_max: number | null;
-    negotiable: boolean | null;
     status: string;
   } | null;
 }
@@ -74,11 +74,21 @@ const HelperApplicationsHub = () => {
       // Fetch job details for all applications
       const jobIds = apps.map(a => a.job_id);
       const { data: jobs } = await supabase
-        .from("job_posts")
-        .select("id, title, category, location, job_type, live_in_out, salary_min, salary_max, negotiable, status")
+        .from("jobs")
+        .select("id, title, public_area, employment_type, work_arrangement, salary_min, salary_max, status, worker_categories(name)")
         .in("id", jobIds);
 
-      const jobMap = new Map((jobs || []).map(j => [j.id, j]));
+      const jobMap = new Map((jobs || []).map((j: any) => [j.id, {
+        id: j.id,
+        title: j.title,
+        category_name: j.worker_categories?.name || null,
+        public_area: j.public_area,
+        employment_type: j.employment_type,
+        work_arrangement: j.work_arrangement,
+        salary_min: j.salary_min,
+        salary_max: j.salary_max,
+        status: j.status,
+      }]));
 
       setApplications(apps.map(a => ({
         ...a,
@@ -121,7 +131,7 @@ const HelperApplicationsHub = () => {
             >
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">{app.job ? categoryIcons[app.job.category] || "💼" : "💼"}</span>
+                  <span className="text-xl">{app.job ? categoryIcons[app.job.category_name?.toLowerCase() || ""] || "💼" : "💼"}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-foreground text-sm">
@@ -131,26 +141,25 @@ const HelperApplicationsHub = () => {
                     <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${status.className}`}>
                       {status.icon} {status.label}
                     </span>
-                    {app.job?.location && (
+                    {app.job?.public_area && (
                       <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <MapPin size={10} /> {app.job.location}
+                        <MapPin size={10} /> {app.job.public_area}
                       </Badge>
                     )}
-                    {app.job?.job_type && (
+                    {app.job?.employment_type && (
                       <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <Clock size={10} /> {app.job.job_type}
+                        <Clock size={10} /> {app.job.employment_type}
                       </Badge>
                     )}
-                    {app.job?.live_in_out && (
+                    {app.job?.work_arrangement && displayWorkArrangementLabel(app.job.work_arrangement) && (
                       <Badge variant="outline" className="text-[10px] gap-0.5">
-                        <Home size={10} /> {app.job.live_in_out}
+                        <Home size={10} /> {displayWorkArrangementLabel(app.job.work_arrangement)}
                       </Badge>
                     )}
                     {app.job && (app.job.salary_min || app.job.salary_max) && (
                       <Badge variant="outline" className="text-[10px] gap-0.5">
                         <DollarSign size={10} />
                         R{app.job.salary_min || 0} - R{app.job.salary_max || "?"}
-                        {app.job.negotiable && " (neg.)"}
                       </Badge>
                     )}
                   </div>
