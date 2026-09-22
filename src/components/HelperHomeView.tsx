@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchWorkerByProfileId } from "@/lib/workerData";
+import { displayWorkArrangementLabel } from "@/lib/jobAdapters";
 
 import {
   MapPin, Clock, Search, Home, X, Briefcase, User,
@@ -17,20 +18,15 @@ import { toast } from "sonner";
 
 interface JobPost {
   id: string;
-  employer_id: string;
+  employer_profile_id: string;
   title: string;
-  category: string;
-  description: string | null;
-  location: string | null;
-  job_type: string | null;
-  live_in_out: string | null;
-  house_size: string | null;
-  family_size: string | null;
-  duties: string[] | null;
-  hours_per_week: number | null;
+  category_name: string | null;
+  duties: string | null;
+  public_area: string | null;
+  employment_type: string | null;
+  work_arrangement: string | null;
   salary_min: number | null;
   salary_max: number | null;
-  negotiable: boolean | null;
   created_at: string;
 }
 
@@ -122,14 +118,27 @@ const HelperHomeView = () => {
 
    const fetchJobs = async () => {
     const { data, error } = await supabase
-      .from("job_posts")
-      .select("*")
-      .eq("status", "active")
+      .from("jobs")
+      .select("*, worker_categories(name)")
+      .eq("status", "published")
       .order("created_at", { ascending: false });
     if (!error && data) {
-      setJobs(data);
+      const mapped: JobPost[] = (data as any[]).map((j) => ({
+        id: j.id,
+        employer_profile_id: j.employer_profile_id,
+        title: j.title,
+        category_name: (j as any).worker_categories?.name || null,
+        duties: j.duties,
+        public_area: j.public_area,
+        employment_type: j.employment_type,
+        work_arrangement: j.work_arrangement,
+        salary_min: j.salary_min,
+        salary_max: j.salary_max,
+        created_at: j.created_at,
+      }));
+      setJobs(mapped);
       // Fetch employer names for initials via secure RPC
-      const employerIds = [...new Set(data.map((j) => j.employer_id))];
+      const employerIds = [...new Set(mapped.map((j) => j.employer_profile_id))];
       if (employerIds.length > 0) {
         const { data: names } = await supabase.rpc("get_employer_names", {
           p_employer_ids: employerIds,
@@ -156,31 +165,16 @@ const HelperHomeView = () => {
       toast.error("Your profile must be at least 80% complete to apply for jobs.");
       return;
     }
-    const { error } = await supabase.from("job_applications").insert({
+    const { error } = await supabase.rpc("create_job_application", {
       job_id: jobId,
-      helper_id: helperProfile.id,
+      message: null,
     });
     if (error) {
-      if (error.code === "23505") toast.info("You've already applied to this job.");
+      if (error.message?.toLowerCase().includes("already")) toast.info("You've already applied to this job.");
       else toast.error("Failed to apply.");
     } else {
       setAppliedJobIds((prev) => new Set(prev).add(jobId));
       toast.success("Application submitted!");
-
-      const job = jobs.find((j) => j.id === jobId);
-      if (job) {
-        supabase.functions
-          .invoke("send-notification", {
-            body: {
-              user_id: job.employer_id,
-              type: "hire_updates",
-              title: "New Application!",
-              body: `${helperProfile.full_name || "A helper"} applied to your job "${job.title}"`,
-              data: { job_id: jobId },
-            },
-          })
-          .catch(console.error);
-      }
     }
   };
 
@@ -190,9 +184,9 @@ const HelperHomeView = () => {
     const q = searchQuery.toLowerCase();
     return (
       job.title.toLowerCase().includes(q) ||
-      job.category.toLowerCase().includes(q) ||
-      (job.location || "").toLowerCase().includes(q) ||
-      (job.description || "").toLowerCase().includes(q)
+      (job.category_name || "").toLowerCase().includes(q) ||
+      (job.public_area || "").toLowerCase().includes(q) ||
+      (job.duties || "").toLowerCase().includes(q)
     );
   });
 
@@ -360,10 +354,10 @@ const HelperHomeView = () => {
                         <span className="ml-1.5 inline-flex items-center text-[10px] text-primary font-medium">✓ Applied</span>
                       )}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{job.category}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{job.category_name || "Domestic work"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {job.location || "South Africa"}
-                      {job.job_type && ` (${job.job_type})`}
+                      {job.public_area || "South Africa"}
+                      {job.employment_type && ` (${job.employment_type.replace(/-/g, " ")})`}
                     </p>
 
                     {/* Salary & Meta */}
@@ -371,12 +365,11 @@ const HelperHomeView = () => {
                       {(job.salary_min || job.salary_max) && (
                         <span className="text-[11px] text-muted-foreground">
                           R{job.salary_min || 0} – R{job.salary_max || "?"}
-                          {job.negotiable && " (neg.)"}
                         </span>
                       )}
-                      {job.live_in_out && (
+                      {job.work_arrangement && displayWorkArrangementLabel(job.work_arrangement) && (
                         <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
-                          <Home size={10} /> {job.live_in_out}
+                          <Home size={10} /> {displayWorkArrangementLabel(job.work_arrangement)}
                         </span>
                       )}
                     </div>
