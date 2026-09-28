@@ -2808,6 +2808,13 @@ export type Database = {
       }
       is_profile_active: { Args: { profile: string }; Returns: boolean }
       is_worker_searchable: { Args: { worker: string }; Returns: boolean }
+      list_public_job_areas: {
+        Args: never
+        Returns: {
+          job_count: number
+          public_area: string
+        }[]
+      }
       list_unlocked_worker_profiles: {
         Args: never
         Returns: {
