@@ -395,6 +395,7 @@ export type Database = {
           avatar_url: string | null
           category: string | null
           city: string | null
+          city_id: string | null
           country: string | null
           created_at: string
           custom_notes: string | null
@@ -421,6 +422,7 @@ export type Database = {
           avatar_url?: string | null
           category?: string | null
           city?: string | null
+          city_id?: string | null
           country?: string | null
           created_at?: string
           custom_notes?: string | null
@@ -447,6 +449,7 @@ export type Database = {
           avatar_url?: string | null
           category?: string | null
           city?: string | null
+          city_id?: string | null
           country?: string | null
           created_at?: string
           custom_notes?: string | null
@@ -468,7 +471,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employer_profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "sa_cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       helper_sensitive_data: {
         Row: {
@@ -674,6 +685,7 @@ export type Database = {
       job_alerts: {
         Row: {
           category: string | null
+          city_ids: string[]
           created_at: string
           employment_type: string | null
           frequency: string
@@ -689,6 +701,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          city_ids?: string[]
           created_at?: string
           employment_type?: string | null
           frequency?: string
@@ -704,6 +717,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          city_ids?: string[]
           created_at?: string
           employment_type?: string | null
           frequency?: string
@@ -818,6 +832,7 @@ export type Database = {
       jobs: {
         Row: {
           category_id: string | null
+          city_id: string | null
           created_at: string
           duties: string | null
           employer_profile_id: string
@@ -835,6 +850,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          city_id?: string | null
           created_at?: string
           duties?: string | null
           employer_profile_id: string
@@ -852,6 +868,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          city_id?: string | null
           created_at?: string
           duties?: string | null
           employer_profile_id?: string
@@ -873,6 +890,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "worker_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "sa_cities"
             referencedColumns: ["id"]
           },
           {
@@ -2099,6 +2123,7 @@ export type Database = {
       worker_profiles: {
         Row: {
           biography: string | null
+          city_id: string | null
           created_at: string
           documentation_declaration: string | null
           documentation_declared_at: string | null
@@ -2141,6 +2166,7 @@ export type Database = {
         }
         Insert: {
           biography?: string | null
+          city_id?: string | null
           created_at?: string
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
@@ -2183,6 +2209,7 @@ export type Database = {
         }
         Update: {
           biography?: string | null
+          city_id?: string | null
           created_at?: string
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
@@ -2223,7 +2250,15 @@ export type Database = {
           work_arrangement?: string | null
           years_experience?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "worker_profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "sa_cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       worker_qualifications: {
         Row: {
@@ -2904,6 +2939,7 @@ export type Database = {
         Args: { p_job_id: string }
         Returns: {
           category_id: string | null
+          city_id: string | null
           created_at: string
           duties: string | null
           employer_profile_id: string
