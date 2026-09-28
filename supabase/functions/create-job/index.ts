@@ -52,6 +52,8 @@ Deno.serve(async (request) => {
   const title = required(body?.title, "Enter a job title.", missing);
   const publicArea = required(body?.publicArea, "Enter the approximate area.", missing);
   const privateExactAddress = required(body?.privateExactAddress, "Enter the private exact address.", missing);
+  const rawCityId = asText(body?.cityId);
+  const cityId = rawCityId === "" ? null : rawCityId;
   const startDate = required(body?.startDate, "Select a start date.", missing);
   const salaryRange = required(body?.salaryRange, "Enter the salary/rate or select Negotiable.", missing);
   const duties = required(body?.duties, "Enter the duties.", missing);
@@ -144,6 +146,7 @@ Deno.serve(async (request) => {
       employment_type: employmentType,
       work_arrangement: workArrangement(asText(body?.workArrangement)),
       public_area: publicArea,
+      city_id: cityId,
       private_exact_address: privateExactAddress,
       start_date: startDate,
       salary_min: salary.min,
@@ -167,9 +170,17 @@ Deno.serve(async (request) => {
   // goes through, so it must actually publish, not just insert a row that
   // stays status='draft' forever (and therefore invisible to
   // search_public_jobs, which correctly only returns status='published').
+  // publish_job is the real, already-deployed function (confirmed via
+  // pg_get_functiondef) that performs this exact transition; it re-derives
+  // the caller's employer identity itself via auth.uid(), using the same
+  // forwarded Authorization header this client already carries, so calling
+  // it here needs no extra parameters beyond the new job's id.
   const { data: publishedJob, error: publishError } = await client.rpc("publish_job", { p_job_id: job.id });
 
   if (publishError) {
+    // The job itself was created successfully - don't fail the whole
+    // request over a publish hiccup, but do surface it so it's visible in
+    // logs rather than silently leaving the job stuck in draft.
     console.error("create-job publish_job failed", {
       employerProfileId,
       jobId: job.id,
