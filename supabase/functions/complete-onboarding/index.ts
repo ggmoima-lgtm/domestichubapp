@@ -86,6 +86,8 @@ Deno.serve(async (request) => {
   const documentationDeclaration = asText(body.documentationDeclaration);
   const publicArea = asText(body.publicArea);
   const privateExactAddress = asText(body.privateExactAddress);
+  const rawCityId = asText(body.cityId);
+  const cityId = rawCityId === "" ? null : rawCityId;
   const yearsExperience = Number(body.yearsExperience ?? 0);
   const requestedWorkerStatus = asText(body.workerProfileStatus);
   const rawTravelRadius = body.travelRadius;
@@ -287,6 +289,7 @@ Deno.serve(async (request) => {
         status: workerStatus,
         public_area: areasWillingToWork[0],
         private_exact_area: areasWillingToWork.join(", "),
+        city_id: cityId,
         biography,
         years_experience: yearsExperience,
         expected_salary: salaryRange,
@@ -379,6 +382,7 @@ Deno.serve(async (request) => {
         user_id: profileId,
         public_area: publicArea,
         private_exact_address: privateExactAddress,
+        city_id: cityId,
       },
       { onConflict: "profile_id" },
     );
