@@ -2856,6 +2856,7 @@ export type Database = {
         Returns: {
           category_name: string
           category_slug: string
+          city_name: string
           duties: string
           employer_name: string
           employer_phone_verified: boolean
@@ -3019,6 +3020,7 @@ export type Database = {
           limit_count?: number
           location_text?: string
           offset_count?: number
+          p_city_id?: string
           posted_since?: string
           regions?: string[]
           search_text?: string
@@ -3028,6 +3030,7 @@ export type Database = {
         Returns: {
           category_name: string
           category_slug: string
+          city_name: string
           duties: string
           employer_name: string
           employer_phone_verified: boolean
@@ -3049,12 +3052,14 @@ export type Database = {
           category_slug?: string
           limit_count?: number
           location_text?: string
+          p_city_id?: string
           search_text?: string
         }
         Returns: {
           availability_status: string
           avatar_url: string
           biography: string
+          city_name: string
           expected_rate_max: number
           expected_rate_min: number
           first_name: string
