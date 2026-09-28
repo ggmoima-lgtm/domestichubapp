@@ -1519,6 +1519,53 @@ export type Database = {
           },
         ]
       }
+      sa_cities: {
+        Row: {
+          id: string
+          name: string
+          province_id: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          name: string
+          province_id: string
+          sort_order: number
+        }
+        Update: {
+          id?: string
+          name?: string
+          province_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sa_cities_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "sa_provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sa_provinces: {
+        Row: {
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          name: string
+          sort_order: number
+        }
+        Update: {
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       saved_helpers: {
         Row: {
           created_at: string
