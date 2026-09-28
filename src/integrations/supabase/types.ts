@@ -767,15 +767,15 @@ export type Database = {
             foreignKeyName: "job_applications_helper_id_fkey"
             columns: ["helper_id"]
             isOneToOne: false
-            referencedRelation: "helpers"
-            referencedColumns: ["id"]
+            referencedRelation: "worker_profiles"
+            referencedColumns: ["profile_id"]
           },
           {
             foreignKeyName: "job_applications_helper_id_fkey"
             columns: ["helper_id"]
             isOneToOne: false
-            referencedRelation: "helpers_public"
-            referencedColumns: ["id"]
+            referencedRelation: "worker_profiles_public"
+            referencedColumns: ["profile_id"]
           },
           {
             foreignKeyName: "job_applications_job_id_fkey"
