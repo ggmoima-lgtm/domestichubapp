@@ -1,0 +1,2 @@
+ALTER TABLE public.profile_unlocks DROP CONSTRAINT IF EXISTS profile_unlocks_helper_id_fkey;
+CREATE INDEX IF NOT EXISTS idx_profile_unlocks_employer_helper ON public.profile_unlocks(employer_id, helper_id, expires_at);
