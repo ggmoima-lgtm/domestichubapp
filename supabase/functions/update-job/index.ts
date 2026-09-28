@@ -55,6 +55,8 @@ Deno.serve(async (request) => {
   const title = required(body?.title, "Enter a job title.", missing);
   const publicArea = required(body?.publicArea, "Enter the approximate area.", missing);
   const privateExactAddress = required(body?.privateExactAddress, "Enter the private exact address.", missing);
+  const rawCityId = asText(body?.cityId);
+  const cityId = rawCityId === "" ? null : rawCityId;
   const startDate = required(body?.startDate, "Select a start date.", missing);
   const salaryRange = required(body?.salaryRange, "Enter the salary/rate or select Negotiable.", missing);
   const duties = required(body?.duties, "Enter the duties.", missing);
@@ -152,6 +154,7 @@ Deno.serve(async (request) => {
       employment_type: employmentType,
       work_arrangement: workArrangement(asText(body?.workArrangement)),
       public_area: publicArea,
+      city_id: cityId,
       private_exact_address: privateExactAddress,
       start_date: startDate,
       salary_min: salary.min,
