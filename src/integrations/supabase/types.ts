@@ -1274,22 +1274,7 @@ export type Database = {
           id?: string
           unlocked_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profile_unlocks_helper_id_fkey"
-            columns: ["helper_id"]
-            isOneToOne: false
-            referencedRelation: "helpers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profile_unlocks_helper_id_fkey"
-            columns: ["helper_id"]
-            isOneToOne: false
-            referencedRelation: "helpers_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
