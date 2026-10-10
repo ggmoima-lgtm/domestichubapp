@@ -40,6 +40,38 @@ Deno.serve(async (req) => {
       // Signed-URL mode: React Native uploads large videos far more reliably by
       // PUTting the file straight to a pre-signed storage URL.
       if (parsed?.mode === "signed-url" || parsed?.signedUrl === true) {
+        // Documents (CVs, IDs) go to the PRIVATE helper-documents bucket.
+        // Path is "<profile id>/<filename>" with no bucket prefix; no public
+        // URL is issued and profile photo fields are never touched.
+        if (parsed.kind === "document") {
+          const docBucket = "helper-documents";
+          const docExt = String(parsed.filename ?? "document.pdf")
+            .split(".")
+            .pop()!
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "") || "pdf";
+          const docPath = `${userId}/document-${Date.now()}.${docExt}`;
+
+          const { data: docSigned, error: docErr } = await admin.storage
+            .from(docBucket)
+            .createSignedUploadUrl(docPath);
+
+          if (docErr || !docSigned) {
+            return jsonResponse({ error: docErr?.message ?? "Could not create upload URL" }, 400);
+          }
+
+          return jsonResponse({
+            success: true,
+            mode: "signed-url",
+            bucket: docBucket,
+            path: docPath,
+            token: docSigned.token,
+            signedUrl: docSigned.signedUrl,
+            uploadUrl: `${SUPABASE_URL}/storage/v1/${docSigned.path ?? `object/upload/sign/${docBucket}/${docPath}`}`,
+          });
+        }
+
+
         const isVideoReq =
           parsed.kind === "video" || String(parsed.contentType ?? "").startsWith("video/");
         const bucketName = isVideoReq ? "helper-videos" : "avatars";
