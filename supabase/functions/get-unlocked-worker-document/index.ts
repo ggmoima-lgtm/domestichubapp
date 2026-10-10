@@ -91,5 +91,3 @@ Deno.serve(async (request) => {
 
   return jsonResponse({ status: "processed", signedUrl });
 });
-
-After deploying, paste the RAW lines of the deployed source containing "storageClient" and the function's last-updated time.
