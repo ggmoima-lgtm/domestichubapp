@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791637580326,
+      "tag": "0000_search_location_matches_city_province",
+      "breakpoints": true
+    }
+  ]
+}
