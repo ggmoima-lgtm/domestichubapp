@@ -30,16 +30,6 @@ Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
 
-  // Require a signed-in user so this paid Google lookup is not an open public proxy.
-  const authHeader = request.headers.get("Authorization") ?? "";
-  const token = authHeader.replace(/^Bearer\s+/i, "");
-  const authUrl = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (!token || !authUrl || !anonKey) return jsonResponse({ error: "Please sign in to continue." }, 401);
-  const { data: authData, error: authError } = await createClient(authUrl, anonKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  }).auth.getUser(token);
-  if (authError || !authData?.user) return jsonResponse({ error: "Please sign in to continue." }, 401);
 
   const body = await request.json().catch(() => null);
   const action = asText(body?.action);

@@ -49,3 +49,5 @@ verify_jwt = false
 
 [functions.update-job]
 verify_jwt = true
+[functions.resolve-place]
+verify_jwt = false
