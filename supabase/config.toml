@@ -51,3 +51,6 @@ verify_jwt = false
 verify_jwt = true
 [functions.resolve-place]
 verify_jwt = false
+
+[functions.reset-pin-with-otp]
+verify_jwt = false
