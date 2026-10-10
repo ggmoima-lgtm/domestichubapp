@@ -54,3 +54,6 @@ verify_jwt = false
 
 [functions.reset-pin-with-otp]
 verify_jwt = false
+
+[functions.get-unlocked-worker-document]
+verify_jwt = true
