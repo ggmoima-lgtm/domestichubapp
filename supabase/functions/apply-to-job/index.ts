@@ -29,28 +29,51 @@ Deno.serve(async (request) => {
   const { data: userData, error } = await client.auth.getUser();
   if (error || !userData.user) return jsonResponse({ error: "Invalid session" }, 401);
 
-  // create_job_application is idempotent: applying again to the same job
-  // quietly returns the existing application, so a repeat tap looked like a
-  // second successful application. Say so explicitly instead. Row-level
-  // security limits this read to the worker's own applications.
+  // Applying again to a job already applied for is refused. An application
+  // that was WITHDRAWN does not count and may be reopened below.
   const { data: existing } = await client
     .from("job_applications")
-    .select("id")
+    .select("id, status")
     .eq("job_id", body.jobId)
     .eq("helper_id", userData.user.id)
-    .limit(1);
-  if (existing && existing.length > 0) {
+    .limit(5);
+  const activeApplication = (existing ?? []).find((row: { status?: unknown }) => String(row.status) !== "withdrawn");
+  if (activeApplication) {
     return jsonResponse({ error: "You have already applied for this job.", code: "already_applied" }, 409);
   }
+  const withdrawnApplication = (existing ?? [])[0] as { id?: string } | undefined;
 
-  // job_applications has a single free-text message column, not a
-  // per-question answers table, so the answers[] entries are joined into
-  // that one field.
   const answers = Array.isArray(body?.answers) ? body.answers : [];
   const message = answers
     .map((entry: { answer?: unknown }) => (typeof entry?.answer === "string" ? entry.answer : ""))
     .filter(Boolean)
     .join("\n");
+
+  // Applying again after withdrawing: the old row is made live again.
+  // Done with a service-role client that carries no caller token, because
+  // workers have no update right on their own application rows; the caller
+  // was authenticated above and the row is matched on their own id.
+  if (withdrawnApplication?.id) {
+    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+    const { data: reopened, error: reopenError } = await adminClient
+      .from("job_applications")
+      .update({ status: "submitted", message: message || null, updated_at: new Date().toISOString() })
+      .eq("id", withdrawnApplication.id)
+      .eq("helper_id", userData.user.id)
+      .select()
+      .maybeSingle();
+    if (reopenError || !reopened) {
+      console.error("apply-to-job could not reopen a withdrawn application", {
+        workerProfileId: userData.user.id,
+        jobId: body.jobId,
+        message: reopenError?.message
+      });
+      return jsonResponse({ error: "We couldn't submit your application right now. Please try again." }, 422);
+    }
+    return jsonResponse({ status: "submitted", workerProfileId: userData.user.id, application: reopened });
+  }
 
   const { data: application, error: rpcError } = await client.rpc("create_job_application", {
     job_id: body.jobId,
@@ -73,3 +96,4 @@ Deno.serve(async (request) => {
     application
   });
 });
+
