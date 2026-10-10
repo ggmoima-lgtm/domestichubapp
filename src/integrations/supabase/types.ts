@@ -1590,6 +1590,38 @@ export type Database = {
         }
         Relationships: []
       }
+      sa_suburbs: {
+        Row: {
+          city_id: string
+          created_at: string
+          id: string
+          name: string
+          name_key: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          id?: string
+          name: string
+          name_key: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          name_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sa_suburbs_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "sa_cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_helpers: {
         Row: {
           created_at: string
@@ -2668,6 +2700,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      area_key: { Args: { area: string }; Returns: string }
       block_profile: {
         Args: { blocked: string; reason?: string }
         Returns: {
@@ -3013,6 +3046,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      resolve_city_for_area: { Args: { area: string }; Returns: string }
       search_public_jobs: {
         Args: {
           category_slugs?: string[]
