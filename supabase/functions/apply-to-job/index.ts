@@ -73,10 +73,3 @@ Deno.serve(async (request) => {
     application
   });
 });
-
-Before deploying, please confirm from the live database (paste raw output of this query) that the column I filter on really is helper_id:
-
-select column_name from information_schema.columns
-where table_schema = 'public' and table_name = 'job_applications' order by ordinal_position;
-
-If job_applications has no helper_id column, STOP and tell me - do not deploy.
