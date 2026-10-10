@@ -8,6 +8,13 @@
       "when": 1791637580326,
       "tag": "0000_search_location_matches_city_province",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791637664756,
+      "tag": "0001_sa_suburbs_and_city_auto_tagging",
+      "breakpoints": true
     }
   ]
 }
