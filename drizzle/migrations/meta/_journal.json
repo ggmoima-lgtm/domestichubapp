@@ -15,6 +15,13 @@
       "when": 1791637664756,
       "tag": "0001_sa_suburbs_and_city_auto_tagging",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791639907510,
+      "tag": "0002_job_alert_frequency_monthly",
+      "breakpoints": true
     }
   ]
 }
