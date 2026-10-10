@@ -3227,6 +3227,24 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      withdraw_job_application: {
+        Args: { p_application_id: string }
+        Returns: {
+          created_at: string
+          helper_id: string
+          id: string
+          job_id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "job_applications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
