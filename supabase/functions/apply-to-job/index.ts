@@ -29,10 +29,23 @@ Deno.serve(async (request) => {
   const { data: userData, error } = await client.auth.getUser();
   if (error || !userData.user) return jsonResponse({ error: "Invalid session" }, 401);
 
+  // create_job_application is idempotent: applying again to the same job
+  // quietly returns the existing application, so a repeat tap looked like a
+  // second successful application. Say so explicitly instead. Row-level
+  // security limits this read to the worker's own applications.
+  const { data: existing } = await client
+    .from("job_applications")
+    .select("id")
+    .eq("job_id", body.jobId)
+    .eq("helper_id", userData.user.id)
+    .limit(1);
+  if (existing && existing.length > 0) {
+    return jsonResponse({ error: "You have already applied for this job.", code: "already_applied" }, 409);
+  }
+
   // job_applications has a single free-text message column, not a
-  // per-question answers table, so this repo's answers[] shape (one entry
-  // combining the availability/experience answers, built client-side in
-  // buildApplyToJobPayload) is joined into that one field.
+  // per-question answers table, so the answers[] entries are joined into
+  // that one field.
   const answers = Array.isArray(body?.answers) ? body.answers : [];
   const message = answers
     .map((entry: { answer?: unknown }) => (typeof entry?.answer === "string" ? entry.answer : ""))
