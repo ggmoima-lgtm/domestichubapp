@@ -57,3 +57,9 @@ verify_jwt = false
 
 [functions.get-unlocked-worker-document]
 verify_jwt = true
+
+[functions.start-conversation]
+verify_jwt = true
+
+[functions.send-message]
+verify_jwt = true
