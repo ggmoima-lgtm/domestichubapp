@@ -63,3 +63,12 @@ verify_jwt = true
 
 [functions.send-message]
 verify_jwt = true
+
+[functions.report-content]
+verify_jwt = true
+
+[functions.block-user]
+verify_jwt = true
+
+[functions.reset-pin]
+verify_jwt = true
