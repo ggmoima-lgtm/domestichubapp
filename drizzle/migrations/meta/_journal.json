@@ -50,6 +50,13 @@
       "when": 1791885776168,
       "tag": "0006_0056_restore_deleted_account",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791887516699,
+      "tag": "0007_0055_purge_deleted_account",
+      "breakpoints": true
     }
   ]
 }

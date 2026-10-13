@@ -2996,6 +2996,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      purge_deleted_account: {
+        Args: {
+          p_dry_run?: boolean
+          p_grace_days?: number
+          p_profile_id: string
+        }
+        Returns: Json
+      }
       record_verified_store_purchase: {
         Args: {
           package_id: string
