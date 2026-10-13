@@ -78,6 +78,13 @@
       "when": 1791888674420,
       "tag": "0010_0058b_messages_require_active_unlock",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791888801211,
+      "tag": "0011_0059_get_conversation_access",
+      "breakpoints": true
     }
   ]
 }
