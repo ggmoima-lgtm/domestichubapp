@@ -75,3 +75,6 @@ verify_jwt = true
 
 [functions.request-account-deletion]
 verify_jwt = true
+
+[functions.purge-deleted-accounts]
+verify_jwt = true
