@@ -3047,6 +3047,7 @@ export type Database = {
         }
       }
       resolve_city_for_area: { Args: { area: string }; Returns: string }
+      restore_deleted_account: { Args: never; Returns: Json }
       search_public_jobs: {
         Args: {
           category_slugs?: string[]
