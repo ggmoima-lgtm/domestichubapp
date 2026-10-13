@@ -2840,6 +2840,10 @@ export type Database = {
           unread_count: number
         }[]
       }
+      get_conversation_access: {
+        Args: { p_conversation: string }
+        Returns: Json
+      }
       get_employer_names: {
         Args: { p_employer_ids: string[] }
         Returns: {
