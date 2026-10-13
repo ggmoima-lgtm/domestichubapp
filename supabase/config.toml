@@ -22,7 +22,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.initialize-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-sms-otp]
 verify_jwt = false
@@ -78,3 +78,6 @@ verify_jwt = true
 
 [functions.purge-deleted-accounts]
 verify_jwt = true
+
+[functions.payment-return]
+verify_jwt = false

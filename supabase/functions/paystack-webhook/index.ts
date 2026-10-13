@@ -70,8 +70,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Determine credits from amount (match your pricing tiers)
-    const credits = metadata.credits || Math.floor(amountInZAR / 10); // fallback
+    // Credits come only from the metadata that initialize-payment set from
+    // the credit_packages table. A payment without them is NOT credited
+    // (it used to be guessed at one credit per R10, which is the wrong rate).
+    const credits = Number(metadata.credits);
+    const expectedCents = Number(metadata.amountCents);
+    if (!Number.isInteger(credits) || credits < 1 || !Number.isFinite(expectedCents) || data.amount !== expectedCents) {
+      console.error("Payment not credited: missing or mismatched package details", {
+        reference: paymentRef,
+        credits: metadata.credits,
+        paid: data.amount,
+        expected: metadata.amountCents,
+      });
+      return new Response(JSON.stringify({ received: true, credited: false }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Add credits via the database function
     const { data: result, error: rpcError } = await supabaseAdmin.rpc("add_credits_after_purchase", {
