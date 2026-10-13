@@ -103,6 +103,16 @@ serve(async (req) => {
       });
     }
 
+    // add_credits_after_purchase returns false when this payment reference was
+    // already processed (Paystack delivers webhooks more than once). Nothing
+    // more to do: no second invoice update and no second email.
+    if (result === false) {
+      console.log("Duplicate payment notification ignored:", paymentRef);
+      return new Response(JSON.stringify({ received: true, duplicate: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Update the invoice with transaction_id
     await supabaseAdmin
       .from("invoices")
