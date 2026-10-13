@@ -92,6 +92,13 @@
       "when": 1791898776401,
       "tag": "0012_0060_add_credits_after_purchase_idempotent",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791899945598,
+      "tag": "0013_0061_invoices_without_vat",
+      "breakpoints": true
     }
   ]
 }
