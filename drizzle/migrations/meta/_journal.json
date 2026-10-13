@@ -85,6 +85,13 @@
       "when": 1791888801211,
       "tag": "0011_0059_get_conversation_access",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791898776401,
+      "tag": "0012_0060_add_credits_after_purchase_idempotent",
+      "breakpoints": true
     }
   ]
 }
