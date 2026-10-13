@@ -104,9 +104,31 @@ Deno.serve(async (request) => {
       `phone.in.(${variants.join(",")})`,
     ].join(","));
 
-  const profile = (profiles ?? []).find(
+  let profile = (profiles ?? []).find(
     (row) => !row.deleted_at && (row.status ?? "active") === "active",
   ) ?? null;
+
+  // An account hidden by a deletion request that has not been carried out
+  // yet may still sign in, only so its owner can restore it. Once the
+  // purge has run the phone number is gone and nothing matches.
+  let deletionRequestedAt: string | null = null;
+  if (!profile) {
+    const hidden = (profiles ?? []).find((row) => row.status === "deleted" && row.deleted_at) ?? null;
+    if (hidden) {
+      const { data: pendingRequest } = await client
+        .from("account_deletion_requests")
+        .select("requested_at")
+        .eq("profile_id", hidden.id)
+        .eq("status", "pending")
+        .order("requested_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (pendingRequest?.requested_at) {
+        profile = hidden;
+        deletionRequestedAt = String(pendingRequest.requested_at);
+      }
+    }
+  }
 
   const resolvedRole =
     profile?.primary_role === "worker" || profile?.primary_role === "employer"
@@ -244,6 +266,10 @@ Deno.serve(async (request) => {
     role: resolvedRole,
     userId: authUserId,
     onboardingCompleted: true,
+    deletionPending: Boolean(deletionRequestedAt),
+    purgeOn: deletionRequestedAt
+      ? new Date(Date.parse(deletionRequestedAt) + 30 * 24 * 60 * 60 * 1000).toISOString()
+      : null,
     session: {
       access_token: signInData.session.access_token,
       refresh_token: signInData.session.refresh_token,
