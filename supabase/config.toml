@@ -16,7 +16,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-invoice-email]
-verify_jwt = false
+verify_jwt = true
 
 [functions.paystack-webhook]
 verify_jwt = false
