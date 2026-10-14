@@ -3002,6 +3002,7 @@ export type Database = {
         Args: { conversation: string }
         Returns: undefined
       }
+      mark_notifications_read: { Args: never; Returns: number }
       mask_contact_details: { Args: { body: string }; Returns: string }
       next_support_ticket_number: { Args: never; Returns: string }
       notify_profile: {
