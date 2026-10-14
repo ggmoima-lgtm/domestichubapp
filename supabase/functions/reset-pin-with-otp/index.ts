@@ -132,7 +132,26 @@ Deno.serve(async (request) => {
     return jsonResponse({ error: "We could not reset your PIN right now. Please try again." }, 500);
   }
 
-  const profile = (profiles ?? []).find((row) => !row.deleted_at && (row.status ?? "active") === "active");
+  let profile = (profiles ?? []).find((row) => !row.deleted_at && (row.status ?? "active") === "active");
+
+  // An account hidden by a deletion request that has not been carried out
+  // yet may still reset its PIN: the person has just proved the number with
+  // an SMS code, and without this they could not sign in to restore it.
+  // Once the purge has run the number is gone and nothing matches.
+  if (!profile) {
+    const hidden = (profiles ?? []).find((row) => row.status === "deleted" && row.deleted_at);
+    if (hidden) {
+      const { data: pendingRequest } = await client
+        .from("account_deletion_requests")
+        .select("id")
+        .eq("profile_id", hidden.id)
+        .eq("status", "pending")
+        .limit(1)
+        .maybeSingle();
+      if (pendingRequest) profile = hidden;
+    }
+  }
+
   if (!profile) {
     return jsonResponse(
       { error: "We could not find a Domestic Hub account for this mobile number. Please check the number or complete sign-up first." },
