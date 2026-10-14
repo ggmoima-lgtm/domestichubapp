@@ -10,12 +10,14 @@ const documentationDeclarations = new Set([
   "other_lawful_documentation",
   "no_documentation",
   "prefer_not_to_disclose",
+  "confirmed_legally_permitted",
 ]);
 const workArrangements = new Set([
   "full_time",
   "part_time",
   "once_off",
   "contract",
+  "recurring",
   "live_in",
   "live_out",
 ]);
@@ -84,6 +86,7 @@ Deno.serve(async (request) => {
   const languages = asTextArray(body.languages);
   const salaryRange = asText(body.salaryRange);
   const documentationDeclaration = asText(body.documentationDeclaration);
+  const shareContactOnUnlock = typeof body.shareContactOnUnlock === "boolean" ? body.shareContactOnUnlock : null;
   const publicArea = asText(body.publicArea);
   const privateExactAddress = asText(body.privateExactAddress);
   const rawCityId = asText(body.cityId);
@@ -303,6 +306,9 @@ Deno.serve(async (request) => {
         searchable_at: isSearchable ? now : null,
         own_transport: ownTransport,
         own_tools: ownTools,
+        ...(shareContactOnUnlock === null
+          ? {}
+          : { contact_sharing_consent: shareContactOnUnlock, contact_sharing_decided_at: now }),
         ...(gender ? { gender } : {}),
         ...(travelRadiusProvided
           ? { travel_radius: String(travelRadiusValue), willing_to_travel: (travelRadiusValue as number) > 0 }
