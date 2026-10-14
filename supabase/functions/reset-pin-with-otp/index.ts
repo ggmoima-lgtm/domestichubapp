@@ -122,10 +122,27 @@ Deno.serve(async (request) => {
   });
 
   const variants = phoneVariants(phoneE164);
-  const { data: profiles, error: profileError } = await client
-    .from("profiles")
-    .select("id, status, deleted_at")
-    .or([`phone_e164.in.(${variants.join(",")})`, `phone.in.(${variants.join(",")})`].join(","));
+  const [byE164, byPhone] = await Promise.all([
+    client.from("profiles").select("id, status, deleted_at").in("phone_e164", variants),
+    client.from("profiles").select("id, status, deleted_at").in("phone", variants)
+  ]);
+  let profileError = byE164.error ?? byPhone.error;
+  let profiles = [...(byE164.data ?? []), ...(byPhone.data ?? [])].filter(
+    (row, index, all) => all.findIndex((other) => other.id === row.id) === index
+  );
+
+  if (!profileError && profiles.length === 0) {
+    const lastNine = phoneE164.replace(/\D/g, "").slice(-9);
+    if (lastNine.length === 9) {
+      const loose = await client
+        .from("profiles")
+        .select("id, status, deleted_at")
+        .or(`phone_e164.ilike.%${lastNine},phone.ilike.%${lastNine}`);
+      profileError = loose.error;
+      const rows = loose.data ?? [];
+      if (rows.length === 1) profiles = rows;
+    }
+  }
 
   if (profileError) {
     console.error("[reset-pin-with-otp] profile lookup failed", { code: profileError.code, message: profileError.message });
@@ -134,10 +151,6 @@ Deno.serve(async (request) => {
 
   let profile = (profiles ?? []).find((row) => !row.deleted_at && (row.status ?? "active") === "active");
 
-  // An account hidden by a deletion request that has not been carried out
-  // yet may still reset its PIN: the person has just proved the number with
-  // an SMS code, and without this they could not sign in to restore it.
-  // Once the purge has run the number is gone and nothing matches.
   if (!profile) {
     const hidden = (profiles ?? []).find((row) => row.status === "deleted" && row.deleted_at);
     if (hidden) {
@@ -153,6 +166,11 @@ Deno.serve(async (request) => {
   }
 
   if (!profile) {
+    console.error("[reset-pin-with-otp] no matching account", {
+      spellingsTried: variants.length,
+      rowsFound: profiles.length,
+      statuses: profiles.map((row) => `${row.status ?? "null"}${row.deleted_at ? "+deleted" : ""}`)
+    });
     return jsonResponse(
       { error: "We could not find a Domestic Hub account for this mobile number. Please check the number or complete sign-up first." },
       404
@@ -188,3 +206,10 @@ Deno.serve(async (request) => {
 
   return jsonResponse({ status: "saved" });
 });
+
+After deploying, answer in words and paste raw output where asked:
+1. Confirm an OPTIONS request answers 200.
+2. Run this READ-ONLY query and paste the RAW result (does the live table have a reset_at column?):
+   select column_name from information_schema.columns
+   where table_schema = 'public' and table_name = 'profile_pin_credentials' order by ordinal_position;
+3. Do NOT test it with a real account.
