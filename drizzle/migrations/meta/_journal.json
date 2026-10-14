@@ -99,6 +99,13 @@
       "when": 1791899945598,
       "tag": "0013_0061_invoices_without_vat",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791991428276,
+      "tag": "0014_0062_payment_attempts",
+      "breakpoints": true
     }
   ]
 }
