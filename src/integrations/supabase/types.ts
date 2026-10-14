@@ -2198,6 +2198,8 @@ export type Database = {
         Row: {
           biography: string | null
           city_id: string | null
+          contact_sharing_consent: boolean | null
+          contact_sharing_decided_at: string | null
           created_at: string
           documentation_declaration: string | null
           documentation_declared_at: string | null
@@ -2241,6 +2243,8 @@ export type Database = {
         Insert: {
           biography?: string | null
           city_id?: string | null
+          contact_sharing_consent?: boolean | null
+          contact_sharing_decided_at?: string | null
           created_at?: string
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
@@ -2284,6 +2288,8 @@ export type Database = {
         Update: {
           biography?: string | null
           city_id?: string | null
+          contact_sharing_consent?: boolean | null
+          contact_sharing_decided_at?: string | null
           created_at?: string
           documentation_declaration?: string | null
           documentation_declared_at?: string | null
@@ -2951,6 +2957,7 @@ export type Database = {
           work_arrangement: string
         }[]
       }
+      get_unlocked_provider_contact: { Args: { worker: string }; Returns: Json }
       get_worker_unlock_state: { Args: { worker: string }; Returns: Json }
       has_role: {
         Args: {
@@ -3203,6 +3210,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_contact_sharing_consent: {
+        Args: { p_consent: boolean }
+        Returns: boolean
       }
       shortlist_application: {
         Args: { application_id: string }
