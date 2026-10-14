@@ -86,6 +86,7 @@ Deno.serve(async (request) => {
   const languages = asTextArray(body.languages);
   const salaryRange = asText(body.salaryRange);
   const documentationDeclaration = asText(body.documentationDeclaration);
+  const salaryType = asText(body.salaryType);
   const shareContactOnUnlock = typeof body.shareContactOnUnlock === "boolean" ? body.shareContactOnUnlock : null;
   const publicArea = asText(body.publicArea);
   const privateExactAddress = asText(body.privateExactAddress);
@@ -296,6 +297,7 @@ Deno.serve(async (request) => {
         biography,
         years_experience: yearsExperience,
         expected_salary: salaryRange,
+        ...(salaryType ? { salary_type: salaryType } : {}),
         skills_text: skills.join(", "),
         languages,
         profile_completion: 100,
