@@ -81,3 +81,6 @@ verify_jwt = true
 
 [functions.payment-return]
 verify_jwt = false
+
+[functions.refresh-payment-attempts]
+verify_jwt = true
