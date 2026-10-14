@@ -306,6 +306,9 @@ Deno.serve(async (request) => {
         searchable_at: isSearchable ? now : null,
         own_transport: ownTransport,
         own_tools: ownTools,
+        ...(shareContactOnUnlock === null
+          ? {}
+          : { contact_sharing_consent: shareContactOnUnlock, contact_sharing_decided_at: now }),
         ...(gender ? { gender } : {}),
         ...(travelRadiusProvided
           ? { travel_radius: String(travelRadiusValue), willing_to_travel: (travelRadiusValue as number) > 0 }
