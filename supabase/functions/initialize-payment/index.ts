@@ -124,6 +124,20 @@ Deno.serve(async (request) => {
     return jsonResponse({ error: asText(paystackBody?.message) || "We couldn't start Paystack checkout. Please try again." }, 502);
   }
 
+  // Write the attempt down so a payment that fails or is abandoned can be
+  // shown in Transaction History. A separate client with no caller token is
+  // used because only the service role may write this table. A failure here
+  // must never stop the payment.
+  const attemptClient = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { error: attemptError } = await attemptClient.from("payment_attempts").insert({
+    user_id: userData.user.id,
+    reference,
+    credits: packageRow.credits,
+    amount_cents: packageRow.price_cents,
+    currency: "ZAR"
+  });
+  if (attemptError) console.error("initialize-payment could not record the attempt", { reference, message: attemptError.message });
+
   return jsonResponse({
     status: "initialized",
     provider: "paystack",
