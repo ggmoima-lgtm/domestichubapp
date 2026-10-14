@@ -1156,6 +1156,48 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_attempts: {
+        Row: {
+          amount_cents: number
+          completed_at: string | null
+          created_at: string
+          credits: number
+          currency: string
+          gateway_message: string | null
+          id: string
+          reference: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          completed_at?: string | null
+          created_at?: string
+          credits: number
+          currency?: string
+          gateway_message?: string | null
+          id?: string
+          reference: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          completed_at?: string | null
+          created_at?: string
+          credits?: number
+          currency?: string
+          gateway_message?: string | null
+          id?: string
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pin_auth_attempts: {
         Row: {
           failed_count: number
