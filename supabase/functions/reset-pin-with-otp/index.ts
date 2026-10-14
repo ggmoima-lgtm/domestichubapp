@@ -206,10 +206,3 @@ Deno.serve(async (request) => {
 
   return jsonResponse({ status: "saved" });
 });
-
-After deploying, answer in words and paste raw output where asked:
-1. Confirm an OPTIONS request answers 200.
-2. Run this READ-ONLY query and paste the RAW result (does the live table have a reset_at column?):
-   select column_name from information_schema.columns
-   where table_schema = 'public' and table_name = 'profile_pin_credentials' order by ordinal_position;
-3. Do NOT test it with a real account.
