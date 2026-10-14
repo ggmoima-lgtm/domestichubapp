@@ -127,6 +127,13 @@
       "when": 1792002174696,
       "tag": "0017_0065_services_marketplace_provider_contact",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792003116559,
+      "tag": "0018_0067_response_notification_wording",
+      "breakpoints": true
     }
   ]
 }
