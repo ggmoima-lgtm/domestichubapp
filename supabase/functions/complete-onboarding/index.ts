@@ -242,10 +242,14 @@ Deno.serve(async (request) => {
       ),
     ];
 
+    const slugKey = (slug: string) => slug.toLowerCase().trim().replace(/[\s-]+/g, "_");
+
+    const lookupSlugs = [...new Set([...normalizedSlugs, ...normalizedSlugs.map((slug) => slug.replace(/_/g, "-"))])];
+
     const { data: existingCategories, error: categoryError } = await client
       .from("worker_categories")
       .select("id, slug")
-      .in("slug", normalizedSlugs);
+      .in("slug", lookupSlugs);
 
     if (categoryError) {
       console.error("[complete-onboarding] worker_categories lookup failed", {
@@ -256,9 +260,11 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: categoryError.message }, 422);
     }
 
-    let categories = existingCategories ?? [];
+    let categories = (existingCategories ?? []).filter(
+      (category, index, all) => all.findIndex((other) => slugKey(other.slug) === slugKey(category.slug)) === index,
+    );
     const missing = normalizedSlugs.filter(
-      (slug) => !categories.some((category) => category.slug === slug),
+      (slug) => !categories.some((category) => slugKey(category.slug) === slug),
     );
 
     if (missing.length > 0) {
