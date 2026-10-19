@@ -148,6 +148,13 @@
       "when": 1792411009221,
       "tag": "0020_0071_service_categories_clean_up",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792411111492,
+      "tag": "0021_0072_rename_worker_categories",
+      "breakpoints": true
     }
   ]
 }
