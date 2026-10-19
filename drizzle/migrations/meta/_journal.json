@@ -134,6 +134,13 @@
       "when": 1792003116559,
       "tag": "0018_0067_response_notification_wording",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792405670418,
+      "tag": "0019_0069_provider_email_optional",
+      "breakpoints": true
     }
   ]
 }
