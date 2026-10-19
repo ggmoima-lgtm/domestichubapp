@@ -162,6 +162,13 @@
       "when": 1792411187748,
       "tag": "0022_0070_job_alert_immediate_for_once_off",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792412713882,
+      "tag": "0023_0073_notification_preferences_and_request_alerts",
+      "breakpoints": true
     }
   ]
 }
