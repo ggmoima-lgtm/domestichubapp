@@ -690,6 +690,7 @@ export type Database = {
           employment_type: string | null
           frequency: string
           id: string
+          last_notified_at: string | null
           location: string | null
           paused_at: string | null
           push_enabled: boolean
@@ -706,6 +707,7 @@ export type Database = {
           employment_type?: string | null
           frequency?: string
           id?: string
+          last_notified_at?: string | null
           location?: string | null
           paused_at?: string | null
           push_enabled?: boolean
@@ -722,6 +724,7 @@ export type Database = {
           employment_type?: string | null
           frequency?: string
           id?: string
+          last_notified_at?: string | null
           location?: string | null
           paused_at?: string | null
           push_enabled?: boolean
@@ -1005,6 +1008,8 @@ export type Database = {
           interviews: boolean
           messages: boolean
           profile_unlocks: boolean
+          request_matches: boolean
+          responses: boolean
           reviews: boolean
           updated_at: string
           user_id: string
@@ -1018,6 +1023,8 @@ export type Database = {
           interviews?: boolean
           messages?: boolean
           profile_unlocks?: boolean
+          request_matches?: boolean
+          responses?: boolean
           reviews?: boolean
           updated_at?: string
           user_id: string
@@ -1031,6 +1038,8 @@ export type Database = {
           interviews?: boolean
           messages?: boolean
           profile_unlocks?: boolean
+          request_matches?: boolean
+          responses?: boolean
           reviews?: boolean
           updated_at?: string
           user_id?: string
@@ -2936,6 +2945,7 @@ export type Database = {
           years_experience: number
         }[]
       }
+      get_notification_preferences: { Args: never; Returns: Json }
       get_public_job: {
         Args: { target_job_id: string }
         Returns: {
@@ -3012,6 +3022,10 @@ export type Database = {
       mark_notifications_read: { Args: never; Returns: number }
       mask_contact_details: { Args: { body: string }; Returns: string }
       next_support_ticket_number: { Args: never; Returns: string }
+      notification_topic_enabled: {
+        Args: { target: string; topic: string }
+        Returns: boolean
+      }
       notify_profile: {
         Args: {
           body?: string
@@ -3108,8 +3122,26 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      request_matches_alert: {
+        Args: {
+          alert_row: Database["public"]["Tables"]["job_alerts"]["Row"]
+          job_row: Database["public"]["Tables"]["jobs"]["Row"]
+        }
+        Returns: boolean
+      }
       resolve_city_for_area: { Args: { area: string }; Returns: string }
       restore_deleted_account: { Args: never; Returns: Json }
+      save_notification_preferences: {
+        Args: {
+          p_admin_actions: boolean
+          p_credits: boolean
+          p_messages: boolean
+          p_profile_unlocks: boolean
+          p_request_matches: boolean
+          p_responses: boolean
+        }
+        Returns: undefined
+      }
       search_public_jobs: {
         Args: {
           category_slugs?: string[]
@@ -3211,6 +3243,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      send_request_alert_digests: { Args: never; Returns: number }
       set_contact_sharing_consent: {
         Args: { p_consent: boolean }
         Returns: boolean
@@ -3283,6 +3316,8 @@ export type Database = {
           interviews: boolean
           messages: boolean
           profile_unlocks: boolean
+          request_matches: boolean
+          responses: boolean
           reviews: boolean
           updated_at: string
           user_id: string
