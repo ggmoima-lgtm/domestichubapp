@@ -117,7 +117,10 @@ Deno.serve(async (request) => {
   if (!e164Pattern.test(phoneE164)) {
     errors.push("Mobile number must be in international format, for example +27821234567.");
   }
-  if (!emailPattern.test(email)) errors.push("A valid email address is required.");
+  // A customer must give an email address; a service provider may leave it out.
+  if (body.role === "employer" ? !emailPattern.test(email) : email !== "" && !emailPattern.test(email)) {
+    errors.push("A valid email address is required.");
+  }
   if (!isAdult(dateOfBirth)) errors.push("Domestic Hub is only available to adults aged 18 or older.");
   if (!body.acceptedTerms || !body.acceptedPrivacy || !body.acceptedAcceptableUse) {
     errors.push("All launch legal policies must be accepted.");
@@ -193,7 +196,7 @@ Deno.serve(async (request) => {
       last_name: lastName,
       full_name: `${firstName} ${lastName}`.trim(),
       surname: lastName,
-      email,
+      email: email === "" ? null : email,
       phone: phoneE164,
       phone_e164: phoneE164,
       date_of_birth: dateOfBirth,
