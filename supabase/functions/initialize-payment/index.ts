@@ -104,7 +104,6 @@ Deno.serve(async (request) => {
       currency: "ZAR",
       reference,
       callback_url: callbackUrl,
-      channels: ["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer"],
       metadata: {
         user_id: userData.user.id,
         employerProfileId: userData.user.id,
@@ -120,6 +119,8 @@ Deno.serve(async (request) => {
   });
 
   const paystackBody = await paystackResponse.json().catch(() => null);
+  console.log("initialize-payment paystack reply", { ok: paystackResponse.ok, status: paystackBody?.status, message: paystackBody?.message, reference });
+
   if (!paystackResponse.ok || !paystackBody?.status || !paystackBody?.data?.authorization_url) {
     return jsonResponse({ error: asText(paystackBody?.message) || "We couldn't start Paystack checkout. Please try again." }, 502);
   }
