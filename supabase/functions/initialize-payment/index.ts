@@ -104,7 +104,6 @@ Deno.serve(async (request) => {
       currency: "ZAR",
       reference,
       callback_url: callbackUrl,
-      channels: ["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer"],
       metadata: {
         user_id: userData.user.id,
         employerProfileId: userData.user.id,
