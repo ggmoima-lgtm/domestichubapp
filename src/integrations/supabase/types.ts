@@ -2967,6 +2967,10 @@ export type Database = {
           work_arrangement: string
         }[]
       }
+      get_tab_badge_counts: {
+        Args: { p_alerts_since?: string; p_responses_since?: string }
+        Returns: Json
+      }
       get_unlocked_provider_contact: { Args: { worker: string }; Returns: Json }
       get_worker_unlock_state: { Args: { worker: string }; Returns: Json }
       has_role: {
