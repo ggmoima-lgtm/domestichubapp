@@ -1805,6 +1805,21 @@ export type Database = {
         }
         Relationships: []
       }
+      service_overlap_groups: {
+        Row: {
+          category_name: string
+          group_key: string
+        }
+        Insert: {
+          category_name: string
+          group_key: string
+        }
+        Update: {
+          category_name?: string
+          group_key?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           category_id: string
