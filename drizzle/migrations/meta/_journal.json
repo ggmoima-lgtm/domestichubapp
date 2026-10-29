@@ -211,6 +211,13 @@
       "when": 1793264273337,
       "tag": "0029_search_worker_previews_overlap",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1793267788982,
+      "tag": "0030_create_block_events",
+      "breakpoints": true
     }
   ]
 }
