@@ -1,0 +1,1 @@
+alter table public.block_events enable row level security;

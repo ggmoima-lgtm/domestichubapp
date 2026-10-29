@@ -218,6 +218,13 @@
       "when": 1793267788982,
       "tag": "0030_create_block_events",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1793267799824,
+      "tag": "0031_block_events_enable_rls",
+      "breakpoints": true
     }
   ]
 }
