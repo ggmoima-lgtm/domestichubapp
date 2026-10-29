@@ -302,6 +302,13 @@
       "when": 1793268069658,
       "tag": "0042_archive_conversation_grant",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1793268366972,
+      "tag": "0043_authorized_conversations_blocked_by_me",
+      "breakpoints": true
     }
   ]
 }
