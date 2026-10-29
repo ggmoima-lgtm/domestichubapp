@@ -225,6 +225,13 @@
       "when": 1793267799824,
       "tag": "0031_block_events_enable_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793267808138,
+      "tag": "0032_block_events_pair_index",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+create index if not exists idx_block_events_pair on public.block_events (blocker_id, blocked_id, created_at);
