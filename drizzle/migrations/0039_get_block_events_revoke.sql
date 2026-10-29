@@ -1,0 +1,1 @@
+revoke all on function public.get_block_events(uuid) from public, anon;
