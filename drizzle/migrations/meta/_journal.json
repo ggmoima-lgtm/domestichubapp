@@ -316,6 +316,13 @@
       "when": 1793268463153,
       "tag": "0044_revoke_block_profile_public_anon",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1793268472692,
+      "tag": "0045_grant_block_profile_authenticated",
+      "breakpoints": true
     }
   ]
 }
