@@ -309,6 +309,20 @@
       "when": 1793268366972,
       "tag": "0043_authorized_conversations_blocked_by_me",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1793268463153,
+      "tag": "0044_revoke_block_profile_public_anon",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1793268472692,
+      "tag": "0045_grant_block_profile_authenticated",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+grant execute on function public.block_profile(uuid, text) to authenticated;
