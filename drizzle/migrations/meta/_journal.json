@@ -295,6 +295,13 @@
       "when": 1793268059362,
       "tag": "0041_archive_conversation_revoke",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1793268069658,
+      "tag": "0042_archive_conversation_grant",
+      "breakpoints": true
     }
   ]
 }

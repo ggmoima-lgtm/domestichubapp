@@ -1,0 +1,1 @@
+grant execute on function public.archive_conversation(uuid) to authenticated;
