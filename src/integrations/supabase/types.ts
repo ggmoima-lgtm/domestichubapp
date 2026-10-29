@@ -2928,6 +2928,7 @@ export type Database = {
         Args: never
         Returns: {
           archived: boolean
+          blocked_by_me: boolean
           context: string
           id: string
           last_message_at: string
