@@ -1,0 +1,1 @@
+revoke all on function public.unblock_profile(uuid) from public, anon;

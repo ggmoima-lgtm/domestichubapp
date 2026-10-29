@@ -246,6 +246,62 @@
       "when": 1793267942811,
       "tag": "0034_unblock_profile_record_events",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793268002050,
+      "tag": "0035_get_block_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793268011930,
+      "tag": "0036_archive_conversation",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793268021948,
+      "tag": "0037_unblock_profile_revoke",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793268028418,
+      "tag": "0038_unblock_profile_grant",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793268035043,
+      "tag": "0039_get_block_events_revoke",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793268043128,
+      "tag": "0040_get_block_events_grant",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1793268059362,
+      "tag": "0041_archive_conversation_revoke",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1793268069658,
+      "tag": "0042_archive_conversation_grant",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+grant execute on function public.unblock_profile(uuid) to authenticated;

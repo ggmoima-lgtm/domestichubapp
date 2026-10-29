@@ -1,0 +1,1 @@
+revoke all on function public.archive_conversation(uuid) from public, anon;

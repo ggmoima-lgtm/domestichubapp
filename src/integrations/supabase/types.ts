@@ -2796,6 +2796,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      archive_conversation: {
+        Args: { p_conversation: string }
+        Returns: undefined
+      }
       area_key: { Args: { area: string }; Returns: string }
       block_profile: {
         Args: { blocked: string; reason?: string }
@@ -2934,6 +2938,13 @@ export type Database = {
           other_role: string
           status: string
           unread_count: number
+        }[]
+      }
+      get_block_events: {
+        Args: { p_other: string }
+        Returns: {
+          action: string
+          at: string
         }[]
       }
       get_conversation_access: {
