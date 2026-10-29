@@ -3335,6 +3335,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      unblock_profile: { Args: { p_blocked: string }; Returns: undefined }
       unlock_worker_profile: { Args: { worker: string }; Returns: Json }
       update_helper_availability: {
         Args: { p_helper_id: string; p_status: string }
