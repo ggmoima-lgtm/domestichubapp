@@ -1,0 +1,1 @@
+revoke all on function public.block_profile(uuid, text) from public, anon;
