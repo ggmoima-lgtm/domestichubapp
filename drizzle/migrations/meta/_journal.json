@@ -253,6 +253,13 @@
       "when": 1793268002050,
       "tag": "0035_get_block_events",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793268011930,
+      "tag": "0036_archive_conversation",
+      "breakpoints": true
     }
   ]
 }

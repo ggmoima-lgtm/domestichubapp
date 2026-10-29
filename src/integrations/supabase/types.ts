@@ -2796,6 +2796,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      archive_conversation: {
+        Args: { p_conversation: string }
+        Returns: undefined
+      }
       area_key: { Args: { area: string }; Returns: string }
       block_profile: {
         Args: { blocked: string; reason?: string }
