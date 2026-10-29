@@ -288,6 +288,13 @@
       "when": 1793268043128,
       "tag": "0040_get_block_events_grant",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1793268059362,
+      "tag": "0041_archive_conversation_revoke",
+      "breakpoints": true
     }
   ]
 }
