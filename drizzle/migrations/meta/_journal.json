@@ -232,6 +232,20 @@
       "when": 1793267808138,
       "tag": "0032_block_events_pair_index",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793267934573,
+      "tag": "0033_block_profile_record_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793267942811,
+      "tag": "0034_unblock_profile_record_events",
+      "breakpoints": true
     }
   ]
 }
