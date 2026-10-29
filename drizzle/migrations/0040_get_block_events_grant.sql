@@ -1,0 +1,1 @@
+grant execute on function public.get_block_events(uuid) to authenticated;

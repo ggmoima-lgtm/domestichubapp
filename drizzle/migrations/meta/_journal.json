@@ -281,6 +281,13 @@
       "when": 1793268035043,
       "tag": "0039_get_block_events_revoke",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793268043128,
+      "tag": "0040_get_block_events_grant",
+      "breakpoints": true
     }
   ]
 }
