@@ -323,6 +323,13 @@
       "when": 1793268472692,
       "tag": "0045_grant_block_profile_authenticated",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794296358279,
+      "tag": "0046_authorized_conversations_show_blocked_person",
+      "breakpoints": true
     }
   ]
 }
